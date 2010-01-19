@@ -7,3 +7,12 @@ C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Debug\UOAI2.
 C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Debug\UOAI2.dll
 C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Debug\UOAI2.xml
 C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Debug\UOAI2.pdb
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOAI2.dll
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOAI2.pdb
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOAI2.xml
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.Resources.resources
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.dll
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.xml
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.pdb

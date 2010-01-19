@@ -9,6 +9,7 @@ Public Class UOAI
 
     End Sub
 
+    'Get the working directory and location of client.exe and all that stuff.
     Private Sub InitializeClientPaths()
         Dim hklm As RegistryKey = Registry.LocalMachine
         Dim originkey As RegistryKey = hklm.OpenSubKey("SOFTWARE\Origin Worlds Online\Ultima Online\1.0")
@@ -39,6 +40,10 @@ Public Class UOAI
     Public Class UOClient
         Public PID As Integer
 
+        Sub New()
+            'TODO: add injection code here.
+        End Sub
+
         Public Event onClientExit()
 
         Friend Sub CallEvent_onClientExit()
@@ -46,8 +51,7 @@ Public Class UOAI
         End Sub
 
         Public Sub Close()
-            Dim d As Process = Process.GetProcessById(PID)
-            d.Kill()
+            Process.GetProcessById(PID).Kill()
         End Sub
 
     End Class
@@ -68,6 +72,8 @@ Public Class UOAI
             'Start the client.
             p.Start()
 
+            'TODO: add multi-clienting patch here
+
             'Add the new client to the client array list.
             Add(p.Id)
 
@@ -82,7 +88,6 @@ Public Class UOAI
             Clients.Add(c)
         End Sub
 
-        'TODO: Add 
         Friend Sub Remove(ByVal PID As Integer)
             For Each c As UOAI.UOClient In Clients
                 If c.PID = PID Then
@@ -106,7 +111,7 @@ Public Class UOAI
         Public Sub ForceUpdateClientList()
 
             'Update process list
-            proclist = Process.GetProcessesByName("client")
+            proclist = Process.GetProcessesByName(ClientExe.Split(".")(0))
 
             Dim ProcChk As Boolean = False
 
