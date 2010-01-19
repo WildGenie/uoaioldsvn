@@ -1,0 +1,13 @@
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.exe
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.pdb
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.xml
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2.dll
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2.pdb
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\bin\Debug\UOAI2.xml
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Form1.resources
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Resources.resources
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.exe
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.xml
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.pdb

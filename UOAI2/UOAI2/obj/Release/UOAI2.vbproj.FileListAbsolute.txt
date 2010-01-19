@@ -1,0 +1,9 @@
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\bin\Release\UOAI2.dll
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\bin\Release\UOAI2.pdb
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\bin\Release\UOAI2.xml
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\UOAI2.Resources.resources
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\UOAI2.dll
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\UOAI2.xml
+C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2\obj\Release\UOAI2.pdb
