@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.vb" />
+    <Compile Include="Imports.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -79,7 +80,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="ProcessStream.vb" />
+    <Compile Include="ProcessStream.vb" />
     <Compile Include="UOAI.vb" />
   </ItemGroup>
   <ItemGroup>
