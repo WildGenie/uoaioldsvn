@@ -6,6 +6,92 @@ UOAI2
 </name>
 </assembly>
 <members>
-
+<member name="P:UOAI2.UOAI.Clients">
+	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
+</member><member name="P:UOAI2.UOAI.ClientPath">
+	<summary>Gets or sets the path of the client executable, usualy something like 
+ "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
+ working directory for the clients launched using UOAI.</summary>
+	<returns>The path to the client executable.</returns>
+</member><member name="P:UOAI2.UOAI.ClientExe">
+	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
+	<returns>The name of the client executable.</returns>
+</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+	<summary>
+ Called when the client process closes.
+ </summary>
+	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+</member><member name="P:UOAI2.UOAI.Client.PID">
+	<summary>
+ Gets the windows process ID of the client. This is used as the unique identifier for each client running.
+ </summary>
+	<value>The windows Process ID of the client.</value>
+</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
+	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
+</member><member name="M:UOAI2.UOAI.Client.Close">
+	<summary>
+ Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<summary>
+		<para>A method used to get the title of the client window as a string.</para>
+	</summary>
+	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="T:UOAI2.UOAI.Client">
+	<summary>Represents an Ultima Online client.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
+	<summary>Gets the working directory and location of client.exe from the registry.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
+	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient2">
+	<summary>DEBUG FUNCTION: Just trying to get the multi-client patch to work.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.byPID(System.Int32)">
+	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
+	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
+	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
+  Although if it doesn't find one matching the PID it will raise the "onError" event
+  and return the first client in the list.</returns>
+</member><member name="M:UOAI2.UOAI.UOClientList.Add(System.Int32)">
+	<summary>Adds clients to the Clients arraylist, based on PID</summary>
+	<param name="PID">The process ID of the client you want to add.</param>
+</member><member name="M:UOAI2.UOAI.UOClientList.Remove(System.Int32)">
+	<summary>Removed a client from the clients arraylist, based on PID.</summary>
+	<param name="PID">The process ID of the client you want to remove.</param>
+</member><member name="P:UOAI2.UOAI.UOClientList.Count">
+	<summary>Forces update of client list then returns a count of the clients.</summary>
+	<returns>An integer value representing the current number of UO clients running.</returns>
+</member><member name="P:UOAI2.UOAI.UOClientList.Client(System.Int32)">
+	<summary>Returns the UOAI.Client at the specified index.</summary>
+	<param name="Index">The index of the client in the list.</param>
+</member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
+	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.UOClientList.ClientProcessExit(System.Object,System.EventArgs)">
+	<summary>Handles the "Process.Exited" for client processes.</summary>
+	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
+	<param name="e">Nothing usefull.</param>
+</member><member name="T:UOAI2.UOAI.UOClientList">
+	<summary>A list of Ultime Online clients.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+	<summary>Specifies all possible access flags for the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
+	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
+	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
+	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
+	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
+	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
+	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
+	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
+	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
+	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member>
 </members>
 </doc>

@@ -1,13 +1,18 @@
-﻿Imports UOAI2, System.Diagnostics
+﻿Imports UOAI2
 
 Public Class Form1
     Private WithEvents jack As New UOAI
-    Private WithEvents sh As UOAI.UOClient
-
+    Private WithEvents sh As UOAI.Client
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
-        MsgBox(jack.Clients.Count)
+        If jack.Clients.Count >= 1 Then
+            ListBox1.Items.Clear()
 
+            For i As Integer = 0 To jack.Clients.Count - 1
+                ListBox1.Items.Add(jack.Clients.Client(i).WindowCaption & " | " & jack.Clients.Client(i).PID)
+            Next
+
+        End If
     End Sub
 
     Private Sub sh_onClientClose() Handles sh.onClientExit
@@ -22,4 +27,13 @@ Public Class Form1
         jack.Clients.LaunchClient()
         sh = jack.Clients.Client(0)
     End Sub
+
+    Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If jack.Clients.Count = 0 Then
+            If jack.Clients.LaunchClient() Then
+                sh = jack.Clients.Client(0)
+            End If
+        End If
+    End Sub
+
 End Class
