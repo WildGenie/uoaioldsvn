@@ -24,3 +24,4 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\ResolveAssemblyRefere
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Form1.resources
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Resources.resources
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOClientDll.dll

@@ -16,3 +16,5 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.vbproj.GenerateResour
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.dll
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.xml
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.pdb
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOClientDll.dll
+C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOAI2.dll.config

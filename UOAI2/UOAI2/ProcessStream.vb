@@ -3,13 +3,13 @@
 Partial Class UOAI
 
     'default implementation of the process interface
-    Public Class ProcessStream
+    Friend Class ProcessStream
         'private members
         Private m_PID As UInteger
         Private m_Handle As UInteger
 
         'constructor(s)
-        Public Sub New(ByVal PID As UInt32)
+        Sub New(ByVal PID As UInt32)
             m_PID = PID
             m_Handle = [Imports].OpenProcess([Imports].ProcessAccess.VMRead Or [Imports].ProcessAccess.VMWrite Or [Imports].ProcessAccess.QueryInformation Or [Imports].ProcessAccess.CreateThread Or [Imports].ProcessAccess.VMOperation, False, PID)
             If m_Handle = 0 Then
@@ -18,19 +18,19 @@ Partial Class UOAI
         End Sub
 
         'Process Interface implementation
-        Public ReadOnly Property PID() As UInteger
+        ReadOnly Property PID() As UInteger
             Get
                 Return m_PID
             End Get
         End Property
 
-        Public ReadOnly Property Handle() As UInteger
+        ReadOnly Property Handle() As UInteger
             Get
                 Return m_Handle
             End Get
         End Property
 
-        Public ReadOnly Property IsRunning() As Boolean
+        ReadOnly Property IsRunning() As Boolean
             Get
                 Dim exitcode As UInt32
 
@@ -47,7 +47,7 @@ Partial Class UOAI
             End Get
         End Property
 
-        Public Function Read(ByVal address As UInteger, ByVal bytecount As UInteger) As Byte()
+        Function Read(ByVal address As UInteger, ByVal bytecount As UInteger) As Byte()
             Dim toreturn As Byte() = Nothing
             Dim prevprotect As UInt32
             Dim bytesread As UInt32
@@ -63,7 +63,7 @@ Partial Class UOAI
             Return toreturn
         End Function
 
-        Public Function ReadUInt(ByVal address As UInteger) As UInteger
+        Function ReadUInt(ByVal address As UInteger) As UInteger
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return BitConverter.ToUInt32(bytes, 0)
@@ -72,7 +72,7 @@ Partial Class UOAI
 
             End If
         End Function
-        Public Function ReadInt(ByVal address As UInteger) As Integer
+        Function ReadInt(ByVal address As UInteger) As Integer
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return BitConverter.ToInt32(bytes, 0)
@@ -81,7 +81,7 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Function ReadUShort(ByVal address As UInteger) As UShort
+        Function ReadUShort(ByVal address As UInteger) As UShort
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return BitConverter.ToUInt16(bytes, 0)
@@ -90,7 +90,7 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Function ReadShort(ByVal address As UInteger) As Short
+        Function ReadShort(ByVal address As UInteger) As Short
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return BitConverter.ToInt16(bytes, 0)
@@ -99,7 +99,7 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Function ReadByte(ByVal address As UInteger) As Byte
+        Function ReadByte(ByVal address As UInteger) As Byte
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return bytes(0)
@@ -108,7 +108,7 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Function ReadChar(ByVal address As UInteger) As SByte
+        Function ReadChar(ByVal address As UInteger) As SByte
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
                 Return CSByte(bytes(0))
@@ -117,7 +117,7 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Function ReadStr(ByVal address As UInteger) As String
+        Function ReadStr(ByVal address As UInteger) As String
             Dim characters As Char() = New Char(255) {}
 
             Dim i As UInt32 = 0
@@ -130,7 +130,7 @@ Partial Class UOAI
             Return New String(characters, 0, CInt(i))
         End Function
 
-        Public Function ReadUStr(ByVal address As UInteger) As String
+        Function ReadUStr(ByVal address As UInteger) As String
             Dim characters As Char() = New Char(255) {}
 
             Dim i As UInt32 = 0
@@ -142,7 +142,8 @@ Partial Class UOAI
 
             Return New String(characters, 0, CInt(i))
         End Function
-        Public Function ReadStrn(ByVal address As UInteger, ByVal length As UInteger) As String
+
+        Function ReadStrn(ByVal address As UInteger, ByVal length As UInteger) As String
             Dim characters As Char() = New Char(length - 1) {}
 
             For i As UInt32 = 0 To length - 1
@@ -151,7 +152,8 @@ Partial Class UOAI
 
             Return New String(characters)
         End Function
-        Public Function ReadUStrn(ByVal address As UInteger, ByVal length As UInteger) As String
+
+        Function ReadUStrn(ByVal address As UInteger, ByVal length As UInteger) As String
             Dim characters As Char() = New Char(length - 1) {}
 
             For i As UInt32 = 0 To length - 1
@@ -160,7 +162,8 @@ Partial Class UOAI
 
             Return New String(characters)
         End Function
-        Public Function Write(ByVal address As UInteger, ByVal towrite As Byte()) As Boolean
+
+        Function Write(ByVal address As UInteger, ByVal towrite As Byte()) As Boolean
             Dim prevprotect As UInt32
             Dim byteswritten As UInt32
             Dim bytecount As UInt32 = System.Convert.ToUInt32(towrite.Count())
@@ -178,7 +181,8 @@ Partial Class UOAI
 
             Return False
         End Function
-        Public Function WriteStr(ByVal address As UInteger, ByVal towrite As String) As Boolean
+
+        Function WriteStr(ByVal address As UInteger, ByVal towrite As String) As Boolean
             Dim bytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
 
             Write(address, bytes)
@@ -186,7 +190,8 @@ Partial Class UOAI
             'null termination
             Return True
         End Function
-        Public Function WriteUStr(ByVal address As UInteger, ByVal towrite As String) As Boolean
+
+        Function WriteUStr(ByVal address As UInteger, ByVal towrite As String) As Boolean
             Dim bytes As Byte() = New Byte((towrite.Length + 1) * 2 - 1) {}
             For i As Integer = 0 To towrite.Length - 1
                 bytes(i * 2) = CByte((BitConverter.GetBytes(towrite(i))(0) Mod 256))
@@ -197,27 +202,35 @@ Partial Class UOAI
             bytes(towrite.Length * 2 + 1) = 0
             Return Write(address, bytes)
         End Function
-        Public Function WriteUInt(ByVal address As UInteger, ByVal towrite As UInteger) As Boolean
+
+        Function WriteUInt(ByVal address As UInteger, ByVal towrite As UInteger) As Boolean
             Return Write(address, BitConverter.GetBytes(towrite))
         End Function
-        Public Function WriteInt(ByVal address As UInteger, ByVal towrite As Integer) As Boolean
+
+        Function WriteInt(ByVal address As UInteger, ByVal towrite As Integer) As Boolean
             Return Write(address, BitConverter.GetBytes(towrite))
         End Function
-        Public Function WriteShort(ByVal address As UInteger, ByVal towrite As Short) As Boolean
+
+        Function WriteShort(ByVal address As UInteger, ByVal towrite As Short) As Boolean
             Return Write(address, BitConverter.GetBytes(towrite))
         End Function
-        Public Function WriteUShort(ByVal address As UInteger, ByVal towrite As UShort) As Boolean
+
+        Function WriteUShort(ByVal address As UInteger, ByVal towrite As UShort) As Boolean
             Return Write(address, BitConverter.GetBytes(towrite))
         End Function
-        Public Function WriteByte(ByVal address As UInteger, ByVal towrite As Byte) As Boolean
+
+        Function WriteByte(ByVal address As UInteger, ByVal towrite As Byte) As Boolean
             Return Write(address, New Byte() {towrite})
         End Function
-        Public Function WriteChar(ByVal address As UInteger, ByVal towrite As SByte) As Boolean
+
+        Function WriteChar(ByVal address As UInteger, ByVal towrite As SByte) As Boolean
             Return Write(address, New Byte() {CByte(towrite)})
         End Function
-        Private Shared Function InlineAssignHelper(Of T)(ByRef target As T, ByVal value As T) As T
+
+        Function InlineAssignHelper(Of T)(ByRef target As T, ByVal value As T) As T
             target = value
             Return value
         End Function
+
     End Class
 End Class
