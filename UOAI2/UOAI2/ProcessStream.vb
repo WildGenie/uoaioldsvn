@@ -1,43 +1,6 @@
-﻿Imports System
-Imports System.Collections.Generic
-Imports System.Linq
-Imports System.Text
-Imports System.Runtime.InteropServices
+﻿Imports System.Text
 
-
-Namespace UOAI
-    'Process interface
-    'public interface Process
-    '    {
-    '        uint PID { get; }
-    '        uint Handle { get; }
-    '        bool IsRunning { get; }
-    '    }
-    '
-    '    public interface ProcessStream
-    '    {
-    '        byte[] Read(uint address, uint bytecount);
-    '        uint ReadUInt(uint address);
-    '        int ReadInt(uint address);
-    '        ushort ReadUShort(uint address);
-    '        short ReadShort(uint address);
-    '        byte ReadByte(uint address);
-    '        sbyte ReadChar(uint address);
-    '        string ReadStr(uint address);
-    '        string ReadUStr(uint address);
-    '        string ReadStrn(uint address, uint length);
-    '        string ReadUStrn(uint address, uint length);
-    '        bool Write(uint address, byte[] towrite);
-    '        bool WriteStr(uint address, string towrite);
-    '        bool WriteUStr(uint address, string towrite);
-    '        bool WriteUInt(uint address, uint towrite);
-    '        bool WriteInt(uint address, int towrite);
-    '        bool WriteShort(uint address, short towrite);
-    '        bool WriteUShort(uint address, ushort towrite);
-    '        bool WriteByte(uint address, byte towrite);
-    '        bool WriteChar(uint address, sbyte towrite);
-    '    }
-
+Partial Class UOAI
 
     'default implementation of the process interface
     Public Class ProcessStream
@@ -45,26 +8,10 @@ Namespace UOAI
         Private m_PID As UInteger
         Private m_Handle As UInteger
 
-        <DllImport("kernel32.dll", SetLastError:=True)> _
-        Public Shared Function ReadProcessMemory(ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, <Out()> ByVal lpBuffer() As Byte, ByVal dwSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
-        End Function
-
-        <DllImport("kernel32.dll", SetLastError:=True)> _
-        Public Shared Function ReadProcessMemory(ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, <Out(), MarshalAs(UnmanagedType.AsAny)> ByVal lpBuffer As Object, ByVal dwSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
-        End Function
-
-        <DllImport("kernel32.dll", SetLastError:=True)> _
-        Public Shared Function ReadProcessMemory(ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer As IntPtr, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
-        End Function
-
-        <DllImport("kernel32.dll", SetLastError:=True)> _
-        Public Function GetExitCodeProcess(ByVal hProcess As IntPtr, ByRef lpExitCode As System.UInt32) As Boolean
-        End Function
-
         'constructor(s)
         Public Sub New(ByVal PID As UInt32)
             m_PID = PID
-            m_Handle = Process.GetProcessById(PID).Handle
+            m_Handle = [Imports].OpenProcess([Imports].ProcessAccess.VMRead Or [Imports].ProcessAccess.VMWrite Or [Imports].ProcessAccess.QueryInformation Or [Imports].ProcessAccess.CreateThread Or [Imports].ProcessAccess.VMOperation, False, PID)
             If m_Handle = 0 Then
                 Throw New Exception("Failed to open a Client Process (pid = " & PID.ToString() & ")" & vbLf & "Try running this application with Administrator privileges!")
             End If
@@ -76,17 +23,19 @@ Namespace UOAI
                 Return m_PID
             End Get
         End Property
+
         Public ReadOnly Property Handle() As UInteger
             Get
                 Return m_Handle
             End Get
         End Property
+
         Public ReadOnly Property IsRunning() As Boolean
             Get
                 Dim exitcode As UInt32
 
                 If m_Handle <> 0 Then
-                    If GetExitCodeProcess(m_Handle, exitcode) Then
+                    If [Imports].GetExitCodeProcess(m_Handle, exitcode) Then
                         If exitcode = 259 Then
                             'STILL_ACTIVE
                             Return True
@@ -103,16 +52,17 @@ Namespace UOAI
             Dim prevprotect As UInt32
             Dim bytesread As UInt32
 
-            If VirtualProtectEx(m_Handle, address, bytecount, PAGE_READWRITE, prevprotect) Then
+            If [Imports].VirtualProtectEx(m_Handle, address, bytecount, [Imports].PAGE_READWRITE, prevprotect) Then
                 toreturn = New Byte(bytecount - 1) {}
 
-                ReadProcessMemory(m_Handle, address, toreturn, bytecount, bytesread)
+                [Imports].ReadProcessMemory(m_Handle, address, toreturn, bytecount, bytesread)
 
-                VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
+                [Imports].VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
             End If
 
             Return toreturn
         End Function
+
         Public Function ReadUInt(ByVal address As UInteger) As UInteger
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
@@ -130,6 +80,7 @@ Namespace UOAI
                 Return 0
             End If
         End Function
+
         Public Function ReadUShort(ByVal address As UInteger) As UShort
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
@@ -138,6 +89,7 @@ Namespace UOAI
                 Return 0
             End If
         End Function
+
         Public Function ReadShort(ByVal address As UInteger) As Short
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
@@ -146,6 +98,7 @@ Namespace UOAI
                 Return 0
             End If
         End Function
+
         Public Function ReadByte(ByVal address As UInteger) As Byte
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
@@ -154,6 +107,7 @@ Namespace UOAI
                 Return 0
             End If
         End Function
+
         Public Function ReadChar(ByVal address As UInteger) As SByte
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
@@ -162,23 +116,27 @@ Namespace UOAI
                 Return 0
             End If
         End Function
+
         Public Function ReadStr(ByVal address As UInteger) As String
             Dim characters As Char() = New Char(255) {}
 
             Dim i As UInt32 = 0
 
-            While ((InlineAssignHelper(characters(i), CChar(ReadByte(address + i)))) <> 0) AndAlso (i < 256)
+            'TODO: I have no idea if this is right. could cause some crazy problems.
+            While (BitConverter.GetBytes((InlineAssignHelper(characters(i), Chr(ReadUShort(address + i)))))(0) <> 0) AndAlso (i < 256)
                 i += 1
             End While
 
             Return New String(characters, 0, CInt(i))
         End Function
+
         Public Function ReadUStr(ByVal address As UInteger) As String
             Dim characters As Char() = New Char(255) {}
 
             Dim i As UInt32 = 0
 
-            While ((InlineAssignHelper(characters(i), CChar(ReadUShort(address + i)))) <> 0) AndAlso (i < 256)
+            'TODO: I have no idea if this is right. could cause some crazy problems.
+            While (BitConverter.GetBytes((InlineAssignHelper(characters(i), Chr(ReadUShort(address + i)))))(0) <> 0) AndAlso (i < 256)
                 i += 1
             End While
 
@@ -188,7 +146,7 @@ Namespace UOAI
             Dim characters As Char() = New Char(length - 1) {}
 
             For i As UInt32 = 0 To length - 1
-                characters(i) = CChar(ReadByte(address + i))
+                characters(i) = Chr(ReadByte(address + i))
             Next
 
             Return New String(characters)
@@ -197,7 +155,7 @@ Namespace UOAI
             Dim characters As Char() = New Char(length - 1) {}
 
             For i As UInt32 = 0 To length - 1
-                characters(i) = CChar(ReadShort(address + i))
+                characters(i) = Chr(ReadShort(address + i))
             Next
 
             Return New String(characters)
@@ -205,17 +163,17 @@ Namespace UOAI
         Public Function Write(ByVal address As UInteger, ByVal towrite As Byte()) As Boolean
             Dim prevprotect As UInt32
             Dim byteswritten As UInt32
-            Dim bytecount As UInt32 = DirectCast(towrite.Count(), UInt32)
+            Dim bytecount As UInt32 = System.Convert.ToUInt32(towrite.Count())
 
-            If VirtualProtectEx(m_Handle, address, bytecount, PAGE_READWRITE, prevprotect) Then
-                If WriteProcessMemory(m_Handle, address, towrite, bytecount, byteswritten) Then
+            If [Imports].VirtualProtectEx(m_Handle, address, bytecount, [Imports].PAGE_READWRITE, prevprotect) Then
+                If [Imports].WriteProcessMemory(m_Handle, address, towrite, bytecount, byteswritten) Then
                     If byteswritten = bytecount Then
-                        VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
+                        [Imports].VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
                         Return True
                     End If
                 End If
 
-                VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
+                [Imports].VirtualProtectEx(m_Handle, address, bytecount, prevprotect, prevprotect)
             End If
 
             Return False
@@ -224,16 +182,17 @@ Namespace UOAI
             Dim bytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
 
             Write(address, bytes)
-            Write(address + DirectCast(Convert.ToUInt32(bytes.Length), UInt32), New Byte() {0})
+            Write(address + System.Convert.ToUInt32(bytes.Length), New Byte() {0})
             'null termination
             Return True
         End Function
         Public Function WriteUStr(ByVal address As UInteger, ByVal towrite As String) As Boolean
             Dim bytes As Byte() = New Byte((towrite.Length + 1) * 2 - 1) {}
             For i As Integer = 0 To towrite.Length - 1
-                bytes(i * 2) = CByte((towrite(i) Mod 256))
-                bytes(i * 2 + 1) = CByte((towrite(i) / 256))
+                bytes(i * 2) = CByte((BitConverter.GetBytes(towrite(i))(0) Mod 256))
+                bytes(i * 2 + 1) = CByte((BitConverter.GetBytes(towrite(i))(0) / 256))
             Next
+
             bytes(towrite.Length * 2) = 0
             bytes(towrite.Length * 2 + 1) = 0
             Return Write(address, bytes)
@@ -261,4 +220,4 @@ Namespace UOAI
             Return value
         End Function
     End Class
-End Namespace
+End Class
