@@ -1,0 +1,5 @@
+LIBRARY UOClientDll
+EXPORTS
+injectself	PRIVATE
+MultiClientPatch	PRIVATE
+GetDebugPrivilege	PRIVATE

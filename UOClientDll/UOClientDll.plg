@@ -1,0 +1,123 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: UOClientDll - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSPF90F.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UOCLIENTDLL_EXPORTS" /Fp"Release/UOClientDll.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_implicit.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_insn.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_invariant.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_modrm.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_opcode_tables.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_operand.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_reg.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\ia32_settings.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_disasm.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_format.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_imm.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_insn.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_misc.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\libdisasm\x86_operand_list.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\ASMParser.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\BinaryTree.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\Bufferhandler.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\Collection.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\DebuggingTools.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\Sockets.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\Synchronization.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\SyncQueue.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\UOClientDll.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\UOMLCallibrations.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\UOMLVersionInfo.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\W2EDebug.c"
+"C:\Users\Wim\Documents\UOAI SVN\UOAI_DESIGN\UOClientDll\wError.c"
+]
+Creating command line "cl.exe @C:\Users\Wim\AppData\Local\Temp\RSPF90F.tmp" 
+Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSPF910.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib ole32.lib oleaut32.lib Version.lib /nologo /dll /incremental:no /pdb:"Release/UOClientDll.pdb" /machine:I386 /def:".\UOClientDll.def" /out:"Release/UOClientDll.dll" /implib:"Release/UOClientDll.lib" 
+".\Release\ia32_implicit.obj"
+".\Release\ia32_insn.obj"
+".\Release\ia32_invariant.obj"
+".\Release\ia32_modrm.obj"
+".\Release\ia32_opcode_tables.obj"
+".\Release\ia32_operand.obj"
+".\Release\ia32_reg.obj"
+".\Release\ia32_settings.obj"
+".\Release\x86_disasm.obj"
+".\Release\x86_format.obj"
+".\Release\x86_imm.obj"
+".\Release\x86_insn.obj"
+".\Release\x86_misc.obj"
+".\Release\x86_operand_list.obj"
+".\Release\ASMParser.obj"
+".\Release\BinaryTree.obj"
+".\Release\Bufferhandler.obj"
+".\Release\Collection.obj"
+".\Release\DebuggingTools.obj"
+".\Release\Sockets.obj"
+".\Release\Synchronization.obj"
+".\Release\SyncQueue.obj"
+".\Release\UOClientDll.obj"
+".\Release\UOMLCallibrations.obj"
+".\Release\UOMLVersionInfo.obj"
+".\Release\W2EDebug.obj"
+".\Release\wError.obj"
+]
+Creating command line "link.exe @C:\Users\Wim\AppData\Local\Temp\RSPF910.tmp"
+<h3>Output Window</h3>
+Compiling...
+ia32_implicit.c
+ia32_insn.c
+ia32_invariant.c
+ia32_modrm.c
+ia32_opcode_tables.c
+ia32_operand.c
+ia32_reg.c
+ia32_settings.c
+x86_disasm.c
+x86_format.c
+x86_imm.c
+x86_insn.c
+x86_misc.c
+x86_operand_list.c
+ASMParser.c
+BinaryTree.c
+Bufferhandler.c
+Collection.c
+DebuggingTools.c
+Sockets.c
+Synchronization.c
+SyncQueue.c
+UOClientDll.c
+
+NOTE: WINVER has been defined as 0x0500 or greater which enables
+Windows NT 5.0 and Windows 98 features. When these headers were released,
+Windows NT 5.0 beta 1 and Windows 98 beta 2.1 were the current versions.
+
+For this release when WINVER is defined as 0x0500 or greater, you can only
+build beta or test applications.  To build a retail application,
+set WINVER to 0x0400 or visit http://www.microsoft.com/msdn/sdk
+to see if retail Windows NT 5.0 or Windows 98 headers are available.
+
+See the SDK release notes for more information.
+
+UOMLCallibrations.c
+UOMLVersionInfo.c
+W2EDebug.c
+wError.c
+Linking...
+   Creating library Release/UOClientDll.lib and object Release/UOClientDll.exp
+
+
+
+<h3>Results</h3>
+UOClientDll.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
