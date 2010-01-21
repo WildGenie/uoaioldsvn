@@ -335,7 +335,7 @@ Partial Class UOAI
         Friend Shared hookitemdestructormessage As UInteger = 0
         Friend Shared setupeventtimermessage As UInteger = 0
 
-        Sub New()
+        Shared Sub New()
             setupeventtimermessage = [Imports].RegisterWindowMessage("setupeventtimermessage")
             hookitemdestructormessage = [Imports].RegisterWindowMessage("hookitemdestructormessage")
             customcallmessage = [Imports].RegisterWindowMessage("customcallmessage")
