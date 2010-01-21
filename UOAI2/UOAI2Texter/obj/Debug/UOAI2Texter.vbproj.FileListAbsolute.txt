@@ -28,3 +28,14 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOClientDll.dll
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.exe
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.xml
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.pdb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOClientDll.dll
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.exe
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.pdb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.xml
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.dll
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.pdb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.xml
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Form1.resources
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Resources.resources
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.vbproj.GenerateResource.Cache
