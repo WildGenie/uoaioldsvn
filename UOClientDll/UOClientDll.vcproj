@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="UOClientDll"
 	ProjectGUID="{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}"
-	RootNamespace="UOClientDll"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -118,7 +117,6 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
-			ManagedExtensions="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
