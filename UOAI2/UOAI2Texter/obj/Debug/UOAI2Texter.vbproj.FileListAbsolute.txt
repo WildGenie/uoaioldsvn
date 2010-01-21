@@ -24,7 +24,6 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\ResolveAssemblyRefere
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Form1.resources
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Resources.resources
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.vbproj.GenerateResource.Cache
-C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOClientDll.dll
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.exe
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.xml
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.pdb
@@ -52,3 +51,17 @@ F:\Projects\UOAI\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.dll
 F:\Projects\UOAI\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.pdb
 F:\Projects\UOAI\UOAI2\UOAI2\UOAI2Texter\bin\Debug\UOAI2.xml
 F:\Projects\UOAI\UOAI2\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.exe
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.exe
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.xml
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.exe
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2Texter.xml
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2.dll
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOAI2.xml
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Form1.resources
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.Resources.resources
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\obj\Debug\UOAI2Texter.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2Texter\bin\Debug\UOClientDll.dll
