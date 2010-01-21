@@ -29,11 +29,7 @@ Public Class Form1
     End Sub
 
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        If jack.Clients.Count = 0 Then
-            If jack.Clients.LaunchClient() Then
-                sh = jack.Clients.Client(0)
-            End If
-        End If
+        sh = jack.Clients.Client(0)
     End Sub
 
 End Class

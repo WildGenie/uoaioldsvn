@@ -20,3 +20,15 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.GenerateReso
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Release\UOAI2.dll
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Release\UOAI2.xml
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2\obj\Release\UOAI2.pdb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOClientDll.dll
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.dll.config
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.dll
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.pdb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.xml
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.tlb
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.Resources.resources
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.GenerateResource.Cache
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.dll
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.xml
+C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.pdb

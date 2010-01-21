@@ -44,9 +44,21 @@ Public Class UOAI
 
 #Region "UOAI Constructor"
     Sub New()
+
         'Checks for to see if the current user is part of the administrators group, throws an exception if it fails
         If My.User.IsInRole(Microsoft.VisualBasic.ApplicationServices.BuiltInRole.Administrator) = False Then
-            Throw New ApplicationException("You need to be part of the administrators group to use UOAI2.")
+            Dim ci As New Microsoft.VisualBasic.Devices.ComputerInfo
+
+            'Just adding this to help people get a better idea of why they are having trouble
+            'with their application not having admin privilages, even if running ad administrator
+            'on a vista/7 machine. Fucking vistualized vista/7 security model....
+            If Convert.ToByte(ci.OSVersion.Split(".")(0)) >= 6 Then
+                Throw New ApplicationException("You need to be part of the administrators group to use UOAI2." & _
+                                               " If you have User Account Control enabled, please run this application " & _
+                                               "as administrator.")
+            Else
+                Throw New ApplicationException("You need to be part of the administrators group to use UOAI2.")
+            End If
         End If
 
     End Sub
@@ -68,13 +80,15 @@ Public Class UOAI
         Friend InjectedDll As UOClientDll
         Friend PStream As ProcessStream
 
+
+
         ''' <summary>
         ''' Called when the client process closes.
         ''' </summary>
         ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
         Public Event onClientExit(ByVal Client As Client)
 
-        Sub New(ByVal PID As Integer)
+        Friend Sub New(ByVal PID As Integer)
             'TODO: add injection code here.
             PStream = New ProcessStream(PID)
         End Sub
@@ -121,6 +135,7 @@ Public Class UOAI
     Public Class UOClientList
 
 #Region "Statements"
+
         Private proclist() As Process
         Private Clients As New ArrayList
         Friend ClientExe As String
