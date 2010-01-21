@@ -6,11 +6,33 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="M:UOAI2.UOAI.PrivCheck">
-	<summary>This basicaly does a check to see if the current OS is using 
- UAC and prompts for administrator privilages for UOAI2. Also if the computer
- is running a windows OS with the old windows security model, it will throw
- an exception to prevent the application from running without admin priv's.</summary>
+<member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="P:UOAI2.UOAI.Item.Offset">
+	<summary></summary>
+</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+	<summary>
+ Called when the client process closes.
+ </summary>
+	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+</member><member name="P:UOAI2.UOAI.Client.PID">
+	<summary>
+ Gets the windows process ID of the client. This is used as the unique identifier for each client running.
+ </summary>
+	<value>The windows Process ID of the client.</value>
+</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
+	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
+</member><member name="M:UOAI2.UOAI.Client.Close">
+	<summary>
+ Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<summary>
+		<para>A method used to get the title of the client window as a string.</para>
+	</summary>
+	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="T:UOAI2.UOAI.Client">
+	<summary>Represents an Ultima Online client.</summary>
 </member><member name="T:UOAI2.UOAI.Enums">
 	<summary>A simple list of enumerations used primarily internally.</summary>
 </member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
@@ -43,29 +65,6 @@ UOAI2
 </member><member name="P:UOAI2.UOAI.ClientExe">
 	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
 	<returns>The name of the client executable.</returns>
-</member><member name="E:UOAI2.UOAI.Client.onClientExit">
-	<summary>
- Called when the client process closes.
- </summary>
-	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-</member><member name="P:UOAI2.UOAI.Client.PID">
-	<summary>
- Gets the windows process ID of the client. This is used as the unique identifier for each client running.
- </summary>
-	<value>The windows Process ID of the client.</value>
-</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
-	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
-</member><member name="M:UOAI2.UOAI.Client.Close">
-	<summary>
- Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
- </summary>
-</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
-	<summary>
-		<para>A method used to get the title of the client window as a string.</para>
-	</summary>
-	<returns>The client window title, generally something like "Ultima Online"</returns>
-</member><member name="T:UOAI2.UOAI.Client">
-	<summary>Represents an Ultima Online client.</summary>
 </member><member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
 	<summary>Gets the working directory and location of client.exe from the registry.</summary>
 </member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
@@ -87,9 +86,6 @@ UOAI2
 </member><member name="P:UOAI2.UOAI.UOClientList.Count">
 	<summary>Forces update of client list then returns a count of the clients.</summary>
 	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.UOClientList.Client(System.Int32)">
-	<summary>Returns the UOAI.Client at the specified index.</summary>
-	<param name="Index">The index of the client in the list.</param>
 </member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
 	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
 	<remarks></remarks>

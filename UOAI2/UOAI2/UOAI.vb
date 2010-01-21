@@ -207,14 +207,14 @@ Public Class UOAI
 #Region "Properties"
         ''' <summary>Adds clients to the Clients arraylist, based on PID</summary>
         ''' <param name="PID">The process ID of the client you want to add.</param>
-        Friend Sub Add(ByVal PID As Integer)
+        Friend Shadows Sub Add(ByVal PID As Integer)
             Dim c As New UOAI.Client(PID)
             Clients.Add(c)
         End Sub
 
         ''' <summary>Removed a client from the clients arraylist, based on PID.</summary>
         ''' <param name="PID">The process ID of the client you want to remove.</param>
-        Friend Sub Remove(ByVal PID As Integer)
+        Friend Shadows Sub Remove(ByVal PID As Integer)
             For Each c As UOAI.Client In Clients
                 If c.PID = PID Then
                     Clients.Remove(c)
@@ -235,11 +235,13 @@ Public Class UOAI
 
         ''' <summary>Returns the UOAI.Client at the specified index.</summary>
         ''' <param name="Index">The index of the client in the list.</param>
-        Public ReadOnly Property Client(ByVal Index As Integer) As Client
+        Public ReadOnly Property Client(ByVal PID As Integer) As Client
             Get
-                Return Clients.Item(Index)
+                Return Clients.Item(PID)
             End Get
         End Property
+
+
 
 #End Region
 
