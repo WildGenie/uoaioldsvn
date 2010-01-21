@@ -4,7 +4,7 @@ Public Class UOAI
 
 #Region "UOAI Variables"
     Private ClientList As New UOClientList
-    Shared UOClientDllPath As String = My.Application.Info.DirectoryPath
+    Shared UOClientDllPath As String = My.Application.Info.DirectoryPath & "\UOClientDll.dll"
 #End Region
 
 #Region "UOAI Properties"
@@ -80,8 +80,6 @@ Public Class UOAI
         Friend InjectedDll As UOClientDll
         Friend PStream As ProcessStream
 
-
-
         ''' <summary>
         ''' Called when the client process closes.
         ''' </summary>
@@ -90,7 +88,13 @@ Public Class UOAI
 
         Friend Sub New(ByVal PID As Integer)
             'TODO: add injection code here.
+            Dim PID_COPY As Integer
+            Dim TID As Integer
+            ProcessID = PID
             PStream = New ProcessStream(PID)
+            TID = [Imports].GetWindowThreadProcessId(Process.GetProcessById(PID).MainWindowHandle, PID_COPY)
+            If TID = 0 Then TID = Process.GetProcessById(PID).Threads(0).Id
+            InjectedDll = New UOClientDll(PStream, TID)
         End Sub
 
         ''' <summary>
@@ -232,7 +236,7 @@ Public Class UOAI
                  IntPtr.Zero, workingpath, si, pi) Then
                     'TODO:get this to work.
                     'apply multiclient patch
-                    'UOClientDll.MultiClientPatch(CUInt(pi.dwProcessId))
+                    UOClientDll.MultiClientPatch(CUInt(pi.dwProcessId))
 
                     'resume client
                     [Imports].ResumeThread(pi.hThread)

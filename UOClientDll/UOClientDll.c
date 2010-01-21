@@ -271,6 +271,8 @@ LRESULT CALLBACK GetMsgHook(int code,WPARAM wParam,LPARAM lParam)
 	{
 		//initilialization:
 
+		debugprintf("initializing\n");
+
 		//	-	setup messagehandlers
 
 		setupeventtimermessage=NewMessageHandler("setupeventtimermessage",handle_setupeventtimermessage);
@@ -382,6 +384,8 @@ UOCLIENTDLLAPI void injectself(DWORD dwThreadId)
 {
 	//old verison: SetWindowsHookEx(WH_CBT,(HOOKPROC)GetMsgHook,GetModuleHandle("UOClientDll.dll"),dwThreadId);
 	
+	debugprintf("injecting\n");
+
 	//sets a getmessage hook and therefore effectively injects this dll into the specified trhead on the client's process
 	curhook=SetWindowsHookEx(WH_GETMESSAGE,(HOOKPROC)GetMsgHook,GetModuleHandle("UOClientDll.dll"),dwThreadId);
 
@@ -423,8 +427,10 @@ UOCLIENTDLLAPI void MultiClientPatch(DWORD pid)
 
 	ASMJumpToAddress(winmain,ParseAddress(curins));
 
-	//follow first call
+	//follow first E8 call
 	curins=ASMFind(winmain,insn_call,FALSE);
+	while(RReadByte(pid,curins->address)!=0xE8)
+		curins=ASMFind(winmain,insn_call,FALSE);
 
 	curfunc=RASMParseFunction(pid,ParseAddress(curins),TRUE);
 
@@ -1855,6 +1861,7 @@ void EventTimerProc(HWND hWnd,unsigned int uMsg,unsigned int * idEvent, unsigned
 
 unsigned int handle_setupeventtimermessage(unsigned int para, unsigned int parb)
 {
+	debugprintf("setting up event timer, port is %x\n",ipcserver->port);
 	if(InterlockedExchange(&eventtimersetup,1)==0)
 		SetTimer(LocalIPCHWnd,0,250,(TIMERPROC)EventTimerProc);
 	return ipcserver->port;

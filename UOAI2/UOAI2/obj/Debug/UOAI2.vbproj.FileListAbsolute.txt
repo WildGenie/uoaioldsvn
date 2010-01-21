@@ -30,3 +30,14 @@ C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.dll
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.xml
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.pdb
 C:\Users\Eric\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.tlb
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.dll.config
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.dll
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.pdb
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.xml
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\ResolveAssemblyReference.cache
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.Resources.resources
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.vbproj.GenerateResource.Cache
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.dll
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.xml
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.pdb
+F:\Projects\UOAI\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.tlb
