@@ -72,69 +72,6 @@ Public Class UOAI
     End Sub
 #End Region
 
-    ''' <summary>Represents an Ultima Online client.</summary>
-    Public Class Client
-        'Inherits ProcessStream
-
-        Private ProcessID As Integer
-        Friend InjectedDll As UOClientDll
-        Friend PStream As ProcessStream
-
-        ''' <summary>
-        ''' Called when the client process closes.
-        ''' </summary>
-        ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-        Public Event onClientExit(ByVal Client As Client)
-
-        Friend Sub New(ByVal PID As Integer)
-            'TODO: add injection code here.
-            Dim PID_COPY As Integer
-            Dim TID As Integer
-            ProcessID = PID
-            PStream = New ProcessStream(PID)
-            TID = [Imports].GetWindowThreadProcessId(Process.GetProcessById(PID).MainWindowHandle, PID_COPY)
-            If TID = 0 Then TID = Process.GetProcessById(PID).Threads(0).Id
-            InjectedDll = New UOClientDll(PStream, TID)
-        End Sub
-
-        ''' <summary>
-        ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
-        ''' </summary>
-        ''' <value>The windows Process ID of the client.</value>
-        Public Property PID() As Integer
-            Get
-                Return ProcessID
-            End Get
-            Friend Set(ByVal value As Integer)
-                ProcessID = value
-            End Set
-        End Property
-
-        ''' <summary>Causes the UOClient object to raise the onClientExit event.</summary>
-        Friend Sub CallEvent_onClientExit()
-            Dim eargs As New EventArgs
-            RaiseEvent onClientExit(Me)
-        End Sub
-
-        ''' <summary>
-        ''' Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
-        ''' </summary>
-        Public Sub Close()
-            Process.GetProcessById(PID).Kill()
-        End Sub
-
-        ''' <summary>
-        ''' <para>A method used to get the title of the client window as a string.</para>
-        ''' </summary>
-        ''' <returns>The client window title, generally something like "Ultima Online"</returns>
-        Public ReadOnly Property WindowCaption() As String
-            Get
-                Return Process.GetProcessById(PID).MainWindowTitle
-            End Get
-        End Property
-
-    End Class
-
     ''' <summary>A list of Ultime Online clients.</summary>
     Public Class UOClientList
 
@@ -270,14 +207,14 @@ Public Class UOAI
 #Region "Properties"
         ''' <summary>Adds clients to the Clients arraylist, based on PID</summary>
         ''' <param name="PID">The process ID of the client you want to add.</param>
-        Friend Shadows Sub Add(ByVal PID As Integer)
+        Friend Sub Add(ByVal PID As Integer)
             Dim c As New UOAI.Client(PID)
             Clients.Add(c)
         End Sub
 
         ''' <summary>Removed a client from the clients arraylist, based on PID.</summary>
         ''' <param name="PID">The process ID of the client you want to remove.</param>
-        Friend Shadows Sub Remove(ByVal PID As Integer)
+        Friend Sub Remove(ByVal PID As Integer)
             For Each c As UOAI.Client In Clients
                 If c.PID = PID Then
                     Clients.Remove(c)
