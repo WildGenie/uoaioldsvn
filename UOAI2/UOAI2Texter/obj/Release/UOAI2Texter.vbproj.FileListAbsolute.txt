@@ -14,3 +14,17 @@ C:\Users\Eroc\Documents\Visual Studio 2008\Projects\UOAI2\UOAI2Texter\obj\Releas
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.exe
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.xml
 C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOClientDll.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Form1.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Resources.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.vbproj.GenerateResource.Cache

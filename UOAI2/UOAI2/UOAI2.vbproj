@@ -65,11 +65,17 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client.vb" />
+    <Compile Include="Client.vb">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Enums.vb" />
     <Compile Include="Imports.vb" />
-    <Compile Include="Item.vb" />
-    <Compile Include="ItemList.vb" />
+    <Compile Include="Item.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ItemList.vb">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
