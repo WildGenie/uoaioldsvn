@@ -6,33 +6,261 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="F:UOAI2.UOAI.Item.MemoryOffset">
-	<summary>Where the actual memory offset of the item is stored</summary>
-</member><member name="P:UOAI2.UOAI.Item.Offset">
-	<summary></summary>
-</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+<member name="P:UOAI2.UOAI.Packet.Data">
+	<summary>Returns the raw packet data as a byte array.</summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Say(System.String)">
 	<summary>
- Called when the client process closes.
+ Says the specified message.
  </summary>
-	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-</member><member name="P:UOAI2.UOAI.Client.PID">
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Emote(System.String)">
 	<summary>
- Gets the windows process ID of the client. This is used as the unique identifier for each client running.
+ Emotes the specified message.
  </summary>
-	<value>The windows Process ID of the client.</value>
-</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
-	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
-</member><member name="M:UOAI2.UOAI.Client.Close">
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Whisper(System.String)">
 	<summary>
- Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+ Whispers the specified message.
  </summary>
-</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Yell(System.String)">
 	<summary>
-		<para>A method used to get the title of the client window as a string.</para>
-	</summary>
-	<returns>The client window title, generally something like "Ultima Online"</returns>
-</member><member name="T:UOAI2.UOAI.Client">
-	<summary>Represents an Ultima Online client.</summary>
+ Yells the specified message.
+ </summary>
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Walk(UOAI2.UOAI.Enums.Direction)">
+	<summary>
+ Walks to the specified direction.
+ </summary>
+	<param name="direction">The direction.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.ToggleWarMode">
+	<summary>
+ Toggles the war/peace mode.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Paste">
+	<summary>
+ Pastes.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Open(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Opens the specified element.
+ </summary>
+	<param name="element">The element to open.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Close(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Closes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Minimize(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Minimizes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Maximize(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Maximizes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.OpenDoor">
+	<summary>
+ Opens the door
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.UseSkill(UOAI2.UOAI.Enums.Skills)">
+	<summary>
+ Uses a skill
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.LastSkill">
+	<summary>
+ Uses the last skill
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.CastSpell(UOAI2.UOAI.Enums.Spell)">
+	<summary>
+ Casts the specified spell
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.LastSpell">
+	<summary>
+ Casts the last spell
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.LastObject">
+	<summary>
+ Sends the last object
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Bow">
+	<summary>
+ Bows
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Salute">
+	<summary>
+ Salutes
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.QuitGame">
+	<summary>
+ Quits the game.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.AllNames">
+	<summary>
+ Display all the names.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.LastTarget">
+	<summary>
+ Sends again the last target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.TargetSelf">
+	<summary>
+ Send yourself as target
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.ArmOrDisarm">
+	<summary>
+ Arms or disarms
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.WaitForTarget">
+	<summary>
+ Waits for target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.TargetNext">
+	<summary>
+ Targets the next (attackant?).
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.AttackLast">
+	<summary>
+ Attacks the last target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.Delay(System.Int32)">
+	<summary>
+ Waits the specified seconds before send the next macro command.
+ </summary>
+	<param name="seconds">The seconds to wait.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.CircleTrans">
+	<summary>
+ Entables or disable the circle of transparency.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.CloseAllGumps">
+	<summary>
+ Closes all the gump.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.AlwaysRun">
+	<summary>
+ Enables or disables the Always run option.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.SaveDesktop">
+	<summary>
+ Saves the desktop (ie your preferences and interface).
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.KillGumpOpen">
+	<summary>
+ Kills the open gump.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.UsePrimaryAbility">
+	<summary>
+ Uses the weapon primary ability.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.UseSecondaryAbility">
+	<summary>
+ Uses the weapon secondary ability.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.EquipLastWeapon">
+	<summary>
+ Equips the last weapon.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.SetUpdateRange(System.Int32)">
+	<summary>
+ Sets the update range.
+ </summary>
+	<param name="range">The range.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.ModifyUpdateRange(System.Int32)">
+	<summary>
+ Modifies the update range.
+ </summary>
+	<param name="range">The range.</param>
+</member><member name="M:UOAI2.UOAI.Client.Macros.IncreaseUpdateRange">
+	<summary>
+ Increases the update range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.DecreaseUpdateRange">
+	<summary>
+ Decreases the update range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.MaxUpdateRange">
+	<summary>
+ Sets the update range at maximum.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.MinUpdateRange">
+	<summary>
+ Sets the update range at minimum.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.DefaultUpdateRange">
+	<summary>
+ Sets the update range at default value.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.UpdateRangeInfo">
+	<summary>
+ Updates the range info.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.EnableRangeColor">
+	<summary>
+ Enables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.DisableRangeColor">
+	<summary>
+ Disables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.ToggleRangeColor">
+	<summary>
+ Enables or disables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.Macros.InvokeVirtue(UOAI2.UOAI.Enums.Virtues)">
+	<summary>
+ Invokes the specified virtue.
+ </summary>
+	<param name="virtue">The virtue to invoke.</param>
+</member><member name="T:UOAI2.UOAI.Client.Macros">
+	<summary>
+ Standard UO macros
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.LoginState">
+	<summary>Enumeration of Login state.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.EntityType">
+	<summary>Enumeration of Entity types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Spell">
+	<summary>Enumeration of Spells.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Macros">
+	<summary>Enumeration of macro types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Element">
+	<summary>Enumeration of element types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Gender">
+	<summary>Enumeration of mobile gender.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
+	<summary>Enumeration of target kind.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
+	<summary>Enumeration of mobile status.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Facets">
+	<summary>Enumeration of the different facets.</summary>
 </member><member name="T:UOAI2.UOAI.Enums">
 	<summary>A simple list of enumerations used primarily internally.</summary>
 </member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
@@ -55,6 +283,29 @@ UOAI2
 	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
 </member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
 	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Offset">
+	<summary>The 32-bit memory offset for the item in the client memory.</summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOAI2.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
 </member><member name="P:UOAI2.UOAI.Clients">
 	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
 </member><member name="P:UOAI2.UOAI.ClientPath">
@@ -86,6 +337,8 @@ UOAI2
 </member><member name="P:UOAI2.UOAI.UOClientList.Count">
 	<summary>Forces update of client list then returns a count of the clients.</summary>
 	<returns>An integer value representing the current number of UO clients running.</returns>
+</member><member name="P:UOAI2.UOAI.UOClientList.Client">
+	<summary>Returns the UOAI.Client at the specified index.</summary>
 </member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
 	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
 	<remarks></remarks>
@@ -95,6 +348,29 @@ UOAI2
 	<param name="e">Nothing usefull.</param>
 </member><member name="T:UOAI2.UOAI.UOClientList">
 	<summary>A list of Ultime Online clients.</summary>
+</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+	<summary>
+ Called when the client process closes.
+ </summary>
+	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+</member><member name="P:UOAI2.UOAI.Client.PID">
+	<summary>
+ Gets the windows process ID of the client. This is used as the unique identifier for each client running.
+ </summary>
+	<value>The windows Process ID of the client.</value>
+</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
+	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
+</member><member name="M:UOAI2.UOAI.Client.Close">
+	<summary>
+ Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<summary>
+		<para>A method used to get the title of the client window as a string.</para>
+	</summary>
+	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="T:UOAI2.UOAI.Client">
+	<summary>Represents an Ultima Online client.</summary>
 </member>
 </members>
 </doc>

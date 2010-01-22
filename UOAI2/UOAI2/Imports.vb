@@ -8,7 +8,7 @@ Imports System.Text
 Imports System.Runtime.InteropServices
 
 Partial Class UOAI
-
+    ''' <summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
     Friend Class [Imports]
         Private Sub New()
         End Sub
@@ -31,8 +31,7 @@ Partial Class UOAI
         Shared Function FindWindowEx(ByVal hwndParent As UInt32, ByVal hwndChildAfter As UInt32, ByVal lpszClass As String, ByVal lpszWindow As String) As UInt32
         End Function
 
-        'TODO: ensure this works. Used to be:
-        'Friend Const HWND_MESSAGE As UInt32 = &HFFFFFFFD
+        'TODO: ensure this works. Used to be: Friend Const HWND_MESSAGE As UInt32 = &HFFFFFFFD
         Friend Const HWND_MESSAGE As UInt32 = 4294967293 'FFFFFFFD
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _

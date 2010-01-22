@@ -17,7 +17,6 @@ C:\Users\Eroc\Desktop\UOAI SVN\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.pdb
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.exe
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.xml
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.pdb
-C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOClientDll.dll
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.exe
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.pdb
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.xml
@@ -28,3 +27,5 @@ C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\ResolveAssemb
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Form1.resources
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Resources.resources
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOClientDll.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\Ultima.dll

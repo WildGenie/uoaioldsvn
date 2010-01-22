@@ -192,7 +192,7 @@ Public Class UOAI
         ''' <returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
         '''  Although if it doesn't find one matching the PID it will raise the "onError" event
         '''  and return the first client in the list.</returns>
-        Public Function byPID(ByVal ProcessID As Integer) As Client
+        Friend Function byPID(ByVal ProcessID As Integer) As Client
             For Each i As Client In Clients
                 If i.PID = ProcessID Then Return i
             Next
@@ -234,14 +234,11 @@ Public Class UOAI
         End Property
 
         ''' <summary>Returns the UOAI.Client at the specified index.</summary>
-        ''' <param name="Index">The index of the client in the list.</param>
-        Public ReadOnly Property Client(ByVal PID As Integer) As Client
+        Public ReadOnly Property Client() As Client()
             Get
-                Return Clients.Item(PID)
+                Return Clients.ToArray
             End Get
         End Property
-
-
 
 #End Region
 
