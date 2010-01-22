@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8C4C1C1B-0BED-4153-905D-3C7840B5EAF2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -71,7 +71,6 @@
     <None Include="Delegates.vb" />
     <Compile Include="Enums.vb" />
     <Compile Include="Imports.vb" />
-    <None Include="Interfaces.vb" />
     <Compile Include="Item.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -122,12 +121,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="UOClientDll.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Notes.txt" />
+    <Content Include="UOClientDll.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -233,10 +233,16 @@ Public Class UOAI
             End Get
         End Property
 
+        Default Public ReadOnly Property Item(ByVal index As Integer) As Client
+            Get
+                Return Clients(index)
+            End Get
+        End Property
+
         ''' <summary>Returns the UOAI.Client at the specified index.</summary>
         Public ReadOnly Property Client() As Client()
             Get
-                Return Clients.ToArray
+                Return Clients.ToArray(GetType(Client))
             End Get
         End Property
 

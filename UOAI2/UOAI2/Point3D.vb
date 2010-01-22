@@ -3,9 +3,9 @@
     Public Structure Point3D
         Implements IComparable
         Implements IComparable(Of Point3D)
-        Friend ReadOnly m_X As Integer
-        Friend ReadOnly m_Y As Integer
-        Friend ReadOnly m_Z As Integer
+        Public m_X As Integer
+        Public m_Y As Integer
+        Public m_Z As Integer
 
         Public Shared ReadOnly Zero As New Point3D(0, 0, 0)
 
@@ -102,6 +102,5 @@
             Throw New ArgumentException()
         End Function
     End Structure
-
 
 End Class

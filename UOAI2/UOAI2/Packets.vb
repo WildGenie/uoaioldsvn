@@ -4,6 +4,10 @@
         Friend _Data() As Byte
         Friend _Type As Enums.PacketType
 
+        Public Sub New(ByVal PType As Enums.PacketType)
+            _Type = PType
+        End Sub
+
         ''' <summary>Returns the raw packet data as a byte array.</summary>
         Public ReadOnly Property Data() As Byte()
             Get
@@ -16,7 +20,6 @@
                 Return _Type
             End Get
         End Property
-
     End Class
 
     Public Class Packets
@@ -26,7 +29,7 @@
             Private _text As String
 
             Sub New()
-                _Type = Enums.PacketType.Speech
+                MyBase.New(Enums.PacketType.Speech)
             End Sub
 
             Public Property Text() As String
@@ -46,7 +49,7 @@
             Private _Mode As Enums.SpeechTypes
             Private _hue As UShort
             Private _font As Enums.Fonts
-            Private _body As UInteger
+            Private _body As UShort
             Private _Serial As UInteger
             Private TempBytes(3) As Byte
             Private buff As BufferHandler
@@ -54,22 +57,39 @@
             Private _name As String
 
             Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.TextUnicode)
+
+                Dim _size As UShort
+
                 buff = New BufferHandler(bytes, True)
 
                 'Parse the data into the fields.
                 _Data = bytes
                 _Type = bytes(0)
 
-                buff.Position = 3
+                buff.Position = 1
+                buff.networkorder = False
+                _size = buff.readushort()
+                buff.networkorder = True
                 _Serial = buff.readuint
-                _body = buff.readuint
+                _body = buff.readushort
                 _Mode = buff.readbyte
                 _hue = buff.readushort
                 _font = buff.readushort
                 _lang = buff.readstrn(4)
                 _name = buff.readstrn(30)
+                'buff.networkorder = False
                 _text = buff.readustr
+                'buff.networkorder = True
             End Sub
+            Public Property Text() As String
+                Get
+                    Return _text
+                End Get
+                Set(ByVal value As String)
+                    'to be implemented
+                End Set
+            End Property
 
             Public Property Name() As String
                 Get
@@ -85,8 +105,6 @@
                     End If
                 End Set
             End Property
-
-
         End Class
 
 

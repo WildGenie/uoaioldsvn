@@ -44,3 +44,15 @@ C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.dll
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.xml
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.pdb
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\UOClientDll.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\ResolveAssemblyReference.cache
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\UOAI2.Resources.resources
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.GenerateResource.Cache
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\UOAI2.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\UOAI2.xml
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\obj\Release\UOAI2.pdb
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOClientDll.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOAI2.dll.config
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOAI2.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOAI2.pdb
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOAI2.xml
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2\bin\Release\UOAI2.tlb
