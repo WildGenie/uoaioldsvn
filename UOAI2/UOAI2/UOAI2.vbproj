@@ -68,14 +68,17 @@
     <Compile Include="Client.vb">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="Delegates.vb" />
     <Compile Include="Enums.vb" />
     <Compile Include="Imports.vb" />
+    <None Include="Interfaces.vb" />
     <Compile Include="Item.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ItemList.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Macros.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -91,7 +94,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Packets.vb" />
+    <Compile Include="Point3D.vb" />
     <Compile Include="ProcessStream.vb" />
+    <Compile Include="Serial.vb" />
     <Compile Include="UOAI.vb" />
     <Compile Include="UOClientDll.vb" />
   </ItemGroup>
@@ -116,9 +122,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="UOClientDll.dll">
+    <None Include="UOClientDll.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Notes.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

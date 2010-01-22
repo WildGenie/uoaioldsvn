@@ -5,7 +5,7 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "UOAI2", "UOAI2\UOAI2.vbproj
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "UOAI2Texter", "UOAI2Texter\UOAI2Texter.vbproj", "{10FE17DE-A9E2-4CEB-BB68-7A3E1FC7EE80}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UOClientDll", "..\UOClientDll\UOClientDll.vcproj", "{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UOClientDll", "..\UOClientDll\UOClientDll.vcproj", "{95EAD2AB-D561-4E15-987D-202A5816D627}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,14 @@ Global
 		{10FE17DE-A9E2-4CEB-BB68-7A3E1FC7EE80}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{10FE17DE-A9E2-4CEB-BB68-7A3E1FC7EE80}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{10FE17DE-A9E2-4CEB-BB68-7A3E1FC7EE80}.Release|Win32.ActiveCfg = Release|Any CPU
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Debug|Win32.Build.0 = Debug|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Release|Any CPU.ActiveCfg = Release|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Release|Win32.ActiveCfg = Release|Win32
-		{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}.Release|Win32.Build.0 = Release|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Debug|Win32.Build.0 = Debug|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Release|Any CPU.ActiveCfg = Release|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Release|Win32.ActiveCfg = Release|Win32
+		{95EAD2AB-D561-4E15-987D-202A5816D627}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

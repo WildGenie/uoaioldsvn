@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="UOClientDll"
-	ProjectGUID="{D5B08975-7DAD-4F2E-9B67-FDA19D7273B0}"
+	ProjectGUID="{95EAD2AB-D561-4E15-987D-202A5816D627}"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib Version.lib"
 				OutputFile=".\Release/UOClientDll.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UOCLIENTDLL_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UOCLIENTDLL_EXPORTS;_CRT_SECURE_NO_WARNINGS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib wsock32.lib Version.lib"
 				OutputFile=".\Debug/UOClientDll.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -212,6 +212,26 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="ASMParser.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="BinaryTree.c"
 				>
 				<FileConfiguration
@@ -232,7 +252,67 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="MMQueue.c"
+				RelativePath="Bufferhandler.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Collection.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="DebuggingTools.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="Sockets.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -316,6 +396,46 @@
 				>
 			</File>
 			<File
+				RelativePath="UOMLCallibrations.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="UOMLVersionInfo.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="W2EDebug.c"
 				>
 				<FileConfiguration
@@ -335,17 +455,341 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="wError.c"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<Filter
+				Name="libdisasmsource"
+				>
+				<File
+					RelativePath="libdisasm\ia32_implicit.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_insn.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_invariant.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_modrm.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_opcode_tables.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_operand.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_reg.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_settings.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_disasm.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_format.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_imm.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_insn.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_misc.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_operand_list.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="ALLOCATION.h"
+				>
+			</File>
+			<File
+				RelativePath="ASMParser.h"
+				>
+			</File>
+			<File
 				RelativePath="BinaryTree.h"
 				>
 			</File>
 			<File
-				RelativePath="MMQueue.h"
+				RelativePath="Bufferhandler.h"
+				>
+			</File>
+			<File
+				RelativePath="Collection.h"
+				>
+			</File>
+			<File
+				RelativePath="DebuggingTools.h"
+				>
+			</File>
+			<File
+				RelativePath="Sockets.h"
 				>
 			</File>
 			<File
@@ -361,9 +805,73 @@
 				>
 			</File>
 			<File
+				RelativePath="UOMLCallibrations.h"
+				>
+			</File>
+			<File
+				RelativePath="UOMLVersionInfo.h"
+				>
+			</File>
+			<File
 				RelativePath="W2EDebug.h"
 				>
 			</File>
+			<File
+				RelativePath="wError.h"
+				>
+			</File>
+			<Filter
+				Name="libdisasmheaders"
+				>
+				<File
+					RelativePath="libdisasm\ia32_implicit.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_insn.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_invariant.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_modrm.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_opcode_tables.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_operand.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_reg.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\ia32_settings.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\libdis.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\qword.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_imm.h"
+					>
+				</File>
+				<File
+					RelativePath="libdisasm\x86_operand_list.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

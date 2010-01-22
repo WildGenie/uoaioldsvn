@@ -1,0 +1,17 @@
+﻿					|||||||||||||||||||||||||||||||||||||
+					||||||||	UOAI2 Notes		|||||||||
+					|||||||||||||||||||||||||||||||||||||
+
+Top Priorities:
+1:	UOAI2 communication with injected dll, to where we can get information
+	from the clients memory and make a "UOAI.Item" object that has data that 
+	can be used by the test application. (fe. Item.Type)
+
+2:	Finish the UOAI.Item class and make a binary tree class for storing and
+	accessing UOAI.ItemList.
+	
+	
+Completed Recently:
+-	Added UOAI.Client layout, just added the subs and functions and such for when
+	we can get more information for it to use.
+-	
