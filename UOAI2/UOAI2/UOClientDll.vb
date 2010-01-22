@@ -648,10 +648,7 @@ Partial Class UOAI
         End Function
     End Class
 
-#Region "Buffer Handler"
-
-
-
+    'Buffer Serialization and Deserialization
     Public Class BufferHandler
         Inherits Stream
         Public curpos As Long
@@ -845,7 +842,7 @@ Partial Class UOAI
 
         Public Function readchar() As SByte
             If Length > 0 Then
-                curpos += 1
+                curpos = curpos + 1
                 Return CSByte(m_buffer(curpos - 1))
             Else
                 Return 0
@@ -855,7 +852,7 @@ Partial Class UOAI
         Public Overrides Function readbyte() As Integer 'TODO: check functionality (use to be 'Byte')
             If True Then
                 If Length > 0 Then
-                    curpos += 1
+                    curpos = curpos + 1
                     Return m_buffer(curpos - 1)
                 Else
                     Return 0
@@ -894,7 +891,7 @@ Partial Class UOAI
         Public Function readustrn(ByVal size As Integer) As String
             Dim characterarray As Char() = New Char(size - 1) {}
             For i As Integer = 0 To size - 1
-                characterarray(i) = Chr(readushort())
+                characterarray(i) = ChrW(readushort())
             Next
             Return New String(characterarray, 0, size)
         End Function
@@ -930,20 +927,20 @@ Partial Class UOAI
         Public Sub writestr(ByVal towrite As String)
             Dim strbytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
             For i As Integer = 0 To strbytes.Length - 1
-                WriteByte(strbytes(i))
+                writebyte(strbytes(i))
             Next
             If strbytes(strbytes.Length - 1) <> 0 Then
                 'ensure '\0'-termination
-                WriteByte(0)
+                writebyte(0)
             End If
         End Sub
         Public Sub writestrn(ByVal towrite As String, ByVal length As Integer)
             Dim strbytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
             For i As Integer = 0 To length - 1
                 If i < strbytes.Length Then
-                    WriteByte(strbytes(i))
+                    writebyte(strbytes(i))
                 Else
-                    WriteByte(0)
+                    writebyte(0)
                 End If
             Next
         End Sub
@@ -971,8 +968,5 @@ Partial Class UOAI
 
 #End Region
     End Class
-
-#End Region
-
 
 End Class

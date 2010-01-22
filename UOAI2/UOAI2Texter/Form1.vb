@@ -29,7 +29,23 @@ Public Class Form1
             Threading.Thread.Sleep(0)
         Loop
         sh = jack.Clients.Client(0)
+        AddHandler sh.onPacketReceive, AddressOf PacketHandler
     End Sub
+
+    Private Sub PacketHandler(ByRef cl As UOAI.Client, ByRef p As UOAI.Packet)
+        If p.Type = UOAI.Enums.PacketType.TextUnicode Then
+            Dim up As UOAI.Packets.UnicodeTextPacket
+            up = DirectCast(p, UOAI.Packets.UnicodeTextPacket)
+            DoWriteToLabel(up.Name & " says : " & up.Text)
+        End If
+    End Sub
+    Private Sub DoWriteToLabel(ByVal text As String)
+        Me.Invoke(New WriteToLabelDelegate(AddressOf Writer), New Object() {text})
+    End Sub
+    Private Sub Writer(ByVal text As String)
+        Label2.Text = text
+    End Sub
+    Private Delegate Sub WriteToLabelDelegate(ByVal text As String)
 
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         If jack.Clients.Count > 0 Then sh = jack.Clients.Client(0)
@@ -67,5 +83,17 @@ Public Class Form1
         'retrieve the data
         MsgBox(j.Text)
 
+    End Sub
+
+    Private Sub ListBox1_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
+        If (ListBox1.SelectedIndex >= 0) Then
+            sh = jack.Clients.Client(ListBox1.SelectedIndex)
+            Label1.Text = sh.PID.ToString()
+            AddHandler sh.onPacketReceive, AddressOf PacketHandler
+        End If
+    End Sub
+
+    Private Sub Button6_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button6.Click
+        sh.PatchEncryption()
     End Sub
 End Class

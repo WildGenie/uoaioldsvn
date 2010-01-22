@@ -29,3 +29,18 @@ C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.R
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.vbproj.GenerateResource.Cache
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\UOClientDll.dll
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\Ultima.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.exe
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.xml
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.pdb
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\ResolveAssemblyReference.cache
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Form1.resources
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Resources.resources
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.vbproj.GenerateResource.Cache
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOClientDll.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.exe
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.pdb
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2Texter.xml
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\Ultima.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2.dll
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2.pdb
+F:\Projects\UOAI\UOAI2 repository\UOAI2\UOAI2Texter\bin\Release\UOAI2.xml

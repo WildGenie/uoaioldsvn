@@ -6,70 +6,70 @@
 --------------------Configuration: UOClientDll - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSP6350.tmp" with contents
+Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSP852.tmp" with contents
 [
 /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UOCLIENTDLL_EXPORTS" /Fp"Release/UOClientDll.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_implicit.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_insn.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_invariant.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_modrm.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_opcode_tables.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_operand.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_reg.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\ia32_settings.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_disasm.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_format.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_imm.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_insn.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_misc.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\libdisasm\x86_operand_list.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\ASMParser.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\BinaryTree.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\Bufferhandler.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\Collection.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\DebuggingTools.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\Sockets.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\Synchronization.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\SyncQueue.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\UOClientDll.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\UOMLCallibrations.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\UOMLVersionInfo.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\W2EDebug.c"
-"F:\Projects\UOAI\UOAI2\UOClientDll\wError.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_implicit.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_insn.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_invariant.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_modrm.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_opcode_tables.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_operand.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_reg.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\ia32_settings.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_disasm.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_format.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_imm.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_insn.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_misc.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\libdisasm\x86_operand_list.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\ASMParser.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\BinaryTree.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\Bufferhandler.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\Collection.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\DebuggingTools.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\Sockets.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\Synchronization.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\SyncQueue.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\UOClientDll.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\UOMLCallibrations.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\UOMLVersionInfo.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\W2EDebug.c"
+"F:\Projects\UOAI\UOAI2 repository\UOClientDll\wError.c"
 ]
-Creating command line "cl.exe @C:\Users\Wim\AppData\Local\Temp\RSP6350.tmp" 
-Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSP6370.tmp" with contents
+Creating command line "cl.exe @C:\Users\Wim\AppData\Local\Temp\RSP852.tmp" 
+Creating temporary file "C:\Users\Wim\AppData\Local\Temp\RSP853.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib ole32.lib oleaut32.lib Version.lib /nologo /dll /incremental:no /pdb:"Release/UOClientDll.pdb" /machine:I386 /def:".\UOClientDll.def" /out:"Release/UOClientDll.dll" /implib:"Release/UOClientDll.lib" 
-.\Release\ia32_implicit.obj
-.\Release\ia32_insn.obj
-.\Release\ia32_invariant.obj
-.\Release\ia32_modrm.obj
-.\Release\ia32_opcode_tables.obj
-.\Release\ia32_operand.obj
-.\Release\ia32_reg.obj
-.\Release\ia32_settings.obj
-.\Release\x86_disasm.obj
-.\Release\x86_format.obj
-.\Release\x86_imm.obj
-.\Release\x86_insn.obj
-.\Release\x86_misc.obj
-.\Release\x86_operand_list.obj
-.\Release\ASMParser.obj
-.\Release\BinaryTree.obj
-.\Release\Bufferhandler.obj
-.\Release\Collection.obj
-.\Release\DebuggingTools.obj
-.\Release\Sockets.obj
-.\Release\Synchronization.obj
-.\Release\SyncQueue.obj
-.\Release\UOClientDll.obj
-.\Release\UOMLCallibrations.obj
-.\Release\UOMLVersionInfo.obj
-.\Release\W2EDebug.obj
-.\Release\wError.obj
+".\Release\ia32_implicit.obj"
+".\Release\ia32_insn.obj"
+".\Release\ia32_invariant.obj"
+".\Release\ia32_modrm.obj"
+".\Release\ia32_opcode_tables.obj"
+".\Release\ia32_operand.obj"
+".\Release\ia32_reg.obj"
+".\Release\ia32_settings.obj"
+".\Release\x86_disasm.obj"
+".\Release\x86_format.obj"
+".\Release\x86_imm.obj"
+".\Release\x86_insn.obj"
+".\Release\x86_misc.obj"
+".\Release\x86_operand_list.obj"
+".\Release\ASMParser.obj"
+".\Release\BinaryTree.obj"
+".\Release\Bufferhandler.obj"
+".\Release\Collection.obj"
+".\Release\DebuggingTools.obj"
+".\Release\Sockets.obj"
+".\Release\Synchronization.obj"
+".\Release\SyncQueue.obj"
+".\Release\UOClientDll.obj"
+".\Release\UOMLCallibrations.obj"
+".\Release\UOMLVersionInfo.obj"
+".\Release\W2EDebug.obj"
+".\Release\wError.obj"
 ]
-Creating command line "link.exe @C:\Users\Wim\AppData\Local\Temp\RSP6370.tmp"
+Creating command line "link.exe @C:\Users\Wim\AppData\Local\Temp\RSP853.tmp"
 <h3>Output Window</h3>
 Compiling...
 ia32_implicit.c

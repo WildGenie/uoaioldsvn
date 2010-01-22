@@ -31,6 +31,9 @@ Partial Class Form1
         Me.TabPage1 = New System.Windows.Forms.TabPage
         Me.TabPage2 = New System.Windows.Forms.TabPage
         Me.Button5 = New System.Windows.Forms.Button
+        Me.Label1 = New System.Windows.Forms.Label
+        Me.Button6 = New System.Windows.Forms.Button
+        Me.Label2 = New System.Windows.Forms.Label
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -40,7 +43,7 @@ Partial Class Form1
         '
         Me.Button1.Location = New System.Drawing.Point(3, 61)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(143, 23)
+        Me.Button1.Size = New System.Drawing.Size(119, 23)
         Me.Button1.TabIndex = 0
         Me.Button1.Text = "List Clients"
         Me.Button1.UseVisualStyleBackColor = True
@@ -49,7 +52,7 @@ Partial Class Form1
         '
         Me.Button2.Location = New System.Drawing.Point(3, 3)
         Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(143, 23)
+        Me.Button2.Size = New System.Drawing.Size(119, 23)
         Me.Button2.TabIndex = 1
         Me.Button2.Text = "Launch New Client"
         Me.Button2.UseVisualStyleBackColor = True
@@ -58,7 +61,7 @@ Partial Class Form1
         '
         Me.Button3.Location = New System.Drawing.Point(3, 32)
         Me.Button3.Name = "Button3"
-        Me.Button3.Size = New System.Drawing.Size(143, 23)
+        Me.Button3.Size = New System.Drawing.Size(119, 23)
         Me.Button3.TabIndex = 2
         Me.Button3.Text = "Close Client 0"
         Me.Button3.UseVisualStyleBackColor = True
@@ -92,6 +95,9 @@ Partial Class Form1
         '
         'TabPage1
         '
+        Me.TabPage1.Controls.Add(Me.Label2)
+        Me.TabPage1.Controls.Add(Me.Button6)
+        Me.TabPage1.Controls.Add(Me.Label1)
         Me.TabPage1.Controls.Add(Me.Button2)
         Me.TabPage1.Controls.Add(Me.Button1)
         Me.TabPage1.Controls.Add(Me.ListBox1)
@@ -125,6 +131,33 @@ Partial Class Form1
         Me.Button5.Text = "Button5"
         Me.Button5.UseVisualStyleBackColor = True
         '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(198, 66)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(25, 13)
+        Me.Label1.TabIndex = 5
+        Me.Label1.Text = "PID"
+        '
+        'Button6
+        '
+        Me.Button6.Location = New System.Drawing.Point(128, 3)
+        Me.Button6.Name = "Button6"
+        Me.Button6.Size = New System.Drawing.Size(95, 22)
+        Me.Button6.TabIndex = 6
+        Me.Button6.Text = "Enc Patch"
+        Me.Button6.UseVisualStyleBackColor = True
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(8, 193)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(39, 13)
+        Me.Label2.TabIndex = 7
+        Me.Label2.Text = "Label2"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -135,6 +168,7 @@ Partial Class Form1
         Me.Text = "Form1"
         Me.TabControl1.ResumeLayout(False)
         Me.TabPage1.ResumeLayout(False)
+        Me.TabPage1.PerformLayout()
         Me.TabPage2.ResumeLayout(False)
         Me.ResumeLayout(False)
 
@@ -148,5 +182,8 @@ Partial Class Form1
     Friend WithEvents TabPage1 As System.Windows.Forms.TabPage
     Friend WithEvents TabPage2 As System.Windows.Forms.TabPage
     Friend WithEvents Button5 As System.Windows.Forms.Button
+    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents Button6 As System.Windows.Forms.Button
+    Friend WithEvents Label2 As System.Windows.Forms.Label
 
 End Class

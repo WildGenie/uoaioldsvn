@@ -15,3 +15,16 @@ Completed Recently:
 -	Added UOAI.Client layout, just added the subs and functions and such for when
 	we can get more information for it to use.
 -	
+
+22/01/2010 ::: Wim
+	- I excluded the interfaces.vb file, we don't need it.. and it was generating errors.
+		The file is still there it's just removed form the project listing.
+	- I exluded the UOClientDll.dll project, we need to use the VC6 compiled one the VS2008
+		compiled version crashes whenever the hooks are called (packet-sent/receive). Probably
+		the code around the inline assembly messes up some assumptions i make in the inline
+		assembly part.
+	- I finished the basic layout of the event-part... i think however we should swith from
+		a threaded to a timer-based one. As you can see it doesn't shut down correctly otherwise.
+	- The onPacketReceive event is now working, though you only get the UnicodePacket right now...
+		and some bugs in either the packet-parsing of the unicode text thing; or in the converted bufferhandler
+		cause the unicode packet to have only the .Name set correctly. .Text fails.
