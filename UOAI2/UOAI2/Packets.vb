@@ -40,6 +40,55 @@
 
         End Class
 
+        Public Class UnicodeTextPacket
+            Inherits Packet
+            Private _text As String
+            Private _Mode As Enums.SpeechTypes
+            Private _hue As UShort
+            Private _font As Enums.Fonts
+            Private _body As UInteger
+            Private _Serial As UInteger
+            Private TempBytes(3) As Byte
+            Private buff As BufferHandler
+            Private _lang As String
+            Private _name As String
+
+            Sub New(ByVal bytes() As Byte)
+                buff = New BufferHandler(bytes, True)
+
+                'Parse the data into the fields.
+                _Data = bytes
+                _Type = bytes(0)
+
+                buff.Position = 3
+                _Serial = buff.readuint
+                _body = buff.readuint
+                _Mode = buff.readbyte
+                _hue = buff.readushort
+                _font = buff.readushort
+                _lang = buff.readstrn(4)
+                _name = buff.readstrn(30)
+                _text = buff.readustr
+            End Sub
+
+            Public Property Name() As String
+                Get
+                    Return _name
+                End Get
+                Set(ByVal value As String)
+                    If Name.Length <= 30 Then
+                        _name = value
+                        'buff.Position = (wherever the name starts)
+                        'make sure ti writes those extra blank characters to make it exactly 30.
+                    Else
+                        Throw New ApplicationException("Name is too long, much be 30 characters or less.")
+                    End If
+                End Set
+            End Property
+
+
+        End Class
+
 
     End Class
 
