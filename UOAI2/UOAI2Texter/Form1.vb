@@ -24,7 +24,7 @@ Public Class Form1
 
     Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
         'UOAIObj.Clients.LaunchClient()
-        UOAIObj.Clients.LaunchClient2()
+        UOAIObj.Clients.LaunchClient()
         Do While UOAIObj.Clients.Count = 0
             Threading.Thread.Sleep(0)
         Loop
@@ -67,7 +67,7 @@ Public Class Form1
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
-
+        UOAIObj.Clients.Client
     End Sub
 
     Private Sub ListBox1_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged

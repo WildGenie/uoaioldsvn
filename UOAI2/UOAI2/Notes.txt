@@ -40,12 +40,23 @@ Completed Recently:
 	-	Also try to be carefull when defining subs, I dont know about COM or C#, but the visiblity
 		of the Sub to the user is determined like so:
 		
-		Private Sub	- Can only be accessed form within that class
-		Friend Sub	- Can be accessed by anything inside of the UOAI Class
+		Private Sub	- Can only be accessed from within that class
+		Friend Sub	- Can be accessed by anything inside of the UOAI2 Dll
 		Public Sub	- Can be accessed by the end user (the test app)
 		
 		You don't want people to get confused and start to call things like Client.HandlePacket or
 		Client.RemoveObject(0) and make UOAI do some wierd shit.
+		
+	-	Also, I think i will be working on Packets.vb for a while, so you just work on communication
+		and DO NOT COMMIT PACKETS.VB!! Because it might override mine, though it shouldn't, because
+		as long as you are not making changes to it the timestamp on mine should be the latest.
+		
+	-	You just need to work on the communication and setting up events. And eventually the UOAI.ItemList
+		class. I will work on the packets class, since we have the onPacketRecieve/Send events I will need
+		to incorporate all of the packets, this should keep me busy for the weekend. I also moved the
+		bufferhandler class to the packets.vb file i can change it there without interfereing with your work.
+		I am very happy to announce that we have reached the point where we can work on individual sections
+		of code simultaneously.
 							
 22/01/2010 ::: Wim
 	-	I excluded the interfaces.vb file, we don't need it.. and it was generating errors.

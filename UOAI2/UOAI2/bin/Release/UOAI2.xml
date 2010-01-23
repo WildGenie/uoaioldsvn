@@ -6,7 +6,37 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="T:UOAI2.UOAI.Enums.LoginState">
+<member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
+	<summary>Gets the working directory and location of client.exe from the registry.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
+	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.byPID(System.Int32)">
+	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
+	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
+	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
+  Although if it doesn't find one matching the PID it will raise the "onError" event
+  and return the first client in the list.</returns>
+</member><member name="M:UOAI2.UOAI.UOClientList.Add(System.Int32)">
+	<summary>Adds clients to the Clients arraylist, based on PID</summary>
+	<param name="PID">The process ID of the client you want to add.</param>
+</member><member name="M:UOAI2.UOAI.UOClientList.Remove(System.Int32)">
+	<summary>Removed a client from the clients arraylist, based on PID.</summary>
+	<param name="PID">The process ID of the client you want to remove.</param>
+</member><member name="P:UOAI2.UOAI.UOClientList.Count">
+	<summary>Forces update of client list then returns a count of the clients.</summary>
+	<returns>An integer value representing the current number of UO clients running.</returns>
+</member><member name="P:UOAI2.UOAI.UOClientList.Client">
+	<summary>Returns the UOAI.Client at the specified index.</summary>
+</member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
+	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.UOClientList.ClientProcessExit(System.Object,System.EventArgs)">
+	<summary>Handles the "Process.Exited" for client processes.</summary>
+	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
+	<param name="e">Nothing usefull.</param>
+</member><member name="T:UOAI2.UOAI.UOClientList">
+	<summary>A list of Ultime Online clients.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
 	<summary>Enumeration of Entity types.</summary>
@@ -105,38 +135,6 @@ UOAI2
 </member><member name="P:UOAI2.UOAI.ClientExe">
 	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
 	<returns>The name of the client executable.</returns>
-</member><member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
-	<summary>Gets the working directory and location of client.exe from the registry.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
-	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient2">
-	<summary>DEBUG FUNCTION: Just trying to get the multi-client patch to work.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.byPID(System.Int32)">
-	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
-	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
-	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
-  Although if it doesn't find one matching the PID it will raise the "onError" event
-  and return the first client in the list.</returns>
-</member><member name="M:UOAI2.UOAI.UOClientList.Add(System.Int32)">
-	<summary>Adds clients to the Clients arraylist, based on PID</summary>
-	<param name="PID">The process ID of the client you want to add.</param>
-</member><member name="M:UOAI2.UOAI.UOClientList.Remove(System.Int32)">
-	<summary>Removed a client from the clients arraylist, based on PID.</summary>
-	<param name="PID">The process ID of the client you want to remove.</param>
-</member><member name="P:UOAI2.UOAI.UOClientList.Count">
-	<summary>Forces update of client list then returns a count of the clients.</summary>
-	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.UOClientList.Client">
-	<summary>Returns the UOAI.Client at the specified index.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
-	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
-	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.UOClientList.ClientProcessExit(System.Object,System.EventArgs)">
-	<summary>Handles the "Process.Exited" for client processes.</summary>
-	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
-	<param name="e">Nothing usefull.</param>
-</member><member name="T:UOAI2.UOAI.UOClientList">
-	<summary>A list of Ultime Online clients.</summary>
 </member><member name="M:UOAI2.UOAI.Client.Macros.Say(System.String)">
 	<summary>
  Says the specified message.
