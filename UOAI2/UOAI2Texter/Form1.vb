@@ -1,35 +1,35 @@
 ﻿Imports UOAI2, System.IO
 
 Public Class Form1
-    Private WithEvents jack As New UOAI
-    Private WithEvents sh As UOAI.Client
+    Private WithEvents UOAIObj As New UOAI
+    Private WithEvents UOAI_Cl As UOAI.Client
 
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         ListBox1.Items.Clear()
 
-        If jack.Clients.Count >= 1 Then
-            For i As Integer = 0 To jack.Clients.Count - 1
-                ListBox1.Items.Add(jack.Clients.Client(i).WindowCaption & " | " & jack.Clients.Client(i).PID)
+        If UOAIObj.Clients.Count >= 1 Then
+            For i As Integer = 0 To UOAIObj.Clients.Count - 1
+                ListBox1.Items.Add(UOAIObj.Clients.Client(i).WindowCaption & " | " & UOAIObj.Clients.Client(i).PID)
             Next
         End If
     End Sub
 
-    Private Sub sh_onClientClose() Handles sh.onClientExit
+    Private Sub UOAI_Cl_onClientClose() Handles UOAI_Cl.onClientExit
         'MsgBox("win")
     End Sub
 
     Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
-        sh.Close()
+        UOAI_Cl.Close()
     End Sub
 
     Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
-        'jack.Clients.LaunchClient()
-        jack.Clients.LaunchClient2()
-        Do While jack.Clients.Count = 0
+        'UOAIObj.Clients.LaunchClient()
+        UOAIObj.Clients.LaunchClient2()
+        Do While UOAIObj.Clients.Count = 0
             Threading.Thread.Sleep(0)
         Loop
-        sh = jack.Clients.Client(0)
-        AddHandler sh.onPacketReceive, AddressOf PacketHandler
+        UOAI_Cl = UOAIObj.Clients.Client(0)
+        AddHandler UOAI_Cl.onPacketReceive, AddressOf PacketHandler
     End Sub
 
     Private Sub PacketHandler(ByRef cl As UOAI.Client, ByRef p As UOAI.Packet)
@@ -48,7 +48,7 @@ Public Class Form1
     Private Delegate Sub WriteToLabelDelegate(ByVal text As String)
 
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        If jack.Clients.Count > 0 Then sh = jack.Clients.Client(0)
+        If UOAIObj.Clients.Count > 0 Then UOAI_Cl = UOAIObj.Clients.Client(0)
     End Sub
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
@@ -67,33 +67,22 @@ Public Class Form1
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
-        'direct cast test
-        Dim z As New UOAI.Packets.SpeechPacket
-        z.Text = "WTF? i win!"
-
-        'make a packet
-        Dim x As UOAI.Packet
-
-        'cast the speechpacket into the packet
-        x = DirectCast(z, UOAI.Packet)
-
-        'make a speech packet and cast the packet into it
-        Dim j As UOAI.Packets.SpeechPacket = DirectCast(x, UOAI.Packets.SpeechPacket)
-
-        'retrieve the data
-        MsgBox(j.Text)
 
     End Sub
 
     Private Sub ListBox1_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
         If (ListBox1.SelectedIndex >= 0) Then
-            sh = jack.Clients.Client(ListBox1.SelectedIndex)
-            Label1.Text = sh.PID.ToString()
-            AddHandler sh.onPacketReceive, AddressOf PacketHandler
+            UOAI_Cl = UOAIObj.Clients.Client(ListBox1.SelectedIndex)
+            Label1.Text = UOAI_Cl.PID.ToString()
+            AddHandler UOAI_Cl.onPacketReceive, AddressOf PacketHandler
         End If
     End Sub
 
     Private Sub Button6_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button6.Click
-        sh.PatchEncryption()
+        UOAI_Cl.PatchEncryption()
+    End Sub
+
+    Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
+
     End Sub
 End Class
