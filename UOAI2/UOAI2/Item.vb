@@ -3,8 +3,8 @@
     Public Class Item
 
 #Region "Constructor"
-        Friend Sub New(ByVal Offset As Int32)
-            MemoryOffset = Offset
+        Friend Sub New() 'New(byval offset as int32)
+            'MemoryOffset = Offset
         End Sub
 #End Region
 
@@ -55,6 +55,30 @@
         Public ReadOnly Property Ammount() As Byte
             Get
                 Return _Ammount
+            End Get
+        End Property
+
+        Public ReadOnly Property X() As UShort
+            Get
+                Return _X
+            End Get
+        End Property
+
+        Public ReadOnly Property Y() As UShort
+            Get
+                Return _Y
+            End Get
+        End Property
+
+        Public ReadOnly Property Container() As UInt32
+            Get
+                Return _Container
+            End Get
+        End Property
+
+        Public ReadOnly Property Hue() As UShort
+            Get
+                Return _Hue
             End Get
         End Property
 
