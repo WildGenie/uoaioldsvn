@@ -17,6 +17,7 @@ Partial Class UOAI
         Private m_EventLocked As Boolean
         Private m_CurrentPacket As Packet
         Private m_EventTimer As System.Threading.Timer
+        Private m_ShutdownEventTimer As Boolean
 
         ''' <summary>
         ''' Called when the client process closes.
@@ -83,6 +84,11 @@ Partial Class UOAI
             End If
         End Sub
 
+        Protected Overloads Overrides Sub Finalize()
+            m_ShutdownEventTimer = True
+            MyBase.Finalize()
+        End Sub 'Finalize
+
         Private Sub InitializeState()
             'a. setup event system
             Dim eventport As Integer
@@ -104,15 +110,17 @@ Partial Class UOAI
             m_Mobiles = New ItemList
 
             'c. timer
+            m_ShutdownEventTimer = False
             m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
 
         End Sub
 
         Private Sub EventTimerProc(ByVal state As Object)
             'Handle Packets (needs to be a seperate function to allow for recursivity!)
-            HandlePackets()
-            'set the timer again
-            m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
+            If HandlePackets() And Not m_ShutdownEventTimer Then
+                'set the timer again
+                m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
+            End If
         End Sub
 
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
