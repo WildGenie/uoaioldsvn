@@ -128,7 +128,7 @@ Partial Class UOAI
             InjectedDll.PatchEncryption()
         End Sub
 
-        Private Sub HandlePacket()
+        Public Sub HandlePacket()
             Dim backup As Packet
 
             'force client to handle the current packet
