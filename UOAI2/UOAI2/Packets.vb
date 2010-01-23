@@ -1,4 +1,7 @@
-﻿Partial Class UOAI
+﻿Imports System.IO
+Imports System.Text
+
+Partial Class UOAI
 
     Public Class Packet
         Friend _Data() As Byte
@@ -334,5 +337,358 @@
             CharacterTransferLog = &HDB
         End Enum
     End Class
+
+    'Buffer Serialization and Deserialization
+    Friend Class BufferHandler
+        Inherits Stream
+        Public curpos As Long
+        Private m_buffer As Byte()
+        Public networkorder As Boolean
+
+#Region "constructors"
+        Public Sub New(ByVal frombuffer As Byte(), ByVal bNetworkOrder As Boolean)
+            m_buffer = frombuffer
+            networkorder = bNetworkOrder
+            curpos = 0
+        End Sub
+        Public Sub New(ByVal size As UInteger)
+            m_buffer = New Byte(size - 1) {}
+            networkorder = False
+            curpos = 0
+        End Sub
+        Public Sub New(ByVal size As Integer)
+            m_buffer = New Byte(size - 1) {}
+            networkorder = False
+            curpos = 0
+        End Sub
+        Public Sub New(ByVal frombuffer As Byte())
+            m_buffer = frombuffer
+            curpos = 0
+            networkorder = False
+        End Sub
+        Public Sub New(ByVal size As UInteger, ByVal bNetworkOrder As Boolean)
+            m_buffer = New Byte(size - 1) {}
+            curpos = 0
+            networkorder = bNetworkOrder
+        End Sub
+#End Region
+
+        Public Property buffer() As Byte()
+            Get
+                Return m_buffer
+            End Get
+            Set(ByVal value As Byte())
+                m_buffer = value
+            End Set
+        End Property
+
+        Default Public Property Item(ByVal index As Integer) As Byte
+            Get
+                If (m_buffer IsNot Nothing) AndAlso (m_buffer.Length > index) Then
+                    Return m_buffer(index)
+                Else
+                    Return 0
+                End If
+            End Get
+            Set(ByVal value As Byte)
+                If m_buffer IsNot Nothing Then
+                    If m_buffer.Length > index Then
+                        m_buffer(index) = value
+                    End If
+                End If
+            End Set
+        End Property
+
+#Region "Stream members"
+
+        Public Overloads Overrides ReadOnly Property CanRead() As Boolean
+            Get
+                Return True
+            End Get
+        End Property
+
+        Public Overloads Overrides ReadOnly Property CanSeek() As Boolean
+            Get
+                Return True
+            End Get
+        End Property
+
+        Public Overloads Overrides ReadOnly Property CanWrite() As Boolean
+            Get
+                Return True
+            End Get
+        End Property
+
+        Public Overloads Overrides Sub Flush()
+            Throw New NotImplementedException()
+        End Sub
+
+        Public Overloads Overrides ReadOnly Property Length() As Long
+            Get
+                Return (m_buffer.Length - curpos)
+            End Get
+        End Property
+
+        Public Overloads Overrides Property Position() As Long
+            Get
+                Return curpos
+            End Get
+            Set(ByVal value As Long)
+                curpos = value
+            End Set
+        End Property
+
+        Public Overloads Overrides Function Read(ByVal destbuffer As Byte(), ByVal offset As Integer, ByVal count As Integer) As Integer
+            Dim i As Integer = 0
+            For i = 0 To count - 1
+                If curpos < m_buffer.Length Then
+                    If networkorder Then
+                        destbuffer(offset + count - 1 - i) = m_buffer(curpos)
+                    Else
+                        destbuffer(offset + i) = m_buffer(curpos)
+                    End If
+                    curpos += 1
+                Else
+                    Exit For
+                End If
+            Next
+            Return i
+        End Function
+
+        Public Overloads Overrides Function Seek(ByVal offset As Long, ByVal origin As SeekOrigin) As Long
+            Select Case origin
+                Case SeekOrigin.Begin
+                    If offset < m_buffer.Length Then
+                        curpos = offset
+                    End If
+                    Exit Select
+                Case SeekOrigin.Current
+                    If (curpos + offset) < m_buffer.Length Then
+                        curpos += offset
+                    End If
+                    Exit Select
+                Case SeekOrigin.[End]
+                    If offset < m_buffer.Length Then
+                        curpos = m_buffer.Length - 1 - offset
+                    End If
+                    Exit Select
+                Case Else
+                    Exit Select
+            End Select
+            Return curpos
+        End Function
+
+        Public Overloads Overrides Sub SetLength(ByVal value As Long)
+            Throw New NotImplementedException()
+        End Sub
+
+        Public Overloads Overrides Sub Write(ByVal destbuffer As Byte(), ByVal offset As Integer, ByVal count As Integer)
+            Dim i As Integer = 0
+
+            If (m_buffer Is Nothing) OrElse (count > Length) Then
+                Throw New Exception("Not enough space on buffer!")
+            End If
+
+            For i = 0 To count - 1
+                If curpos < m_buffer.Length Then
+                    If networkorder Then
+                        m_buffer(curpos) = destbuffer(offset + count - 1 - i)
+                    Else
+                        m_buffer(curpos) = destbuffer(offset + i)
+                    End If
+                    curpos += 1
+                Else
+                    Exit For
+                End If
+            Next
+            Exit Sub
+        End Sub
+
+#End Region
+
+#Region "reading"
+
+        Public Function readbytes(ByVal count As Integer) As Byte()
+            Dim targetbuffer As Byte() = New Byte(count - 1) {}
+            Read(targetbuffer, 0, count)
+            Return targetbuffer
+        End Function
+
+#Region "Integer/UInteger"
+        Public Function readuint() As UInteger
+            Return BitConverter.ToUInt32(readbytes(4), 0)
+        End Function
+
+        Public Function readint() As Integer
+            Return BitConverter.ToInt32(readbytes(4), 0)
+        End Function
+#End Region
+
+#Region "Short/UShort"
+        Public Function readushort() As UShort
+            Return BitConverter.ToUInt16(readbytes(2), 0)
+        End Function
+
+        Public Function readshort() As Short
+            Return BitConverter.ToInt16(readbytes(2), 0)
+        End Function
+#End Region
+
+#Region "Byte/Character"
+
+        Public Function ReadUChar() As Short
+            If Length > 0 Then
+                curpos = curpos + 1
+                Return CSByte(m_buffer(curpos - 1))
+            Else
+                Return 0
+            End If
+        End Function
+
+        Public Function readchar() As SByte
+            If Length > 0 Then
+                curpos = curpos + 1
+                Return CSByte(m_buffer(curpos - 1))
+            Else
+                Return 0
+            End If
+        End Function
+
+        Public Shadows Function readbyte() As Byte
+            If True Then
+                If Length > 0 Then
+                    curpos = curpos + 1
+                    Return m_buffer(curpos - 1)
+                Else
+                    Return 0
+                End If
+            End If
+        End Function
+#End Region
+
+
+#Region "ASCII Strings"
+        Public Function readstr() As String
+            Dim prevpos As Long = curpos
+            Dim count As Integer = 1
+
+            While (readbyte() <> 0) AndAlso (Length > 0)
+                count += 1
+            End While
+
+            curpos = prevpos
+
+            Return readstrn(count)
+        End Function
+
+        Public Function readstrn(ByVal size As Integer) As String
+            Dim characterarray As Char() = New Char(size - 1) {}
+            For i As Integer = 0 To size - 1
+                characterarray(i) = Chr(readbyte())
+            Next
+            Return New String(characterarray, 0, size)
+        End Function
+#End Region
+
+#Region "Unicode Strings"
+
+        Public Function readustr() As String
+            Dim prevpos As Long = curpos
+            Dim count As Integer = 1
+
+            While (readushort() <> 0) AndAlso (Length > 0)
+                count += 1
+            End While
+
+            curpos = prevpos
+
+            Return readustrn(count)
+        End Function
+
+        Public Function readustrn(ByVal size As Integer) As String
+            Dim characterarray As Char() = New Char(size - 1) {}
+
+            For i As Integer = 0 To size - 1
+                characterarray(i) = ChrW(readushort())
+            Next
+
+            Return New String(characterarray, 0, size)
+        End Function
+#End Region
+
+#End Region
+
+#Region "writing"
+
+        Public Sub writeuint(ByVal towrite As UInteger)
+            Write(BitConverter.GetBytes(towrite), 0, 4)
+        End Sub
+        Public Sub writeint(ByVal towrite As Integer)
+            Write(BitConverter.GetBytes(towrite), 0, 4)
+        End Sub
+        Public Sub writeushort(ByVal towrite As UShort)
+            Write(BitConverter.GetBytes(towrite), 0, 2)
+        End Sub
+        Public Sub writeshort(ByVal towrite As Short)
+            Write(BitConverter.GetBytes(towrite), 0, 2)
+        End Sub
+        Public Overrides Sub writebyte(ByVal towrite As Byte)
+            If Length > 0 Then
+                m_buffer(curpos) = towrite
+                curpos += 1
+            End If
+        End Sub
+        Public Sub writechar(ByVal towrite As SByte)
+            If Length > 0 Then
+                m_buffer(curpos) = CByte(towrite)
+                curpos += 1
+            End If
+        End Sub
+        Public Sub writestr(ByVal towrite As String)
+            Dim strbytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
+            For i As Integer = 0 To strbytes.Length - 1
+                writebyte(strbytes(i))
+            Next
+            If strbytes(strbytes.Length - 1) <> 0 Then
+                'ensure '\0'-termination
+                writebyte(0)
+            End If
+        End Sub
+        Public Sub writestrn(ByVal towrite As String, ByVal length As Integer)
+            Dim strbytes As Byte() = ASCIIEncoding.ASCII.GetBytes(towrite)
+            For i As Integer = 0 To length - 1
+                If i < strbytes.Length Then
+                    writebyte(strbytes(i))
+                Else
+                    writebyte(0)
+                End If
+            Next
+        End Sub
+        Public Sub writeustr(ByVal towrite As String)
+            Dim strbytes As Char() = towrite.ToCharArray()
+            For i As Integer = 0 To strbytes.Length - 1
+                writeushort(BitConverter.GetBytes(strbytes(i))(0))
+            Next
+
+            If BitConverter.GetBytes(strbytes(strbytes.Length - 1))(0) <> 0 Then
+                'ensure '\0'-termination
+                writeushort(0)
+            End If
+        End Sub
+        Public Sub writeustrn(ByVal towrite As String, ByVal length As Integer)
+            Dim strbytes As Char() = towrite.ToCharArray()
+            For i As Integer = 0 To length - 1
+                If i < strbytes.Length Then
+                    writeushort(BitConverter.GetBytes(strbytes(i))(0))
+                Else
+                    writeushort(0)
+                End If
+            Next
+        End Sub
+
+#End Region
+
+    End Class
+
 
 End Class

@@ -70,6 +70,7 @@
       <SubType>Code</SubType>
     </Compile>
     <None Include="Delegates.vb" />
+    <Compile Include="ClientList.vb" />
     <Compile Include="ClientSocket.vb">
       <SubType>Component</SubType>
     </Compile>

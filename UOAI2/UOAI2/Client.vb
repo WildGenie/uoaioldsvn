@@ -57,7 +57,9 @@ Partial Class UOAI
             Dim PID_COPY As Integer
             Dim TID As Integer
 
+            'Gives _SyncForm a hWnd so that way it can be used as a syncobject.
             _SyncForm.Show()
+            _SyncForm.Hide()
 
             'assign process id
             ProcessID = PID
