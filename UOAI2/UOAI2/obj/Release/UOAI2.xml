@@ -442,6 +442,11 @@ UOAI2
  This is sent by the server to equip a single item on a character.
  </summary>
 	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.Packets.ContainerContents">
+	<summary>
+ This is sent to display the contents of a container.
+ </summary>
+	<remarks></remarks>
 </member><member name="T:UOAI2.UOAI.Packets">
 	<summary>A namespace encapsulating the packet types classes.</summary>
 </member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.CannotPickup">
