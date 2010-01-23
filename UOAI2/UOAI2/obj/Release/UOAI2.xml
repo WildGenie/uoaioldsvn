@@ -6,36 +6,36 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
+<member name="M:UOAI2.UOAI.ClientList.InitializeClientPaths">
 	<summary>Gets the working directory and location of client.exe from the registry.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
+</member><member name="M:UOAI2.UOAI.ClientList.LaunchClient">
 	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.byPID(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.byPID(System.Int32)">
 	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
 	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
 	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
   Although if it doesn't find one matching the PID it will raise the "onError" event
   and return the first client in the list.</returns>
-</member><member name="M:UOAI2.UOAI.UOClientList.Add(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.Add(System.Int32)">
 	<summary>Adds clients to the Clients arraylist, based on PID</summary>
 	<param name="PID">The process ID of the client you want to add.</param>
-</member><member name="M:UOAI2.UOAI.UOClientList.Remove(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.Remove(System.Int32)">
 	<summary>Removed a client from the clients arraylist, based on PID.</summary>
 	<param name="PID">The process ID of the client you want to remove.</param>
-</member><member name="P:UOAI2.UOAI.UOClientList.Count">
+</member><member name="P:UOAI2.UOAI.ClientList.Count">
 	<summary>Forces update of client list then returns a count of the clients.</summary>
 	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.UOClientList.Client">
+</member><member name="P:UOAI2.UOAI.ClientList.Client">
 	<summary>Returns the UOAI.Client at the specified index.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
+</member><member name="M:UOAI2.UOAI.ClientList.ForceUpdateClientList">
 	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
 	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.UOClientList.ClientProcessExit(System.Object,System.EventArgs)">
+</member><member name="M:UOAI2.UOAI.ClientList.ClientProcessExit(System.Object,System.EventArgs)">
 	<summary>Handles the "Process.Exited" for client processes.</summary>
 	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
 	<param name="e">Nothing usefull.</param>
-</member><member name="T:UOAI2.UOAI.UOClientList">
-	<summary>A list of Ultime Online clients.</summary>
+</member><member name="T:UOAI2.UOAI.ClientList">
+	<summary>A list of Ultima Online clients.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
@@ -403,6 +403,116 @@ UOAI2
 	<summary>Represents an Ultima Online client.</summary>
 </member><member name="P:UOAI2.UOAI.Packet.Data">
 	<summary>Returns the raw packet data as a byte array.</summary>
+</member><member name="T:UOAI2.UOAI.Packet">
+	<summary>The base packet class, inherited by all classes in UOAI.Packets</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Mode">
+	<summary>Gets or Sets the speech type as <see cref="T:UOAI2.UOAI.Enums.SpeechTypes"/>.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Hue">
+	<summary>Gets or Sets the hue of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Font">
+	<summary>Gets or Sets the font of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Language">
+	<summary>Gets or Sets the language key of the packet. This only effects how it is interpreted, it does NOT change the actual language.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Text">
+	<summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
+</member><member name="T:UOAI2.UOAI.Packets.UnicodeSpeechPacket">
+	<summary>Clients send this packet when talking.</summary>
+	<remarks>Packet 0xAD</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Text">
+	<summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Name">
+	<summary>Gets or Sets the name of the speaker. Maximum of 30 characters.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Mode">
+	<summary>Gets or Sets the speech type as <see cref="T:UOAI2.UOAI.Enums.SpeechTypes"/>.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Serial">
+	<summary>Gets or sets the serial of the person or object speaking. 0xFFFFFFFF is used for system.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Body">
+	<summary>Gets or Sets the body value of the character that is talking. 0xFFFF is used for system.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Hue">
+	<summary>Gets or Sets the hue of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Font">
+	<summary>Gets or Sets the font of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Language">
+	<summary>Gets or Sets the language key of the packet. This only effects how it is interpreted, it does NOT change the actual language.</summary>
+</member><member name="T:UOAI2.UOAI.Packets.UnicodeTextPacket">
+	<summary>This is sent from the server to tell the client that someone is talking.</summary>
+	<remarks>Packet 0xAE</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.OpenContainer.Serial">
+	<summary>
+ The serial of the container being opened.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.OpenContainer.Model">
+	<summary>
+ The model of the container being opened.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.OpenContainer">
+	<summary>
+ This is sent by the server to open a container or game board (which is also a container).
+ </summary>
+	<remarks>Packet 0x24</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.Serial">
+	<summary>
+ The serial of the item to add.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.Artwork">
+	<summary>
+ The artwork number of the item.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.ObjectToObject">
+	<summary>
+ This is sent by the server to add a single item to a container. (not to display its contents)
+ </summary>
+	<remarks>Packet 0x25</remarks>
+</member><member name="T:UOAI2.UOAI.Packets">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
+	<summary></summary>
+</member><member name="T:UOAI2.UOAI.IPCConstants">
+	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
 </member>
 </members>
 </doc>

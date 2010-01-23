@@ -67,6 +67,26 @@ Public Class Form1
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
+        Dim b() As Byte = System.Text.UnicodeEncoding.Unicode.GetBytes("this is a text")
+        Dim bt(46 + b.Length + 1) As Byte
+
+        For i As Byte = 0 To b.Length - 1
+            bt(46 + i) = b(i)
+        Next
+
+
+        Dim j As New UOAI.Packets.UnicodeTextPacket(bt)
+        'check to see if parsing + reading works
+        MsgBox(j.Text)
+
+        'check to see if the writing works
+        j.Text = "this is a BAMF"
+        MsgBox(j.Text)
+
+        'check to make sure the origional read text is the correct size. This should throw an exception.
+        j.Text = "this is a BAMF "
+        MsgBox(j.Text)
+
 
     End Sub
 

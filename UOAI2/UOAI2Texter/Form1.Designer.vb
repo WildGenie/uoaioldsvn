@@ -29,11 +29,11 @@ Partial Class Form1
         Me.Button4 = New System.Windows.Forms.Button
         Me.TabControl1 = New System.Windows.Forms.TabControl
         Me.TabPage1 = New System.Windows.Forms.TabPage
+        Me.Label2 = New System.Windows.Forms.Label
+        Me.Button6 = New System.Windows.Forms.Button
+        Me.Label1 = New System.Windows.Forms.Label
         Me.TabPage2 = New System.Windows.Forms.TabPage
         Me.Button5 = New System.Windows.Forms.Button
-        Me.Label1 = New System.Windows.Forms.Label
-        Me.Button6 = New System.Windows.Forms.Button
-        Me.Label2 = New System.Windows.Forms.Label
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -110,6 +110,33 @@ Partial Class Form1
         Me.TabPage1.Text = "TabPage1"
         Me.TabPage1.UseVisualStyleBackColor = True
         '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(8, 193)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(39, 13)
+        Me.Label2.TabIndex = 7
+        Me.Label2.Text = "Label2"
+        '
+        'Button6
+        '
+        Me.Button6.Location = New System.Drawing.Point(128, 3)
+        Me.Button6.Name = "Button6"
+        Me.Button6.Size = New System.Drawing.Size(95, 22)
+        Me.Button6.TabIndex = 6
+        Me.Button6.Text = "Enc Patch"
+        Me.Button6.UseVisualStyleBackColor = True
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(198, 66)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(25, 13)
+        Me.Label1.TabIndex = 5
+        Me.Label1.Text = "PID"
+        '
         'TabPage2
         '
         Me.TabPage2.Controls.Add(Me.Button5)
@@ -128,35 +155,8 @@ Partial Class Form1
         Me.Button5.Name = "Button5"
         Me.Button5.Size = New System.Drawing.Size(137, 23)
         Me.Button5.TabIndex = 6
-        Me.Button5.Text = "Button5"
+        Me.Button5.Text = "Test BufferHandler"
         Me.Button5.UseVisualStyleBackColor = True
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(198, 66)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(25, 13)
-        Me.Label1.TabIndex = 5
-        Me.Label1.Text = "PID"
-        '
-        'Button6
-        '
-        Me.Button6.Location = New System.Drawing.Point(128, 3)
-        Me.Button6.Name = "Button6"
-        Me.Button6.Size = New System.Drawing.Size(95, 22)
-        Me.Button6.TabIndex = 6
-        Me.Button6.Text = "Enc Patch"
-        Me.Button6.UseVisualStyleBackColor = True
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(8, 193)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(39, 13)
-        Me.Label2.TabIndex = 7
-        Me.Label2.Text = "Label2"
         '
         'Form1
         '

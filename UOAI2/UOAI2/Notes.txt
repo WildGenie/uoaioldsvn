@@ -57,6 +57,11 @@ Completed Recently:
 		bufferhandler class to the packets.vb file i can change it there without interfereing with your work.
 		I am very happy to announce that we have reached the point where we can work on individual sections
 		of code simultaneously.
+		
+	-	Fixed the buffer handler not reading Unicode strings properly. it now reads and write as expected.
+		I had to subtract 2 from the position and turn netoworkorder to false. You know why? its your code...
+		
+		
 							
 22/01/2010 ::: Wim
 	-	I excluded the interfaces.vb file, we don't need it.. and it was generating errors.

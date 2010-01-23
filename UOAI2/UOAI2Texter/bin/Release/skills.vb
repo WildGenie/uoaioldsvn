@@ -7,7 +7,7 @@ Public Enum Skills
 	Parrying = 6
 	Begging = 7
 	Blacksmithy = 8
-	Bowcraft/Fletching = 9
+	BowcraftFletching = 9
 	Peacemaking = 10
 	Camping = 11
 	Carpentry = 12
