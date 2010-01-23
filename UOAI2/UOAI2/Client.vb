@@ -7,18 +7,16 @@ Partial Class UOAI
         Private ProcessID As Integer
         Friend InjectedDll As UOClientDll
         Friend PStream As ProcessStream
-        'Private m_EventSocket As System.Net.Sockets.Socket
+        Private m_EventSocket As System.Net.Sockets.Socket
         Private m_Items As ItemList
         Private m_Mobiles As ItemList
-        Private EventThread As Thread
         Private m_EventBufferHandler As New BufferHandler(4096)
         Private Shared droppacketmessage As Byte() = New Byte() {2, 0, 0, 0}
         Private Shared continuemessage As Byte() = New Byte() {0, 0, 0, 0}
         Private m_EventHandled As Boolean
         Private m_EventLocked As Boolean
         Private m_CurrentPacket As Packet
-        Private _SyncForm As New Windows.Forms.Form
-        Private WithEvents _EventSocket As New ClientSocket(_SyncForm)
+        Private m_EventTimer As System.Threading.Timer
 
         ''' <summary>
         ''' Called when the client process closes.
@@ -58,8 +56,8 @@ Partial Class UOAI
             Dim TID As Integer
 
             'Gives _SyncForm a hWnd so that way it can be used as a syncobject.
-            _SyncForm.Show()
-            _SyncForm.Hide()
+            '_SyncForm.Show()
+            '_SyncForm.Hide()
 
             'assign process id
             ProcessID = PID
@@ -89,12 +87,15 @@ Partial Class UOAI
             'a. setup event system
             Dim eventport As Integer
 
+            'get the communication port from the client
             eventport = InjectedDll.GetEventPort()
 
-            'm_EventSocket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-            'm_EventSocket.Connect(IPAddress.Loopback, eventport)
-            _EventSocket.Connect(IPAddress.Loopback, eventport)
-            If _EventSocket.IsConnected = False Then
+            'setup an event socket and connect to the IPC channel in the client
+            m_EventSocket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            m_EventSocket.Connect(IPAddress.Loopback, eventport)
+
+            'check the connection, we cannot continoue without it
+            If m_EventSocket.Connected = False Then
                 Throw New Exception("Could not connect to the event server setup within the client's excecutable!" & vbLf)
             End If
 
@@ -102,16 +103,16 @@ Partial Class UOAI
             m_Items = New ItemList
             m_Mobiles = New ItemList
 
-            'c. other state inits
-            '- playermobile
+            'c. timer
+            m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
 
-            'd. Setup event invokation thread
+        End Sub
 
-            'Make event thread = a new thread out of EventHandler
-            'EventThread = New Thread(AddressOf EventHandler)
-
-            'Start the thread
-            'EventThread.Start()
+        Private Sub EventTimerProc(ByVal state As Object)
+            'Handle Packets (needs to be a seperate function to allow for recursivity!)
+            HandlePackets()
+            'set the timer again
+            m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
         End Sub
 
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
@@ -137,13 +138,14 @@ Partial Class UOAI
                 backup = m_CurrentPacket
                 'handle this packet
                 Try
-                    _EventSocket.Send(continuemessage)
+                    m_EventSocket.Send(continuemessage)
                 Catch ex As Exception
                     Return
                 End Try
                 'while it's handling we might need to handle other packets
-                'TODO: this may need to be re-implemented.
-                'EventHandler()
+                Do While HandlePackets()
+                    Thread.Sleep(0)
+                Loop
 
                 'should return when packet is handled
                 m_CurrentPacket = backup
@@ -153,7 +155,7 @@ Partial Class UOAI
                 LatePacketHandling(m_CurrentPacket)
                 'release client
                 Try
-                    _EventSocket.Send(continuemessage)
+                    m_EventSocket.Send(continuemessage)
                 Catch ex As Exception
                     Return
                 End Try
@@ -221,23 +223,20 @@ Partial Class UOAI
             End Get
         End Property
 
-        Private Sub _EventSocket_Receive(ByVal buffer() As Byte) Handles _EventSocket.Receive
+        'handles all IPC packets, including sent/received packets on the client
+        Private Function HandlePackets() As Boolean
             Dim eventtype As Enums.EventTypeConstants
             Dim eventdatasize As Integer
             Dim received As Integer
             Dim vkeycode As UInteger
 
-            received = 0
             m_EventLocked = True
 
-            'Do
-
             Try
-                m_EventBufferHandler.buffer = buffer
+                received = m_EventSocket.Receive(m_EventBufferHandler.buffer)
             Catch ex As Exception
-                MsgBox(ex)
+                Return False
             End Try
-
 
             m_EventHandled = False 'new packet, so not handled yet
             m_EventBufferHandler.Position = 0 'we start at the beginning of the new packet
@@ -250,21 +249,21 @@ Partial Class UOAI
                     RemoveObject(m_EventBufferHandler.readuint())
                     'continue
                     Try
-                        _EventSocket.Send(continuemessage)
+                        m_EventSocket.Send(continuemessage)
                     Catch ex As Exception
-                        Return
+                        Return False
                     End Try
-                    Exit Select
+                    Return True
                 Case Enums.EventTypeConstants.packet_handled
-                    Return 'exit nested packet handler
+                    Return False 'exit nested packet handler, by returning false the nested loop will get broken
                 Case Enums.EventTypeConstants.connection_loss
                     'connection loss event
                     RaiseEvent onConnectionLoss(Me)
                     'continue
                     Try
-                        _EventSocket.Send(continuemessage)
+                        m_EventSocket.Send(continuemessage)
                     Catch ex As Exception
-                        Return
+                        Return False
                     End Try
                     Exit Select
                 Case Enums.EventTypeConstants.key_down
@@ -274,11 +273,11 @@ Partial Class UOAI
                     RaiseEvent onKeyDown(Me, vkeycode)
                     'continue
                     Try
-                        _EventSocket.Send(continuemessage)
+                        m_EventSocket.Send(continuemessage)
                     Catch ex As Exception
-                        Return
+                        Return False
                     End Try
-                    Exit Select
+                    Return True
                 Case Enums.EventTypeConstants.key_up
                     'get virtual key code
                     vkeycode = m_EventBufferHandler.readuint()
@@ -286,11 +285,11 @@ Partial Class UOAI
                     RaiseEvent onKeyUp(Me, vkeycode)
                     'continue
                     Try
-                        _EventSocket.Send(continuemessage)
+                        m_EventSocket.Send(continuemessage)
                     Catch ex As Exception
-                        Return
+                        Return False
                     End Try
-                    Exit Select
+                    Return True
                 Case Enums.EventTypeConstants.received_packet
                     'build the packet
                     m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMSERVER)
@@ -307,7 +306,7 @@ Partial Class UOAI
                     'make sure it is handled
                     HandlePacket()
 
-                    Exit Select
+                    Return True
                 Case Enums.EventTypeConstants.sent_packet
                     'build this packet
                     m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMCLIENT)
@@ -324,16 +323,12 @@ Partial Class UOAI
                     'make sure it is handled
                     HandlePacket()
 
-                    Exit Select
+                    Return True
                 Case Else
-                    Exit Select
+                    Return False
             End Select
 
-            'Thread.sleep(0)
-
-            'Loop
-
-        End Sub
+        End Function
 
     End Class
 

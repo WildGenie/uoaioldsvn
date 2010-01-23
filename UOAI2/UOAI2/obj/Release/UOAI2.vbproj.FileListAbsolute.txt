@@ -10,3 +10,15 @@ C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.Genera
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.dll
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.xml
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.pdb
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOClientDll.dll
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.dll.config
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.dll
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.pdb
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.xml
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.Resources.resources
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.vbproj.GenerateResource.Cache
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.dll
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.xml
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.pdb
+C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.tlb

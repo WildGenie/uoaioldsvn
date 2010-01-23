@@ -6,37 +6,7 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="M:UOAI2.UOAI.ClientList.InitializeClientPaths">
-	<summary>Gets the working directory and location of client.exe from the registry.</summary>
-</member><member name="M:UOAI2.UOAI.ClientList.LaunchClient">
-	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
-</member><member name="M:UOAI2.UOAI.ClientList.byPID(System.Int32)">
-	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
-	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
-	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
-  Although if it doesn't find one matching the PID it will raise the "onError" event
-  and return the first client in the list.</returns>
-</member><member name="M:UOAI2.UOAI.ClientList.Add(System.Int32)">
-	<summary>Adds clients to the Clients arraylist, based on PID</summary>
-	<param name="PID">The process ID of the client you want to add.</param>
-</member><member name="M:UOAI2.UOAI.ClientList.Remove(System.Int32)">
-	<summary>Removed a client from the clients arraylist, based on PID.</summary>
-	<param name="PID">The process ID of the client you want to remove.</param>
-</member><member name="P:UOAI2.UOAI.ClientList.Count">
-	<summary>Forces update of client list then returns a count of the clients.</summary>
-	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.ClientList.Client">
-	<summary>Returns the UOAI.Client at the specified index.</summary>
-</member><member name="M:UOAI2.UOAI.ClientList.ForceUpdateClientList">
-	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
-	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.ClientList.ClientProcessExit(System.Object,System.EventArgs)">
-	<summary>Handles the "Process.Exited" for client processes.</summary>
-	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
-	<param name="e">Nothing usefull.</param>
-</member><member name="T:UOAI2.UOAI.ClientList">
-	<summary>A list of Ultima Online clients.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.LoginState">
+<member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
 	<summary>Enumeration of Entity types.</summary>
@@ -56,85 +26,6 @@ UOAI2
 	<summary>Enumeration of the different facets.</summary>
 </member><member name="T:UOAI2.UOAI.Enums">
 	<summary>A simple list of enumerations used primarily internally.</summary>
-</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
-	<summary>
- Constructs a Point given its coordinates.
- </summary>
-	<param name="x">X-coordinate</param>
-	<param name="y">Y-coordinate</param>
-	<param name="z">Z-coordinate</param>
-</member><member name="P:UOAI2.UOAI.Point3D.X">
-	<summary>
- X coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Y">
-	<summary>
- Y coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Z">
-	<summary>
- Z coordinate
- </summary>
-</member><member name="M:UOAI2.UOAI.Point3D.ToString">
-	<summary>
- String representation of this location.
- </summary>
-	<returns>String representation of this location.</returns>
-</member><member name="T:UOAI2.UOAI.Point3D">
-	<summary>Represents an in-game 3D location.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
-	<summary>Specifies all possible access flags for the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
-	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
-	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
-	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
-	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
-	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
-	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
-	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
-	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
-	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
-</member><member name="T:UOAI2.UOAI.Imports">
-	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
-</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
-	<summary>Where the actual memory offset of the item is stored</summary>
-</member><member name="F:UOAI2.UOAI.Item._Serial">
-	<summary>Item serial as UOAI.ItemSerial, private.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Offset">
-	<summary>The 32-bit memory offset for the item in the client memory.</summary>
-</member><member name="T:UOAI2.UOAI.ItemList">
-	<summary>Contains a list of UOAI.Item's</summary>
-</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
-	<summary>
-  Returns the cached ResourceManager instance used by this class.
-</summary>
-</member><member name="P:UOAI2.My.Resources.Resources.Culture">
-	<summary>
-  Overrides the current thread's CurrentUICulture property for all
-  resource lookups using this strongly typed resource class.
-</summary>
-</member><member name="T:UOAI2.My.Resources.Resources">
-	<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member><member name="P:UOAI2.UOAI.Clients">
-	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
-</member><member name="P:UOAI2.UOAI.ClientPath">
-	<summary>Gets or sets the path of the client executable, usualy something like 
- "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
- working directory for the clients launched using UOAI.</summary>
-	<returns>The path to the client executable.</returns>
-</member><member name="P:UOAI2.UOAI.ClientExe">
-	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
-	<returns>The name of the client executable.</returns>
 </member><member name="M:UOAI2.UOAI.Client.Macros.Say(System.String)">
 	<summary>
  Says the specified message.
@@ -344,6 +235,64 @@ UOAI2
 	<summary>
  Standard UO macros
  </summary>
+</member><member name="P:UOAI2.UOAI.Clients">
+	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
+</member><member name="P:UOAI2.UOAI.ClientPath">
+	<summary>Gets or sets the path of the client executable, usualy something like 
+ "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
+ working directory for the clients launched using UOAI.</summary>
+	<returns>The path to the client executable.</returns>
+</member><member name="P:UOAI2.UOAI.ClientExe">
+	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
+	<returns>The name of the client executable.</returns>
+</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
+	<summary></summary>
+</member><member name="T:UOAI2.UOAI.IPCConstants">
+	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
 </member><member name="E:UOAI2.UOAI.Client.onClientExit">
 	<summary>
  Called when the client process closes.
@@ -463,56 +412,161 @@ UOAI2
  This is sent by the server to add a single item to a container. (not to display its contents)
  </summary>
 	<remarks>Packet 0x25</remarks>
+</member><member name="T:UOAI2.UOAI.Packets.GetItemFailed">
+	<summary>
+ This is sent to deny the player's request to get an item.
+ </summary>
+	<remarks></remarks>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Serial">
+	<summary>
+ The serial of the item to equip.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Artwork">
+	<summary>
+ The item's artwork number.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Layer">
+	<summary>
+ The item's layer
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Container">
+	<summary>
+ The serial of the character on which the item will be equipped.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Hue">
+	<summary>
+ The item's hue.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.EquipItem">
+	<summary>
+ This is sent by the server to equip a single item on a character.
+ </summary>
+	<remarks></remarks>
 </member><member name="T:UOAI2.UOAI.Packets">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
-	<summary></summary>
-</member><member name="T:UOAI2.UOAI.IPCConstants">
-	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+	<summary>A namespace encapsulating the packet types classes.</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.CannotPickup">
+	<summary>Displays "You cannot pick that up."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.TooFar">
+	<summary>Displays "That is too far away."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.OutOfSight">
+	<summary>Displays "That is out of sight."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.DoesntBelongToYou">
+	<summary>Displays "That item does not belong to you. You will have to steal it."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.AlreadyHoldingItem">
+	<summary>Displays "You are already holding an item."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.Cmd_DestroyTheItem">
+	<summary>Tells the client to delete the item from its cache.</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.NoMessage">
+	<summary>Displays no message, just doesn't let you pick it up.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.GetItemFailedReason">
+	<summary>
+ Reason enumeration for "Get Item Failed" packet. (0x27)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.Enums.PacketType">
+	<summary>
+ Packet type enumeration.
+ </summary>
+	<remarks></remarks>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOAI2.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+	<summary>Specifies all possible access flags for the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
+	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
+	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
+	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
+	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
+	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
+	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
+	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
+	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
+	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="M:UOAI2.UOAI.ClientList.InitializeClientPaths">
+	<summary>Gets the working directory and location of client.exe from the registry.</summary>
+</member><member name="M:UOAI2.UOAI.ClientList.LaunchClient">
+	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
+</member><member name="M:UOAI2.UOAI.ClientList.byPID(System.Int32)">
+	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
+	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
+	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
+  Although if it doesn't find one matching the PID it will raise the "onError" event
+  and return the first client in the list.</returns>
+</member><member name="M:UOAI2.UOAI.ClientList.Add(System.Int32)">
+	<summary>Adds clients to the Clients arraylist, based on PID</summary>
+	<param name="PID">The process ID of the client you want to add.</param>
+</member><member name="M:UOAI2.UOAI.ClientList.Remove(System.Int32)">
+	<summary>Removed a client from the clients arraylist, based on PID.</summary>
+	<param name="PID">The process ID of the client you want to remove.</param>
+</member><member name="P:UOAI2.UOAI.ClientList.Count">
+	<summary>Forces update of client list then returns a count of the clients.</summary>
+	<returns>An integer value representing the current number of UO clients running.</returns>
+</member><member name="P:UOAI2.UOAI.ClientList.Client">
+	<summary>Returns the UOAI.Client at the specified index.</summary>
+</member><member name="M:UOAI2.UOAI.ClientList.ForceUpdateClientList">
+	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.ClientList.ClientProcessExit(System.Object,System.EventArgs)">
+	<summary>Handles the "Process.Exited" for client processes.</summary>
+	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
+	<param name="e">Nothing usefull.</param>
+</member><member name="T:UOAI2.UOAI.ClientList">
+	<summary>A list of Ultima Online clients.</summary>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Offset">
+	<summary>The 32-bit memory offset for the item in the client memory.</summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
 </member>
 </members>
 </doc>
