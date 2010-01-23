@@ -15,7 +15,7 @@ Partial Class UOAI
         End Sub
 
         ''' <summary>Returns the raw packet data as a byte array.</summary>
-        Public ReadOnly Property Data() As Byte()
+        Public Overridable ReadOnly Property Data() As Byte()
             Get
                 Return _Data
             End Get
@@ -658,6 +658,125 @@ Partial Class UOAI
                     buff.writeushort(value)
                 End Set
             End Property
+
+        End Class
+
+        ''' <summary>
+        ''' This is sent to display the contents of a container.
+        ''' </summary>
+        ''' <remarks></remarks>
+        Public Class ContainerContents
+            Inherits Packet
+
+            Private _ItemList() As Item
+            Private _Count As UShort
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.ContainerContents)
+
+                buff.Position = 1
+                buff.networkorder = False
+                '1-2
+                _size = buff.readushort
+                buff.networkorder = True
+
+                '3-4
+                _Count = buff.readushort
+
+                Dim it As Item
+
+                For i As UShort = 1 To _Count - 1
+                    it = New Item
+                    buff.Position = (i * 19) + 5
+                    it._Serial = buff.readuint
+                    it._Artwork = buff.readushort
+                    it._StackID = buff.readbyte
+                    it._X = buff.readushort
+                    it._Y = buff.readushort
+                    it._Container = buff.readuint
+                    it._Hue = buff.readushort
+                    _ItemList(i) = it
+                Next
+
+            End Sub
+
+            Public Overloads ReadOnly Property Items() As Item()
+                Get
+                    Return _ItemList
+                End Get
+            End Property
+
+            Public Overloads Property Items(ByVal Index As UShort) As Item
+                Get
+                    Return _ItemList(Index)
+                End Get
+                Set(ByVal value As Item)
+                    _ItemList(Index) = value
+                End Set
+            End Property
+
+            Public Overrides ReadOnly Property Data() As Byte()
+                Get
+                    'Write the byte array dynamically
+                    buff = New BufferHandler(_Data)
+
+                    buff.Position = 1
+                    buff.networkorder = False
+                    '1-2
+                    buff.writeushort(_size)
+                    buff.networkorder = True
+
+                    '3-4
+                    buff.writeushort(_Count)
+
+                    For i As UShort = 0 To _Count
+                        buff.Position = (i * 19) + 5
+                        buff.writeuint(_ItemList(i)._Serial)
+                        buff.writeushort(_ItemList(i)._Artwork)
+                        buff.writebyte(_ItemList(i)._StackID)
+                        buff.writeushort(_ItemList(i)._X)
+                        buff.writeushort(_ItemList(i)._Y)
+                        buff.writeuint(_ItemList(i)._Container)
+                        buff.writeushort(_ItemList(i)._Hue)
+                    Next
+
+                    Return _Data
+                End Get
+            End Property
+
+        End Class
+
+        Public Class RenameMOB
+            Inherits Packet
+
+            Private _Serial As UInt32
+            Private _Name As String
+
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.RenameMOB)
+                buff = New BufferHandler(bytes)
+
+                buff.Position = 1
+                '1-4
+                _Serial = buff.readuint
+
+                '5-35
+                _Name = buff.readstrn(30)
+
+            End Sub
+
+            Public Property Serial() As UInt32
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal value As UInt32)
+                    _Serial = value
+                    buff.Position = 1
+                    buff.writeuint(value)
+                End Set
+            End Property
+
 
         End Class
 
