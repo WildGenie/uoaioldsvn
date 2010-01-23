@@ -1,30 +1,64 @@
-﻿					|||||||||||||||||||||||||||||||||||||
-					||||||||	UOAI2 Notes		|||||||||
-					|||||||||||||||||||||||||||||||||||||
+﻿
+
+					/||||||||-------------------|||||||||\
+				   (|||||||||	 UOAI2 Notes	||||||||||)
+					\||||||||-------------------|||||||||/
+
 
 Top Priorities:
-1:	UOAI2 communication with injected dll, to where we can get information
-	from the clients memory and make a "UOAI.Item" object that has data that 
-	can be used by the test application. (fe. Item.Type)
+1:	Complete UOAI2 communication with injected dll
 
 2:	Finish the UOAI.Item class and make a binary tree class for storing and
 	accessing UOAI.ItemList.
 	
+3:	Add packet classes for other types of packets.
 	
 Completed Recently:
--	Added UOAI.Client layout, just added the subs and functions and such for when
-	we can get more information for it to use.
--	
-
+22/01/2010 ::: Eric
+	-	I changed the event handler model to use a "ClientSocket" class to handle packets
+		Its pretty much the same as before but there is not loop, I made this change because
+		I noticed that the core that had the client running on it was getting its cpu eaten
+		up by the loop. So, it turns out that I was right, the loop AND the timer eats CPU 
+		like a fat kid eats cake. So now, when a packet is recieved it calls the sub:
+		
+		Private Sub _EventSocket_Receive(ByVal buffer() As Byte) Handles _EventSocket.Receive
+		
+		Which then handles the packet by one iteration of the same stuff inside the old 
+		EventHandler sub. This may not be the best way to deal with it, but I dont see any obvious
+		draw-backs. Though I will have to do some stuff "disconnect" from the client injected
+		dll when the test app is shut down, that way it wont keep trying to have the host app do shit.
+		
+	-	I am having trouble getting past the "Entering Britania..." screen when connecting to
+		UOGamers. After i exit the app, it connects and then i get a message from the server (custom
+		gump with a message) saying that I am using an unrecognized client and disconnects me
+		after 5 seconds. Also none of the walls in my house or anything load up, i just have plot
+		on the ground and a bunch of shit floating above it. I will try to fix this... failed.
+		
+	-	Is there some sort of message that I am supposed to send to the injected dll to tell it
+		to stop redirecting packets? I dont know...
+		
+	-	Also try to be carefull when defining subs, I dont know about COM or C#, but the visiblity
+		of the Sub to the user is determined like so:
+		
+		Private Sub	- Can only be accessed form within that class
+		Friend Sub	- Can be accessed by anything inside of the UOAI Class
+		Public Sub	- Can be accessed by the end user (the test app)
+		
+		You don't want people to get confused and start to call things like Client.HandlePacket or
+		Client.RemoveObject(0) and make UOAI do some wierd shit.
+							
 22/01/2010 ::: Wim
-	- I excluded the interfaces.vb file, we don't need it.. and it was generating errors.
+	-	I excluded the interfaces.vb file, we don't need it.. and it was generating errors.
 		The file is still there it's just removed form the project listing.
-	- I exluded the UOClientDll.dll project, we need to use the VC6 compiled one the VS2008
+		
+	-	I exluded the UOClientDll.dll project, we need to use the VC6 compiled one the VS2008
 		compiled version crashes whenever the hooks are called (packet-sent/receive). Probably
 		the code around the inline assembly messes up some assumptions i make in the inline
 		assembly part.
-	- I finished the basic layout of the event-part... i think however we should swith from
+		
+	-	I finished the basic layout of the event-part... i think however we should switch from
 		a threaded to a timer-based one. As you can see it doesn't shut down correctly otherwise.
-	- The onPacketReceive event is now working, though you only get the UnicodePacket right now...
+		
+	-	The onPacketReceive event is now working, though you only get the UnicodePacket right now...
 		and some bugs in either the packet-parsing of the unicode text thing; or in the converted bufferhandler
 		cause the unicode packet to have only the .Name set correctly. .Text fails.

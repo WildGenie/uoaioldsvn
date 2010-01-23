@@ -6,7 +6,83 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+<member name="T:UOAI2.UOAI.Enums.LoginState">
+	<summary>Enumeration of Login state.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.EntityType">
+	<summary>Enumeration of Entity types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Spell">
+	<summary>Enumeration of Spells.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Macros">
+	<summary>Enumeration of macro types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Element">
+	<summary>Enumeration of element types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Gender">
+	<summary>Enumeration of mobile gender.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
+	<summary>Enumeration of target kind.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
+	<summary>Enumeration of mobile status.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Facets">
+	<summary>Enumeration of the different facets.</summary>
+</member><member name="T:UOAI2.UOAI.Enums">
+	<summary>A simple list of enumerations used primarily internally.</summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+	<summary>Specifies all possible access flags for the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
+	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
+	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
+	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
+	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
+	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
+	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
+	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
+	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
+	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Offset">
+	<summary>The 32-bit memory offset for the item in the client memory.</summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
 	<summary>
   Returns the cached ResourceManager instance used by this class.
 </summary>
@@ -19,14 +95,6 @@ UOAI2
 	<summary>
   A strongly-typed resource class, for looking up localized strings, etc.
 </summary>
-</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
-	<summary>Where the actual memory offset of the item is stored</summary>
-</member><member name="F:UOAI2.UOAI.Item._Serial">
-	<summary>Item serial as UOAI.ItemSerial, private.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Offset">
-	<summary>The 32-bit memory offset for the item in the client memory.</summary>
-</member><member name="T:UOAI2.UOAI.ItemList">
-	<summary>Contains a list of UOAI.Item's</summary>
 </member><member name="P:UOAI2.UOAI.Clients">
 	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
 </member><member name="P:UOAI2.UOAI.ClientPath">
@@ -69,8 +137,6 @@ UOAI2
 	<param name="e">Nothing usefull.</param>
 </member><member name="T:UOAI2.UOAI.UOClientList">
 	<summary>A list of Ultime Online clients.</summary>
-</member><member name="P:UOAI2.UOAI.Packet.Data">
-	<summary>Returns the raw packet data as a byte array.</summary>
 </member><member name="M:UOAI2.UOAI.Client.Macros.Say(System.String)">
 	<summary>
  Says the specified message.
@@ -308,6 +374,17 @@ UOAI2
  Called when the client loses its network connection to the server.
  </summary>
 	<param name="Client">The client that lost its connection.</param>
+</member><member name="M:UOAI2.UOAI.Client.PatchEncryption">
+	<summary>Disables the client encryption.</summary>
+	<remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
+</member><member name="M:UOAI2.UOAI.Client.UpdatePacket(UOAI2.UOAI.Packet@)">
+	<summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
+	<param name="newpacket">The packet object as a <see cref="T:UOAI2.UOAI.Packet"/></param>
+</member><member name="M:UOAI2.UOAI.Client.DropPacket">
+	<summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
+</member><member name="M:UOAI2.UOAI.Client.RemoveObject(System.UInt32)">
+	<summary>Remove an item, mobile, etc... from the collections</summary>
+	<param name="address">The 32-bit address in the client's memory of the object as <see cref="T:System.UInt32"/></param>
 </member><member name="P:UOAI2.UOAI.Client.PID">
 	<summary>
  Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -326,74 +403,8 @@ UOAI2
 	<returns>The client window title, generally something like "Ultima Online"</returns>
 </member><member name="T:UOAI2.UOAI.Client">
 	<summary>Represents an Ultima Online client.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.LoginState">
-	<summary>Enumeration of Login state.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.EntityType">
-	<summary>Enumeration of Entity types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Spell">
-	<summary>Enumeration of Spells.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Macros">
-	<summary>Enumeration of macro types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Element">
-	<summary>Enumeration of element types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Gender">
-	<summary>Enumeration of mobile gender.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
-	<summary>Enumeration of target kind.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
-	<summary>Enumeration of mobile status.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Facets">
-	<summary>Enumeration of the different facets.</summary>
-</member><member name="T:UOAI2.UOAI.Enums">
-	<summary>A simple list of enumerations used primarily internally.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
-	<summary>Specifies all possible access flags for the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
-	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
-	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
-	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
-	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
-	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
-	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
-	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
-	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
-	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
-</member><member name="T:UOAI2.UOAI.Imports">
-	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
-</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
-	<summary>
- Constructs a Point given its coordinates.
- </summary>
-	<param name="x">X-coordinate</param>
-	<param name="y">Y-coordinate</param>
-	<param name="z">Z-coordinate</param>
-</member><member name="P:UOAI2.UOAI.Point3D.X">
-	<summary>
- X coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Y">
-	<summary>
- Y coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Z">
-	<summary>
- Z coordinate
- </summary>
-</member><member name="M:UOAI2.UOAI.Point3D.ToString">
-	<summary>
- String representation of this location.
- </summary>
-	<returns>String representation of this location.</returns>
-</member><member name="T:UOAI2.UOAI.Point3D">
-	<summary>Represents an in-game 3D location.</summary>
+</member><member name="P:UOAI2.UOAI.Packet.Data">
+	<summary>Returns the raw packet data as a byte array.</summary>
 </member>
 </members>
 </doc>

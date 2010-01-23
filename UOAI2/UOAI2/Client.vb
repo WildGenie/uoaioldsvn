@@ -7,7 +7,7 @@ Partial Class UOAI
         Private ProcessID As Integer
         Friend InjectedDll As UOClientDll
         Friend PStream As ProcessStream
-        Private WithEvents m_EventSocket As System.Net.Sockets.Socket
+        'Private m_EventSocket As System.Net.Sockets.Socket
         Private m_Items As ItemList
         Private m_Mobiles As ItemList
         Private EventThread As Thread
@@ -17,6 +17,8 @@ Partial Class UOAI
         Private m_EventHandled As Boolean
         Private m_EventLocked As Boolean
         Private m_CurrentPacket As Packet
+        Private _SyncForm As New Windows.Forms.Form
+        Private WithEvents _EventSocket As New ClientSocket(_SyncForm)
 
         ''' <summary>
         ''' Called when the client process closes.
@@ -55,6 +57,8 @@ Partial Class UOAI
             Dim PID_COPY As Integer
             Dim TID As Integer
 
+            _SyncForm.Show()
+
             'assign process id
             ProcessID = PID
 
@@ -84,28 +88,28 @@ Partial Class UOAI
             Dim eventport As Integer
 
             eventport = InjectedDll.GetEventPort()
-            m_EventSocket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-            m_EventSocket.Connect(IPAddress.Loopback, eventport)
-            If m_EventSocket.Connected = False Then
+
+            'm_EventSocket = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            'm_EventSocket.Connect(IPAddress.Loopback, eventport)
+            _EventSocket.Connect(IPAddress.Loopback, eventport)
+            If _EventSocket.IsConnected = False Then
                 Throw New Exception("Could not connect to the event server setup within the client's excecutable!" & vbLf)
             End If
 
             'b. setup item list; mobile list and gumplist
             m_Items = New ItemList
             m_Mobiles = New ItemList
-            'Client.InitializeUOMLItemCollection(m_Items, Me, ReadUInt(m_Callibrations.pItemList), m_Callibrations.oItemNext, 0)
 
             'c. other state inits
             '- playermobile
 
-            'd. Setup event invokation timer
-            'm_InvokeEvents = True
-            'm_EventTimer = New Timer(New TimerCallback(InvokeEvents), Nothing, 0, -1)
+            'd. Setup event invokation thread
 
             'Make event thread = a new thread out of EventHandler
-            EventThread = New Thread(AddressOf EventHandler)
+            'EventThread = New Thread(AddressOf EventHandler)
+
             'Start the thread
-            EventThread.Start()
+            'EventThread.Start()
         End Sub
 
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
@@ -116,11 +120,13 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Sub PatchEncryption() 'i need this to test on a free server
+        ''' <summary>Disables the client encryption.</summary>
+        ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
+        Public Sub PatchEncryption()
             InjectedDll.PatchEncryption()
         End Sub
 
-        Public Sub HandlePacket()
+        Private Sub HandlePacket()
             Dim backup As Packet
 
             'force client to handle the current packet
@@ -129,12 +135,14 @@ Partial Class UOAI
                 backup = m_CurrentPacket
                 'handle this packet
                 Try
-                    m_EventSocket.Send(continuemessage)
+                    _EventSocket.Send(continuemessage)
                 Catch ex As Exception
                     Return
-                End Try                
+                End Try
                 'while it's handling we might need to handle other packets
-                EventHandler()
+                'TODO: this may need to be re-implemented.
+                'EventHandler()
+
                 'should return when packet is handled
                 m_CurrentPacket = backup
                 m_EventHandled = True
@@ -143,17 +151,20 @@ Partial Class UOAI
                 LatePacketHandling(m_CurrentPacket)
                 'release client
                 Try
-                    m_EventSocket.Send(continuemessage)
+                    _EventSocket.Send(continuemessage)
                 Catch ex As Exception
                     Return
                 End Try
             End If
         End Sub
 
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
+        ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
         Public Sub UpdatePacket(ByRef newpacket As Packet)
             'force an update of the packet
         End Sub
 
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
         Public Sub DropPacket()
             'current packet is never handled by the client
         End Sub
@@ -166,117 +177,10 @@ Partial Class UOAI
             'whatever we need to do with the current packet AFTER the client handled it goes here
         End Sub
 
-        Public Sub RemoveObject(ByVal address As UInteger)
+        ''' <summary>Remove an item, mobile, etc... from the collections</summary>
+        ''' <param name="address">The 32-bit address in the client's memory of the object as <see cref="UInteger"/></param>
+        Private Sub RemoveObject(ByVal address As UInteger)
             'remove item, mobile, ... from the collections
-        End Sub
-
-        Private Sub EventHandler()
-            Dim eventtype As Enums.EventTypeConstants
-            Dim eventdatasize As Integer
-            Dim received As Integer
-            Dim vkeycode As UInteger
-
-            received = 0
-            m_EventLocked = True
-            Do 'we loop infinitely
-                Try
-                    received = m_EventSocket.Receive(m_EventBufferHandler.buffer)
-                Catch ex As Exception
-                    Return
-                End Try
-
-                m_EventHandled = False 'new packet, so not handled yet
-                m_EventBufferHandler.Position = 0 'we start at the beginning of the new packet
-                eventtype = DirectCast(m_EventBufferHandler.readuint(), Enums.EventTypeConstants) 'we get the type of event
-                eventdatasize = m_EventBufferHandler.readint() 'and the size of the data
-
-                Select Case eventtype
-                    Case Enums.EventTypeConstants.object_destroyed
-                        'remove the destroyed object
-                        RemoveObject(m_EventBufferHandler.readuint())
-                        'continue
-                        Try
-                            m_EventSocket.Send(continuemessage)
-                        Catch ex As Exception
-                            Return
-                        End Try
-                        Exit Select
-                    Case Enums.EventTypeConstants.packet_handled
-                        Return 'exit nested packet handler
-                    Case Enums.EventTypeConstants.connection_loss
-                        'connection loss event
-                        RaiseEvent onConnectionLoss(Me)
-                        'continue
-                        Try
-                            m_EventSocket.Send(continuemessage)
-                        Catch ex As Exception
-                            Return
-                        End Try
-                        Exit Select
-                    Case Enums.EventTypeConstants.key_down
-                        'get virtual key code
-                        vkeycode = m_EventBufferHandler.readuint()
-                        'raise key down event here with the specified virtual key code (vkeycode)
-                        RaiseEvent onKeyDown(Me, vkeycode)
-                        'continue
-                        Try
-                            m_EventSocket.Send(continuemessage)
-                        Catch ex As Exception
-                            Return
-                        End Try
-                        Exit Select
-                    Case Enums.EventTypeConstants.key_up
-                        'get virtual key code
-                        vkeycode = m_EventBufferHandler.readuint()
-                        ' raise key up event with the specified key code here
-                        RaiseEvent onKeyUp(Me, vkeycode)
-                        'continue
-                        Try
-                            m_EventSocket.Send(continuemessage)
-                        Catch ex As Exception
-                            Return
-                        End Try
-                        Exit Select
-                    Case Enums.EventTypeConstants.received_packet
-                        'build the packet
-                        m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMSERVER)
-
-                        'internal handling before the client handled this packet
-                        EarlyPacketHandling(m_CurrentPacket)
-
-                        'unlock event, user might want it to be handled
-                        m_EventLocked = False
-
-                        'packet event
-                        RaiseEvent onPacketReceive(Me, m_CurrentPacket)
-
-                        'make sure it is handled
-                        HandlePacket()
-
-                        Exit Select
-                    Case Enums.EventTypeConstants.sent_packet
-                        'build this packet
-                        m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMCLIENT)
-
-                        'internal handling before the client handled this packet
-                        EarlyPacketHandling(m_CurrentPacket)
-
-                        'unlock event, user might want it to be handled
-                        m_EventLocked = False
-
-                        'packet event
-                        RaiseEvent onPacketReceive(Me, m_CurrentPacket)
-
-                        'make sure it is handled
-                        HandlePacket()
-
-                        Exit Select
-                    Case Else
-                        Exit Select
-                End Select
-
-                Thread.Sleep(0) ' give other threads a chance
-            Loop
         End Sub
 
         ''' <summary>
@@ -315,8 +219,120 @@ Partial Class UOAI
             End Get
         End Property
 
+        Private Sub _EventSocket_Receive(ByVal buffer() As Byte) Handles _EventSocket.Receive
+            Dim eventtype As Enums.EventTypeConstants
+            Dim eventdatasize As Integer
+            Dim received As Integer
+            Dim vkeycode As UInteger
+
+            received = 0
+            m_EventLocked = True
+
+            'Do
+
+            Try
+                m_EventBufferHandler.buffer = buffer
+            Catch ex As Exception
+                MsgBox(ex)
+            End Try
+
+
+            m_EventHandled = False 'new packet, so not handled yet
+            m_EventBufferHandler.Position = 0 'we start at the beginning of the new packet
+            eventtype = DirectCast(m_EventBufferHandler.readuint(), Enums.EventTypeConstants) 'we get the type of event
+            eventdatasize = m_EventBufferHandler.readint() 'and the size of the data
+
+            Select Case eventtype
+                Case Enums.EventTypeConstants.object_destroyed
+                    'remove the destroyed object
+                    RemoveObject(m_EventBufferHandler.readuint())
+                    'continue
+                    Try
+                        _EventSocket.Send(continuemessage)
+                    Catch ex As Exception
+                        Return
+                    End Try
+                    Exit Select
+                Case Enums.EventTypeConstants.packet_handled
+                    Return 'exit nested packet handler
+                Case Enums.EventTypeConstants.connection_loss
+                    'connection loss event
+                    RaiseEvent onConnectionLoss(Me)
+                    'continue
+                    Try
+                        _EventSocket.Send(continuemessage)
+                    Catch ex As Exception
+                        Return
+                    End Try
+                    Exit Select
+                Case Enums.EventTypeConstants.key_down
+                    'get virtual key code
+                    vkeycode = m_EventBufferHandler.readuint()
+                    'raise key down event here with the specified virtual key code (vkeycode)
+                    RaiseEvent onKeyDown(Me, vkeycode)
+                    'continue
+                    Try
+                        _EventSocket.Send(continuemessage)
+                    Catch ex As Exception
+                        Return
+                    End Try
+                    Exit Select
+                Case Enums.EventTypeConstants.key_up
+                    'get virtual key code
+                    vkeycode = m_EventBufferHandler.readuint()
+                    ' raise key up event with the specified key code here
+                    RaiseEvent onKeyUp(Me, vkeycode)
+                    'continue
+                    Try
+                        _EventSocket.Send(continuemessage)
+                    Catch ex As Exception
+                        Return
+                    End Try
+                    Exit Select
+                Case Enums.EventTypeConstants.received_packet
+                    'build the packet
+                    m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMSERVER)
+
+                    'internal handling before the client handled this packet
+                    EarlyPacketHandling(m_CurrentPacket)
+
+                    'unlock event, user might want it to be handled
+                    m_EventLocked = False
+
+                    'packet event
+                    RaiseEvent onPacketReceive(Me, m_CurrentPacket)
+
+                    'make sure it is handled
+                    HandlePacket()
+
+                    Exit Select
+                Case Enums.EventTypeConstants.sent_packet
+                    'build this packet
+                    m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMCLIENT)
+
+                    'internal handling before the client handled this packet
+                    EarlyPacketHandling(m_CurrentPacket)
+
+                    'unlock event, user might want it to be handled
+                    m_EventLocked = False
+
+                    'packet event
+                    RaiseEvent onPacketReceive(Me, m_CurrentPacket)
+
+                    'make sure it is handled
+                    HandlePacket()
+
+                    Exit Select
+                Case Else
+                    Exit Select
+            End Select
+
+            'Thread.sleep(0)
+
+            'Loop
+
+        End Sub
+
     End Class
-
-
 
 End Class
