@@ -4,12 +4,12 @@ Partial Class UOAI
 
     ''' <summary>Represents an Ultima Online client.</summary>
     Public Class Client
+
+#Region "Properties"
         Private ProcessID As Integer
         Friend InjectedDll As UOClientDll
         Friend PStream As ProcessStream
         Private m_EventSocket As System.Net.Sockets.Socket
-        Private m_Items As ItemList
-        Private m_Mobiles As ItemList
         Private m_EventBufferHandler As New BufferHandler(4096)
         Private Shared droppacketmessage As Byte() = New Byte() {2, 0, 0, 0}
         Private Shared continuemessage As Byte() = New Byte() {0, 0, 0, 0}
@@ -18,39 +18,47 @@ Partial Class UOAI
         Private m_CurrentPacket As Packet
         Private m_EventTimer As System.Threading.Timer
         Private m_ShutdownEventTimer As Boolean
+        Private _Items As ItemList
+        Friend _AllItems As New ItemList
+        Friend GIANTSerialHash As Hashtable
+
 
         ''' <summary>
-        ''' Called when the client process closes.
+        ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
         ''' </summary>
-        ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-        Public Event onClientExit(ByRef Client As Client)
+        ''' <value>The windows Process ID of the client.</value>
+        Public Property PID() As Integer
+            Get
+                Return ProcessID
+            End Get
+            Friend Set(ByVal value As Integer)
+                ProcessID = value
+            End Set
+        End Property
 
         ''' <summary>
-        ''' Called when a Packet arrives on this client.
+        ''' A method used to get the title of the client window as a string.
         ''' </summary>
-        ''' <param name="Client">Client on which the packet was received</param>
-        ''' <param name="packet">The received packet</param>
-        Public Event onPacketReceive(ByRef Client As Client, ByRef packet As Packet)
+        ''' <returns>The client window title, generally something like "Ultima Online"</returns>
+        Public ReadOnly Property WindowCaption() As String
+            Get
+                Return Process.GetProcessById(PID).MainWindowTitle
+            End Get
+        End Property
 
         ''' <summary>
-        ''' Called when the user of the client releases a pressed key.
+        ''' Returns the client's itemlist.
         ''' </summary>
-        ''' <param name="Client">The client on which the key was released</param>
-        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
-        Public Event onKeyUp(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
+        Public ReadOnly Property Items() As ItemList
+            Get
+                Return _Items
+            End Get
+        End Property
 
-        ''' <summary>
-        ''' Called when the user of the client holds down a key.
-        ''' </summary>
-        ''' <param name="Client">The client on which the key was pressed</param>
-        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
-        Public Event onKeyDown(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
 
-        ''' <summary>
-        ''' Called when the client loses its network connection to the server.
-        ''' </summary>
-        ''' <param name="Client">The client that lost its connection.</param>
-        Public Event onConnectionLoss(ByRef Client As Client)
+#End Region
+
+#Region "Constructor and InjectedDll Communication"
 
         Friend Sub New(ByVal PID As Integer)
             Dim PID_COPY As Integer
@@ -106,8 +114,7 @@ Partial Class UOAI
             End If
 
             'b. setup item list; mobile list and gumplist
-            m_Items = New ItemList
-            m_Mobiles = New ItemList
+            _Items = New ItemList(New Serial(Convert.ToUInt32(4294967295)))
 
             'c. timer
             m_ShutdownEventTimer = False
@@ -124,21 +131,27 @@ Partial Class UOAI
         End Sub
 
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
-            If packetbuffer(0) = Enums.PacketType.TextUnicode Then
-                Return New Packets.UnicodeTextPacket(packetbuffer)
-            Else
-                Return New Packet(packetbuffer(0)) 'dummy until we have what we need
-            End If
-        End Function
 
-        ''' <summary>Disables the client encryption.</summary>
-        ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
-        Public Sub PatchEncryption()
-            InjectedDll.PatchEncryption()
-        End Sub
+            Select Case DirectCast(packetbuffer(0), Enums.PacketType)
+                Case Enums.PacketType.TextUnicode
+                    Return New Packets.UnicodeTextPacket(packetbuffer)
+                Case Enums.PacketType.SpeechUnicode
+                    Return New Packets.UnicodeSpeechPacket(packetbuffer)
+
+                Case Else
+                    Dim j As New Packet(packetbuffer(0))
+                    j._Data = packetbuffer
+                    j._size = packetbuffer.Length
+                    Return j 'dummy until we have what we need
+            End Select
+
+        End Function
 
         Public Sub HandlePacket()
             Dim backup As Packet
+
+            'magically stops this from taking up 100% cpu on w/e core its on.
+            Thread.Sleep(0)
 
             'force client to handle the current packet
             If ((m_EventHandled = False) And (m_EventLocked = False)) Then
@@ -170,17 +183,6 @@ Partial Class UOAI
             End If
         End Sub
 
-        ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
-        ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
-        Public Sub UpdatePacket(ByRef newpacket As Packet)
-            'force an update of the packet
-        End Sub
-
-        ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
-        Public Sub DropPacket()
-            'current packet is never handled by the client
-        End Sub
-
         Private Sub EarlyPacketHandling(ByRef currentpacket As Packet)
             'whatever we need to do with the current packet BEFORE the client handled it goes here
         End Sub
@@ -192,26 +194,76 @@ Partial Class UOAI
         ''' <summary>Remove an item, mobile, etc... from the collections</summary>
         ''' <param name="address">The 32-bit address in the client's memory of the object as <see cref="UInteger"/></param>
         Private Sub RemoveObject(ByVal address As UInteger)
+            'TODO: I recommend using "serial" for this, since thats the key i use in the collections.
+            'Although i could just add a function to remove by address.
+
             'remove item, mobile, ... from the collections
         End Sub
 
-        ''' <summary>
-        ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
-        ''' </summary>
-        ''' <value>The windows Process ID of the client.</value>
-        Public Property PID() As Integer
-            Get
-                Return ProcessID
-            End Get
-            Friend Set(ByVal value As Integer)
-                ProcessID = value
-            End Set
-        End Property
+        Private Sub CreateNewItem(ByVal address As UInteger)
 
-        ''' <summary>Causes the UOClient object to raise the onClientExit event.</summary>
-        Friend Sub CallEvent_onClientExit()
-            Dim eargs As New EventArgs
-            RaiseEvent onClientExit(Me)
+        End Sub
+
+#End Region
+
+#Region "Events"
+        ''' <summary>
+        ''' Called when the client process closes.
+        ''' </summary>
+        ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+        Public Event onClientExit(ByRef Client As Client)
+
+        ''' <summary>
+        ''' Called when a Packet arrives on this client.
+        ''' </summary>
+        ''' <param name="Client">Client on which the packet was received</param>
+        ''' <param name="packet">The received packet</param>
+        Public Event onPacketReceive(ByRef Client As Client, ByRef packet As Packet)
+
+        ''' <summary>
+        ''' Called when a Packet is sent formt he client to the server.
+        ''' </summary>
+        ''' <param name="Client">Client from which the packet was sent.</param>
+        ''' <param name="packet">The sent packet.</param>
+        Public Event onPacketSend(ByRef Client As Client, ByRef packet As Packet)
+
+        ''' <summary>
+        ''' Called when the user of the client releases a pressed key.
+        ''' </summary>
+        ''' <param name="Client">The client on which the key was released</param>
+        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+        Public Event onKeyUp(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
+
+        ''' <summary>
+        ''' Called when the user of the client holds down a key.
+        ''' </summary>
+        ''' <param name="Client">The client on which the key was pressed</param>
+        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+        Public Event onKeyDown(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
+
+        ''' <summary>
+        ''' Called when the client loses its network connection to the server.
+        ''' </summary>
+        ''' <param name="Client">The client that lost its connection.</param>
+        Public Event onConnectionLoss(ByRef Client As Client)
+#End Region
+
+#Region "Public Functions and Subs"
+        ''' <summary>Disables the client encryption.</summary>
+        ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
+        Public Sub PatchEncryption()
+            InjectedDll.PatchEncryption()
+        End Sub
+
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
+        ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
+        Public Sub UpdatePacket(ByRef newpacket As Packet)
+            'force an update of the packet
+        End Sub
+
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
+        Public Sub DropPacket()
+            'current packet is never handled by the client
         End Sub
 
         ''' <summary>
@@ -220,16 +272,6 @@ Partial Class UOAI
         Public Sub Close()
             Process.GetProcessById(PID).Kill()
         End Sub
-
-        ''' <summary>
-        ''' <para>A method used to get the title of the client window as a string.</para>
-        ''' </summary>
-        ''' <returns>The client window title, generally something like "Ultima Online"</returns>
-        Public ReadOnly Property WindowCaption() As String
-            Get
-                Return Process.GetProcessById(PID).MainWindowTitle
-            End Get
-        End Property
 
         'handles all IPC packets, including sent/received packets on the client
         Private Function HandlePackets() As Boolean
@@ -326,7 +368,7 @@ Partial Class UOAI
                     m_EventLocked = False
 
                     'packet event
-                    RaiseEvent onPacketReceive(Me, m_CurrentPacket)
+                    RaiseEvent onPacketSend(Me, m_CurrentPacket)
 
                     'make sure it is handled
                     HandlePacket()
@@ -337,6 +379,15 @@ Partial Class UOAI
             End Select
 
         End Function
+#End Region
+
+#Region "Window Control"
+        ''' <summary>Causes the UOClient object to raise the onClientExit event.</summary>
+        Friend Sub CallEvent_onClientExit()
+            Dim eargs As New EventArgs
+            RaiseEvent onClientExit(Me)
+        End Sub
+#End Region
 
     End Class
 

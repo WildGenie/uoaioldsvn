@@ -23,13 +23,12 @@ Public Class Form1
     End Sub
 
     Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
-        'UOAIObj.Clients.LaunchClient()
         UOAIObj.Clients.LaunchClient()
         Do While UOAIObj.Clients.Count = 0
             Threading.Thread.Sleep(0)
         Loop
         UOAI_Cl = UOAIObj.Clients.Client(0)
-        AddHandler UOAI_Cl.onPacketReceive, AddressOf PacketHandler
+        'AddHandler UOAI_Cl.onPacketReceive, AddressOf PacketHandler
     End Sub
 
     Private Sub PacketHandler(ByRef cl As UOAI.Client, ByRef p As UOAI.Packet)
@@ -53,7 +52,6 @@ Public Class Form1
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
         'Dump skills Enumeration.
-
         Dim s As StreamWriter
         s = File.CreateText(Application.StartupPath & "\skills.vb")
         s.WriteLine("Public Enum Skills")
@@ -64,6 +62,7 @@ Public Class Form1
 
         s.WriteLine("End Enum")
         s.Close()
+
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
@@ -87,7 +86,6 @@ Public Class Form1
         j.Text = "this is a BAMF "
         MsgBox(j.Text)
 
-
     End Sub
 
     Private Sub ListBox1_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
@@ -103,6 +101,23 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
+
+        Select Case packet.Type
+            Case UOAI.Enums.PacketType.TextUnicode
+                Dim j As UOAI.Packets.UnicodeTextPacket = DirectCast(packet, UOAI.Packets.UnicodeTextPacket)
+                MsgBox(j.Name & ":" & j.Serial.Value)
+                MsgBox(j.Text & ":" & j.Name)
+
+        End Select
+
+    End Sub
+
+    Private Sub UOAI_Cl_onPacketSend(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketSend
+        Select Case packet.Type
+            Case UOAI.Enums.PacketType.SpeechUnicode
+                'Dim j As UOAI.Packets.UnicodeSpeechPacket = DirectCast(packet, UOAI.Packets.UnicodeSpeechPacket)
+                'MsgBox(j.Text & "|" & j.Font)
+        End Select
 
     End Sub
 End Class

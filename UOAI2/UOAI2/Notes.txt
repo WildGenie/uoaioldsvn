@@ -14,6 +14,66 @@ Top Priorities:
 3:	Add packet classes for other types of packets.
 	
 Completed Recently:
+23/01/2010 ::: Eric
+	-	I added a StrLst for getting cliloc strings and stuff. It is set to the default OS system
+		language where available, if it doesnt know what to set it to, it sets it to english,
+		since english is the widest use language in the world.
+		
+	-	Added the mobile class.
+	
+	-	Added some packet handlers.
+	
+	-	the code for the itemlist isnt quite complete. Although here is how it will work
+	
+		UOAI.Clients.Items will the the highest item list, containing all items.
+		
+		when a new item arrives and is handled by the client its information is read by
+		the injected dll like so:
+		
+		Private Sub CreateNewItem(ByVal address As UInteger)
+		dim j as new item(serial from the client)
+		'When you create the new item it also instantiates the items "item.contents" itemlist
+		'it creates the new item list like so: _contents = new ItemList(Serial of the item that this goes it)
+		
+		'then you add the items information form the client
+		j.type = ...
+		j.direction = ...
+		etc..
+		
+		'then you add the item to the Clients.Items itemlist like so
+		Items.Add(j.serial,j)
+		End Sub
+		
+		then the itemlist add looks something like this:
+		
+        Friend Sub AddItem(ByVal Item As Item)
+            'Check if this is instance of itemlist is a result of a search
+            If _SearchReturn = True Then 'dont add search results to the giant hash!
+                _ItemHashBySerial.Add(Item.Serial, Item)
+                _ItemHashByOffset.Add(Item.MemoryOffset, Item)
+            Else 'add it to the giant hash for later recursive removal.
+
+                'if the items container is this container, then add it to the hash
+                If Item.Container = _Serial Then
+                    _ItemHashBySerial.Add(Item.Serial, Item)
+                    _ItemHashByOffset.Add(Item.MemoryOffset, Item)
+
+                    'Add the hash to the GIANTSerialHash, for later reverse lookup.
+                    _MyClient.GIANTSerialHash.Add(Item.Serial, _ParentItem)
+
+                    'Add it to the client's Allitem list, for access to as a container.
+                    _MyClient._AllItems.AddItem(Item)
+                Else
+                    'If this item's container is NOT this container,
+                    'then look up the container by Serial in the client's master item list
+                    'and add the item to that items contents.
+                    _MyClient._AllItems.bySerial(Item.Container).Contents.AddItem(Item)
+                End If
+            End If
+
+        End Sub
+        
+        
 22/01/2010 ::: Eric
 	-	I changed the event handler model to use a "ClientSocket" class to handle packets
 		Its pretty much the same as before but there is not loop, I made this change because
