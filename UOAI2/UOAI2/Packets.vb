@@ -51,6 +51,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.SpeechUnicode)
+                _Data = bytes
 
                 buff = New BufferHandler(bytes)
 
@@ -159,13 +160,13 @@ Partial Class UOAI
             Private _hue As UShort
             Private _font As Enums.Fonts
             Private _body As UShort
-            Private _Serial As UInt32
-            Private TempBytes(3) As Byte
+            Private _Serial As Serial
             Private _lang As String
             Private _name As String
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.TextUnicode)
+                _Data = bytes
 
                 buff = New BufferHandler(bytes, True)
 
@@ -200,10 +201,12 @@ Partial Class UOAI
                 '14-17
                 _lang = buff.readstrn(4)
 
-                '18-47
-                _name = buff.readstrn(30)
+                '18-48
+                _name = buff.readstr
 
-                '47-(Size - 1)
+                buff.Position = 48
+
+                '48-(Size - 1)
                 _text = buff.readustr
 
             End Sub
@@ -215,7 +218,7 @@ Partial Class UOAI
                 End Get
                 Set(ByVal value As String)
                     If value.Length <= _text.Length Then
-                        buff.Position = 47
+                        buff.Position = 48
                         buff.writeustrn(value, _text.Length)
                         _text = value
                     Else
@@ -253,11 +256,11 @@ Partial Class UOAI
             End Property
 
             ''' <summary>Gets or sets the serial of the person or object speaking. 0xFFFFFFFF is used for system.</summary>
-            Public Property Serial() As UInt32
+            Public Property Serial() As Serial
                 Get
                     Return _Serial
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _Serial = value
                     buff.Position = 3
                     buff.writeuint(_Serial)
@@ -325,11 +328,12 @@ Partial Class UOAI
         Public Class OpenContainer
             Inherits Packet
 
-            Private _Serial As UInt32
+            Private _Serial As Serial
             Private _model As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.OpenContainer)
+                _Data = bytes
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -346,11 +350,11 @@ Partial Class UOAI
             ''' <summary>
             ''' The serial of the container being opened.
             ''' </summary>
-            Public Property Serial() As UInt32
+            Public Property Serial() As Serial
                 Get
                     Return _Serial
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _Serial = value
                     buff.Position = 1
                     buff.writeuint(value)
@@ -380,17 +384,18 @@ Partial Class UOAI
         Public Class ObjectToObject
             Inherits Packet
 
-            Private _Serial As UInt32
-            Private _artwork As UShort
+            Private _Serial As Serial
+            Private _Itemtype As ItemType
             Private _stackID As Byte
-            Private _Ammount As UShort
+            Private _amount As UShort
             Private _X As UShort
             Private _Y As UShort
-            Private _Container As UInt32
+            Private _Container As Serial
             Private _Hue As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ObjecttoObject)
+                _Data = bytes
                 buff = New BufferHandler(bytes)
 
                 _size = &H14
@@ -400,13 +405,13 @@ Partial Class UOAI
                 _Serial = buff.readuint
 
                 '5-6
-                _artwork = buff.readushort
+                _Itemtype = buff.readushort
 
                 '7
                 _stackID = buff.readbyte
 
                 '8-9
-                _Ammount = buff.readushort
+                _amount = buff.readushort
 
                 '10-11
                 _X = buff.readushort
@@ -425,11 +430,11 @@ Partial Class UOAI
             ''' <summary>
             ''' The serial of the item to add.
             ''' </summary>
-            Public Property Serial() As UInt32
+            Public Property Serial() As Serial
                 Get
                     Return _Serial
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _Serial = value
                     buff.Position = 1
                     buff.writeuint(value)
@@ -439,14 +444,14 @@ Partial Class UOAI
             ''' <summary>
             ''' The artwork number of the item.
             ''' </summary>
-            Public Property Artwork() As UShort
+            Public Property ItemType() As ItemType
                 Get
-                    Return _artwork
+                    Return _Itemtype
                 End Get
-                Set(ByVal value As UShort)
-                    _artwork = value
+                Set(ByVal value As ItemType)
+                    _Itemtype = value
                     buff.Position = 5
-                    buff.writeushort(value)
+                    buff.writeushort(value.BaseValue)
                 End Set
             End Property
 
@@ -461,14 +466,14 @@ Partial Class UOAI
                 End Set
             End Property
 
-            Public Property Ammount() As UShort
+            Public Property amount() As UShort
                 Get
-                    Return _Ammount
+                    Return _amount
                 End Get
                 Set(ByVal value As UShort)
-                    _Ammount = value
+                    _amount = value
                     buff.Position = 8
-                    buff.writeushort(_Ammount)
+                    buff.writeushort(_amount)
                 End Set
             End Property
 
@@ -494,11 +499,11 @@ Partial Class UOAI
                 End Set
             End Property
 
-            Public Property Container() As UInt32
+            Public Property Container() As Serial
                 Get
                     Return _Container
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _Container = value
                     buff.Position = 14
                     buff.writeuint(value)
@@ -528,6 +533,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ObjecttoObject)
+                _Data = bytes
                 buff = New BufferHandler(bytes)
 
                 _size = 2
@@ -557,14 +563,15 @@ Partial Class UOAI
         Public Class EquipItem
             Inherits Packet
 
-            Private _serial As UInt32
-            Private _artwork As UShort
+            Private _serial As Serial
+            Private _itemtype As ItemType
             Private _layer As Enums.Layers
-            Private _container As UInt32
+            Private _container As Serial
             Private _hue As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.EquipItem)
+                _Data = bytes
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -572,7 +579,7 @@ Partial Class UOAI
                 _serial = buff.readuint
 
                 '5-6
-                _artwork = buff.readushort
+                _itemtype = buff.readushort
 
                 '7
                 'Unknown byte 0x00
@@ -592,11 +599,11 @@ Partial Class UOAI
             ''' <summary>
             ''' The serial of the item to equip.
             ''' </summary>
-            Public Property Serial() As UInt32
+            Public Property Serial() As Serial
                 Get
                     Return _serial
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _serial = value
                     buff.Position = 1
                     buff.writeuint(value)
@@ -606,12 +613,12 @@ Partial Class UOAI
             ''' <summary>
             ''' The item's artwork number.
             ''' </summary>
-            Public Property Artwork() As UInt32
+            Public Property ItemType() As ItemType
                 Get
-                    Return _artwork
+                    Return _itemtype
                 End Get
-                Set(ByVal value As UInt32)
-                    _artwork = value
+                Set(ByVal value As ItemType)
+                    _itemtype = value
                     buff.Position = 5
                     buff.writeushort(value)
                 End Set
@@ -634,11 +641,11 @@ Partial Class UOAI
             ''' <summary>
             ''' The serial of the character on which the item will be equipped.
             ''' </summary>
-            Public Property Container() As UInt32
+            Public Property Container() As Serial
                 Get
                     Return _container
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _container = value
                     buff.Position = 9
                     buff.writeuint(value)
@@ -668,11 +675,12 @@ Partial Class UOAI
         Public Class ContainerContents
             Inherits Packet
 
-            Private _ItemList() As Item
+            Private _ItemList() As EditableItem
             Private _Count As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ContainerContents)
+                _Data = bytes
 
                 buff.Position = 1
                 buff.networkorder = False
@@ -683,13 +691,12 @@ Partial Class UOAI
                 '3-4
                 _Count = buff.readushort
 
-                Dim it As Item
+                Dim it As New EditableItem
 
                 For i As UShort = 1 To _Count - 1
-                    it = New Item
                     buff.Position = (i * 19) + 5
                     it._Serial = buff.readuint
-                    it._Artwork = buff.readushort
+                    it._Type = buff.readushort
                     it._StackID = buff.readbyte
                     it._X = buff.readushort
                     it._Y = buff.readushort
@@ -700,17 +707,17 @@ Partial Class UOAI
 
             End Sub
 
-            Public Overloads ReadOnly Property Items() As Item()
+            Public Overloads ReadOnly Property Items() As EditableItem()
                 Get
                     Return _ItemList
                 End Get
             End Property
 
-            Public Overloads Property Items(ByVal Index As UShort) As Item
+            Public Overloads Property Items(ByVal Index As UShort) As EditableItem
                 Get
                     Return _ItemList(Index)
                 End Get
-                Set(ByVal value As Item)
+                Set(ByVal value As EditableItem)
                     _ItemList(Index) = value
                 End Set
             End Property
@@ -732,7 +739,7 @@ Partial Class UOAI
                     For i As UShort = 0 To _Count
                         buff.Position = (i * 19) + 5
                         buff.writeuint(_ItemList(i)._Serial)
-                        buff.writeushort(_ItemList(i)._Artwork)
+                        buff.writeushort(_ItemList(i)._Type.BaseValue)
                         buff.writebyte(_ItemList(i)._StackID)
                         buff.writeushort(_ItemList(i)._X)
                         buff.writeushort(_ItemList(i)._Y)
@@ -746,15 +753,19 @@ Partial Class UOAI
 
         End Class
 
+        ''' <summary>
+        ''' Sent by the client to rename another mobile.
+        ''' </summary>
         Public Class RenameMOB
             Inherits Packet
 
-            Private _Serial As UInt32
+            Private _Serial As Serial
             Private _Name As String
 
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.RenameMOB)
+                _Data = bytes
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -766,19 +777,136 @@ Partial Class UOAI
 
             End Sub
 
-            Public Property Serial() As UInt32
+            Public Property Serial() As Serial
                 Get
                     Return _Serial
                 End Get
-                Set(ByVal value As UInt32)
+                Set(ByVal value As Serial)
                     _Serial = value
                     buff.Position = 1
                     buff.writeuint(value)
                 End Set
             End Property
 
+            Public Property Name() As String
+                Get
+                    Return _Name
+                End Get
+                Set(ByVal value As String)
+                    If value.Length <= 30 Then
+                        _Name = value
+                        buff.Position = 5
+                        buff.writestrn(_Name, 30)
+                    Else
+                        Throw New ConstraintException("String specified for name is too long, it must be < 30 characters long.")
+                    End If
+                End Set
+            End Property
 
         End Class
+
+    End Class
+
+    Public Class EditableItem
+        Friend _Serial As Serial
+        Friend _Type As ItemType
+        Friend _StackID As Byte
+        Friend _Amount As UShort
+        Friend _X As UShort
+        Friend _Y As UShort
+        Friend _Z As SByte
+        Friend _Container As Serial
+        Friend _Hue As UShort
+        Friend _Direction As Enums.Direction
+
+#Region "Properties"
+
+        ''' <summary>Gets or sets the serial of the item.</summary>
+        Public Shadows Property Serial() As Serial
+            Get
+                Return _Serial
+            End Get
+            Set(ByVal value As Serial)
+                _Serial = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the artwork number of that item. This is what determines what it looks like in game.</summary>
+        Public Shadows Property Type() As ItemType
+            Get
+                Return _Type
+            End Get
+            Set(ByVal value As ItemType)
+                _Type = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the number to add the the artwork number to get the artwork number of the item if it is a stack. 
+        ''' Usualy this is 0x01.</summary>
+        Public Shadows Property StackID() As Byte
+            Get
+                Return _StackID
+            End Get
+            Set(ByVal value As Byte)
+                _StackID = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets number of objects in a stack.</summary>
+        Public Shadows Property Amount() As Byte
+            Get
+                Return _Amount
+            End Get
+            Set(ByVal value As Byte)
+                _Amount = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the location of the item on the X axis. If the item is inside of a container, 
+        ''' this represents the number of pixels within the container from the left side at which 
+        ''' the item will be placed.</summary>
+        Public Shadows Property X() As UShort
+            Get
+                Return _X
+            End Get
+            Set(ByVal value As UShort)
+                _X = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the location of the item on the Y axis. If the item is inside of a container, 
+        ''' this represents the number of pixels from the top of the container that the item will 
+        ''' be placed</summary>
+        Public Shadows Property Y() As UShort
+            Get
+                Return _Y
+            End Get
+            Set(ByVal value As UShort)
+                _Y = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the serial of the container of the item.</summary>
+        Public Shadows Property Container() As Serial
+            Get
+                Return _Container
+            End Get
+            Set(ByVal value As Serial)
+                _Container = value
+            End Set
+        End Property
+
+        ''' <summary>Gets or sets the item's hue.</summary>
+        Public Shadows Property Hue() As UShort
+            Get
+                Return _Hue
+            End Get
+            Set(ByVal value As UShort)
+                _Hue = value
+            End Set
+        End Property
+
+#End Region
 
     End Class
 
@@ -815,7 +943,7 @@ Partial Class UOAI
         ''' Packet type enumeration.
         ''' </summary>
         ''' <remarks></remarks>
-        Public Enum PacketType
+        Public Enum PacketType As Byte
             CharacterCreation = &H0
             Logout = &H1
             RequestMovement = &H2
@@ -1263,13 +1391,13 @@ Partial Class UOAI
             Dim prevpos As Long = curpos
             Dim count As Integer = 1
 
-            While (readbyte() <> 0) AndAlso (Length > 0)
+            While (readbyte() > 0) And (Length > 0)
                 count += 1
             End While
 
             curpos = prevpos
 
-            Return readstrn(count)
+            Return readstrn(count - 1)
         End Function
 
         Public Function readstrn(ByVal size As Integer) As String
@@ -1284,7 +1412,7 @@ Partial Class UOAI
 #Region "Unicode Strings"
 
         Public Function readustr() As String
-            networkorder = False
+
             Dim prevpos As Long = curpos
             Dim count As Integer = 1
 
@@ -1294,20 +1422,17 @@ Partial Class UOAI
 
             curpos = prevpos
 
-            networkorder = True
-            Return readustrn(count)
+            Return readustrn(count - 1)
         End Function
 
         Public Function readustrn(ByVal size As Integer) As String
-            networkorder = False
+
             Dim characterarray As Char() = New Char(size - 1) {}
-            Position -= 2
 
             For i As Integer = 0 To size - 1
                 characterarray(i) = ChrW(readushort())
             Next
 
-            networkorder = True
             Return New String(characterarray, 0, size)
         End Function
 #End Region
@@ -1394,6 +1519,5 @@ Partial Class UOAI
 #End Region
 
     End Class
-
 
 End Class

@@ -3,26 +3,13 @@
     Public Class Serial
         Implements IComparable
         Implements IComparable(Of Serial)
-        Public Shared ReadOnly MinusOne As New Serial(&HFFFFFFFF)
+        Public Shared ReadOnly MinusOne As New Serial(4294967295)
         Public Shared ReadOnly Zero As New Serial(Convert.ToUInt32(0))
 
         Private ReadOnly m_IntValue As UInt32
 
         Public Sub New(ByVal val As UInt32)
             m_IntValue = val
-        End Sub
-
-        Public Sub New(ByVal value As String)
-            Dim converted As UInteger = 0
-            Dim cA As Char = "A"c
-            Dim multiplier As UInteger = 1
-
-            For Each curchar As Char In value.ToCharArray()
-                converted += CUInt((multiplier * (Convert.ToInt16(curchar) - Convert.ToInt16(cA))))
-                multiplier *= 26
-            Next
-
-            m_IntValue = (converted - 7) Xor &H45
         End Sub
 
         Public ReadOnly Property Value() As UInt32
@@ -63,29 +50,43 @@
             Return DirectCast(o, Serial).m_IntValue = m_IntValue
         End Function
 
-        Public Shared Operator =(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator =(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue = r.m_IntValue
         End Operator
 
-        Public Shared Operator <>(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator <>(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue <> r.m_IntValue
         End Operator
 
-        Public Shared Operator >(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator >(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue > r.m_IntValue
         End Operator
 
-        Public Shared Operator <(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator <(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue < r.m_IntValue
         End Operator
 
-        Public Shared Operator >=(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator >=(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue >= r.m_IntValue
         End Operator
 
-        Public Shared Operator <=(ByVal l As Serial, ByVal r As Serial) As Boolean
+        Public Overloads Shared Operator <=(ByVal l As Serial, ByVal r As Serial) As Boolean
             Return l.m_IntValue <= r.m_IntValue
         End Operator
+
+        Public Function ToEasyUOString() As String
+            Dim euostring As New List(Of Char)()
+            Dim i As UInteger
+            Dim cA As Char = "A"c
+
+            i = (CUInt(m_IntValue) Xor &H45) + 7
+            While i <> 0
+                euostring.Add(Chr(((i Mod 26) + Convert.ToInt16(cA))))
+                i /= 26
+            End While
+
+            Return New String(euostring.ToArray())
+        End Function
 
         Public Overloads Overrides Function ToString() As String
             Dim euostring As New List(Of Char)()
@@ -101,7 +102,7 @@
             Return New String(euostring.ToArray())
         End Function
 
-        Public Shared Widening Operator CType(ByVal a As Serial) As UInteger
+        Public Shared Widening Operator CType(ByVal a As Serial) As UInt32
             Return a.m_IntValue
         End Operator
 
@@ -140,11 +141,11 @@
 
     Public Class ItemType
         Inherits Serial
-        Private m_basetype As UInteger
-        Private m_typeincrement As Integer
-        Private m_multitype As UInteger
+        Private m_basetype As UShort
+        Private m_typeincrement As Byte
+        Private m_multitype As Byte
 
-        Public Sub New(ByVal val As UInteger, ByVal typeincrement As Integer, ByVal multitype As UInteger)
+        Public Sub New(ByVal val As UShort, ByVal typeincrement As Byte, ByVal multitype As Byte)
             MyBase.New(CUInt((val + typeincrement)))
             m_basetype = val
             m_typeincrement = typeincrement
@@ -158,7 +159,7 @@
             m_multitype = 0
         End Sub
 
-        Public Sub New(ByVal val As UInteger)
+        Public Sub New(ByVal val As UShort)
             MyBase.New(val)
             m_basetype = val
             m_typeincrement = 0
@@ -172,7 +173,7 @@
             m_multitype = 0
         End Sub
 
-        Public ReadOnly Property BaseValue() As UInteger
+        Public ReadOnly Property BaseValue() As UShort
             Get
                 Return m_basetype
             End Get
@@ -192,6 +193,8 @@
                 Return m_multitype
             End Get
         End Property
+
+
     End Class
 
 End Class

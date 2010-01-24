@@ -83,6 +83,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Macros.vb" />
+    <Compile Include="Mobile.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -102,6 +103,7 @@
     <Compile Include="Point3D.vb" />
     <Compile Include="ProcessStream.vb" />
     <Compile Include="Serial.vb" />
+    <Compile Include="StringList.vb" />
     <Compile Include="UOAI.vb" />
     <Compile Include="UOClientDll.vb" />
   </ItemGroup>

@@ -258,21 +258,6 @@
             Locked
         End Enum
 
-        Public Enum EventTypes
-            Any
-            Packet
-            DoubleClick
-            SingleClick
-            KeyUp
-            KeyDown
-            NewItem
-            NewMobile
-            ItemDeletion
-            Drag
-            Drop
-            MobileUpdate
-        End Enum
-
         Public Enum PacketOrigin
             FROMCLIENT
             FROMSERVER
@@ -477,6 +462,21 @@
             connection_loss = 8
             packet_handled = 16
             object_destroyed = 32
+        End Enum
+
+        Public Enum EventTypes
+            Any
+            Packet
+            DoubleClick
+            SingleClick
+            KeyUp
+            KeyDown
+            NewItem
+            NewMobile
+            ItemDeletion
+            Drag
+            Drop
+            MobileUpdate
         End Enum
 
     End Class
