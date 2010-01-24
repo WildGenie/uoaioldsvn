@@ -6,13 +6,163 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="M:UOAI2.UOAI.StringList.#ctor(System.String)">
+<member name="T:UOAI2.UOAI.Enums.LoginState">
+	<summary>Enumeration of Login state.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.EntityType">
+	<summary>Enumeration of Entity types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Spell">
+	<summary>Enumeration of Spells.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Macros">
+	<summary>Enumeration of macro types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Element">
+	<summary>Enumeration of element types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Gender">
+	<summary>Enumeration of mobile gender.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
+	<summary>Enumeration of target kind.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
+	<summary>Enumeration of mobile status.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Facets">
+	<summary>Enumeration of the different facets.</summary>
+</member><member name="T:UOAI2.UOAI.Enums">
+	<summary>A simple list of enumerations used primarily internally.</summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
 	<summary>
- Creates a new instance of the string list and populates it with the specified language.
- <example>Dim StrLst As New StringList("enu")
- MsgBox(StrLst.</example>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+	<summary>Specifies all possible access flags for the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
+	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
+	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
+	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
+	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
+	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
+	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
+	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
+	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
+	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Serial">
+	<summary>The serial of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Type">
+	<summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
+</member><member name="P:UOAI2.UOAI.Item.StackID">
+	<summary>The number to add the the artwork number to get the artwork number of the item if it is a stack. 
+ Usualy this is 0x01.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Amount">
+	<summary>The number of objects in a stack.</summary>
+</member><member name="P:UOAI2.UOAI.Item.X">
+	<summary>The location of the item on the X axis. If the item is inside of a container, 
+ this represents the number of pixels within the container from the left side at which 
+ the item will be placed.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Y">
+	<summary>The location of the item on the Y axis. If the item is inside of a container, 
+ this represents the number of pixels from the top of the container that the item will 
+ be placed</summary>
+</member><member name="P:UOAI2.UOAI.Item.Container">
+	<summary>The serial of the container of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Hue">
+	<summary>The item's hue.</summary>
+</member><member name="P:UOAI2.UOAI.Item.TypeName">
+	<summary>
+ Returns a string containing the ASCII name of the item artwork name.
+ </summary>
+</member><member name="M:UOAI2.UOAI.ItemList.AddItem(UOAI2.UOAI.Item)">
+	<summary>
+ Adds the specified item to the Item List.
+ </summary>
+	<param name="Item">The item to add.</param>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.ItemList.RemoveItem(UOAI2.UOAI.Serial,UOAI2.UOAI.Serial)">
+	<summary>
+ Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
+ </summary>
+	<param name="ItemSerial">The serial of the item to be removed.</param>
+	<param name="ContainerSerial">The serial of the Container.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.bySerial(UOAI2.UOAI.Serial)">
+	<summary>
+ Returns the specified item, either by index or <see cref="T:UOAI2.UOAI.Serial"/>
 	</summary>
-	<param name="language">Languages: enu,chs,cht,deu,esp,fra,jpn,kor</param>
+	<param name="Serial">The serial of the item to be returned.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.byOffset(System.Int32)">
+	<param name="OffSet">The offset of the item in the client's memory.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.byType(UOAI2.UOAI.ItemType)">
+	<summary>
+ Returns an itemlist containing the items of the specified type.
+ </summary>
+	<param name="Type">The type of item you want to search for.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Serial)">
+	<summary>
+ Checks to see if the specified item exists in the item list.
+ </summary>
+	<param name="Serial">The serial of the item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(System.Int32)">
+	<param name="Offset">The offset item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
+	<param name="Item">The item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Count">
+	<summary>
+ Returns the number of items in the list.
+ </summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOAI2.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="P:UOAI2.UOAI.Clients">
+	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
+</member><member name="F:UOAI2.UOAI.Clientpath">
+	<summary>Gets or sets the path of the client executable, usualy something like 
+ "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
+ working directory for the clients launched using UOAI.</summary>
+</member><member name="F:UOAI2.UOAI.ClientExe">
+	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
 </member><member name="P:UOAI2.UOAI.Mobile.Serial">
 	<summary>
  The character's serial.
@@ -126,11 +276,10 @@ UOAI2
 	<summary>
  The character's current amount of Tithing points.
  </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.GetItemOnLayer(UOAI2.UOAI.Enums.Layers)">
+</member><member name="T:UOAI2.UOAI.Mobile._Layers">
 	<summary>
  Returns the item on the specified layer.
  </summary>
-	<param name="Layer">The layer from which to retrieve the item.</param>
 </member><member name="T:UOAI2.UOAI.Enums.Renamable">
 	<summary>
  Whether or not a mobile can be renamed by the player.
@@ -139,139 +288,6 @@ UOAI2
 	<summary>
  What data is displayed about the mobile.
  </summary>
-</member><member name="T:UOAI2.UOAI.Enums.LoginState">
-	<summary>Enumeration of Login state.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.EntityType">
-	<summary>Enumeration of Entity types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Spell">
-	<summary>Enumeration of Spells.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Macros">
-	<summary>Enumeration of macro types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Element">
-	<summary>Enumeration of element types.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Gender">
-	<summary>Enumeration of mobile gender.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
-	<summary>Enumeration of target kind.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
-	<summary>Enumeration of mobile status.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.Facets">
-	<summary>Enumeration of the different facets.</summary>
-</member><member name="T:UOAI2.UOAI.Enums">
-	<summary>A simple list of enumerations used primarily internally.</summary>
-</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
-	<summary>
- Constructs a Point given its coordinates.
- </summary>
-	<param name="x">X-coordinate</param>
-	<param name="y">Y-coordinate</param>
-	<param name="z">Z-coordinate</param>
-</member><member name="P:UOAI2.UOAI.Point3D.X">
-	<summary>
- X coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Y">
-	<summary>
- Y coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Z">
-	<summary>
- Z coordinate
- </summary>
-</member><member name="M:UOAI2.UOAI.Point3D.ToString">
-	<summary>
- String representation of this location.
- </summary>
-	<returns>String representation of this location.</returns>
-</member><member name="T:UOAI2.UOAI.Point3D">
-	<summary>Represents an in-game 3D location.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
-	<summary>Specifies all possible access flags for the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
-	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
-	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
-	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
-	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
-	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
-	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
-	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
-	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
-	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
-</member><member name="T:UOAI2.UOAI.Imports">
-	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
-</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
-	<summary>Where the actual memory offset of the item is stored</summary>
-</member><member name="F:UOAI2.UOAI.Item._Serial">
-	<summary>Item serial as UOAI.ItemSerial, private.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Offset">
-	<summary>The 32-bit memory offset for the item in the client memory.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Serial">
-	<summary>The serial of the item.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Artwork">
-	<summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
-</member><member name="P:UOAI2.UOAI.Item.StackID">
-	<summary>The number to add the the artwork number to get the artwork number of the item if it is a stack. 
- Usualy this is 0x01.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Amount">
-	<summary>The number of objects in a stack.</summary>
-</member><member name="P:UOAI2.UOAI.Item.X">
-	<summary>The location of the item on the X axis. If the item is inside of a container, 
- this represents the number of pixels within the container from the left side at which 
- the item will be placed.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Y">
-	<summary>The location of the item on the Y axis. If the item is inside of a container, 
- this represents the number of pixels from the top of the container that the item will 
- be placed</summary>
-</member><member name="P:UOAI2.UOAI.Item.Container">
-	<summary>The serial of the container of the item.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Hue">
-	<summary>The item's hue.</summary>
-</member><member name="P:UOAI2.UOAI.Item.TypeName">
-	<summary>
- Returns a string containing the ASCII name of the item artwork name.
- </summary>
-</member><member name="M:UOAI2.UOAI.ItemList.AddItem(UOAI2.UOAI.Item)">
-	<summary>
- Adds the specified item to the Item List.
- </summary>
-	<param name="Item">The item to add.</param>
-	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.ItemList.RemoveItem(UOAI2.UOAI.Serial)">
-	<summary>
- Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
- </summary>
-	<param name="Serial">The serial of the item to be removed.</param>
-</member><member name="T:UOAI2.UOAI.ItemList">
-	<summary>Contains a list of UOAI.Item's</summary>
-</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
-	<summary>
-  Returns the cached ResourceManager instance used by this class.
-</summary>
-</member><member name="P:UOAI2.My.Resources.Resources.Culture">
-	<summary>
-  Overrides the current thread's CurrentUICulture property for all
-  resource lookups using this strongly typed resource class.
-</summary>
-</member><member name="T:UOAI2.My.Resources.Resources">
-	<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member><member name="P:UOAI2.UOAI.Clients">
-	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
-</member><member name="F:UOAI2.UOAI.Clientpath">
-	<summary>Gets or sets the path of the client executable, usualy something like 
- "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
- working directory for the clients launched using UOAI.</summary>
-</member><member name="F:UOAI2.UOAI.ClientExe">
-	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
 </member><member name="M:UOAI2.UOAI.Client.Macros.Say(System.String)">
 	<summary>
  Says the specified message.
@@ -481,6 +497,23 @@ UOAI2
 	<summary>
  Standard UO macros
  </summary>
+</member><member name="P:UOAI2.UOAI.Client.PID">
+	<summary>
+ Gets the windows process ID of the client. This is used as the unique identifier for each client running.
+ </summary>
+	<value>The windows Process ID of the client.</value>
+</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<summary>
+ A method used to get the title of the client window as a string.
+ </summary>
+	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="P:UOAI2.UOAI.Client.Items">
+	<summary>
+ Returns the client's itemlist.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.RemoveObject(System.UInt32)">
+	<summary>Remove an item, mobile, etc... from the collections</summary>
+	<param name="address">The 32-bit address in the client's memory of the object as <see cref="T:System.UInt32"/></param>
 </member><member name="E:UOAI2.UOAI.Client.onClientExit">
 	<summary>
  Called when the client process closes.
@@ -523,25 +556,12 @@ UOAI2
 	<param name="newpacket">The packet object as a <see cref="T:UOAI2.UOAI.Packet"/></param>
 </member><member name="M:UOAI2.UOAI.Client.DropPacket">
 	<summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
-</member><member name="M:UOAI2.UOAI.Client.RemoveObject(System.UInt32)">
-	<summary>Remove an item, mobile, etc... from the collections</summary>
-	<param name="address">The 32-bit address in the client's memory of the object as <see cref="T:System.UInt32"/></param>
-</member><member name="P:UOAI2.UOAI.Client.PID">
-	<summary>
- Gets the windows process ID of the client. This is used as the unique identifier for each client running.
- </summary>
-	<value>The windows Process ID of the client.</value>
-</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
-	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
 </member><member name="M:UOAI2.UOAI.Client.Close">
 	<summary>
  Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
  </summary>
-</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
-	<summary>
-		<para>A method used to get the title of the client window as a string.</para>
-	</summary>
-	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
+	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
 </member><member name="T:UOAI2.UOAI.Client">
 	<summary>Represents an Ultima Online client.</summary>
 </member><member name="P:UOAI2.UOAI.Packet.Data">
@@ -597,7 +617,7 @@ UOAI2
 	<summary>
  The serial of the item to add.
  </summary>
-</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.Artwork">
+</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.ItemType">
 	<summary>
  The artwork number of the item.
  </summary>
@@ -615,7 +635,7 @@ UOAI2
 	<summary>
  The serial of the item to equip.
  </summary>
-</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Artwork">
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.ItemType">
 	<summary>
  The item's artwork number.
  </summary>
@@ -649,7 +669,7 @@ UOAI2
 	<summary>A namespace encapsulating the packet types classes.</summary>
 </member><member name="P:UOAI2.UOAI.EditableItem.Serial">
 	<summary>Gets or sets the serial of the item.</summary>
-</member><member name="P:UOAI2.UOAI.EditableItem.Artwork">
+</member><member name="P:UOAI2.UOAI.EditableItem.Type">
 	<summary>Gets or sets the artwork number of that item. This is what determines what it looks like in game.</summary>
 </member><member name="P:UOAI2.UOAI.EditableItem.StackID">
 	<summary>Gets or sets the number to add the the artwork number to get the artwork number of the item if it is a stack. 
@@ -692,6 +712,13 @@ UOAI2
  Packet type enumeration.
  </summary>
 	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.StringList.#ctor(System.String)">
+	<summary>
+ Creates a new instance of the string list and populates it with the specified language.
+ <example>Dim StrLst As New StringList("enu")
+ MsgBox(StrLst.</example>
+	</summary>
+	<param name="language">Languages: enu,chs,cht,deu,esp,fra,jpn,kor</param>
 </member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
 	<summary></summary>
 </member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">

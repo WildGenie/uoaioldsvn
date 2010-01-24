@@ -20,7 +20,8 @@ Partial Class UOAI
         Private m_ShutdownEventTimer As Boolean
         Private _Items As ItemList
         Friend _AllItems As New Hashtable
-        Friend GIANTSerialHash As New Hashtable
+        Private _MobileList As MobileList
+        Private _Macros As New UOMacros(Me)
 
 
         ''' <summary>
@@ -52,6 +53,21 @@ Partial Class UOAI
         Public ReadOnly Property Items() As ItemList
             Get
                 Return _Items
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Returns a list of the client's mobiles.
+        ''' </summary>
+        Public ReadOnly Property Mobiles() As MobileList
+            Get
+                Return _MobileList
+            End Get
+        End Property
+
+        Public ReadOnly Property Macros() As UOMacros
+            Get
+                Return _Macros
             End Get
         End Property
 

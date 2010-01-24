@@ -49,9 +49,6 @@ Partial Class UOAI
                     _ItemHashBySerial.Add(Item.Serial, Item)
                     _ItemHashByOffset.Add(Item.MemoryOffset, Item)
 
-                    'Add the hash to the GIANTSerialHash, for later reverse lookup.
-                    _MyClient.GIANTSerialHash.Add(Item.Serial, _ParentItem)
-
                     'Add it to the client's Allitem list, for access to as a container.
                     _MyClient._AllItems.Add(Item.Serial, Item)
                 Else
@@ -85,16 +82,13 @@ Partial Class UOAI
                         'use the serial to find the item in the serial hash and remove it.
                         _ItemHashBySerial.Remove(ItemSerial)
 
-                        'Remove it from the giant hash using the serial
-                        _MyClient.GIANTSerialHash.Remove(ContainerSerial)
-
                         'Remvoe it from the all items hash.
                         _MyClient._AllItems.Remove(ItemSerial)
 
                     Else 'This is not the item's container
                         'Perform a reverse lookup of the container's ITEM class using the GIANTSerialHash, 
                         'and has the item removed from its container's contents
-                        DirectCast(_MyClient.GIANTSerialHash(ContainerSerial), Item).Contents.RemoveItem(ItemSerial, ContainerSerial)
+                        DirectCast(_MyClient._AllItems(ContainerSerial), Item).Contents.RemoveItem(ItemSerial, ContainerSerial)
 
                     End If
                 End If
