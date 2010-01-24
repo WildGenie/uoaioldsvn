@@ -22,7 +22,7 @@ Partial Class UOAI
         Friend _AllItems As New Hashtable
         Private _MobileList As MobileList
         Private _Macros As New UOMacros(Me)
-
+        Private _CallibrationInfo As CallibrationInfo
 
         ''' <summary>
         ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -98,6 +98,9 @@ Partial Class UOAI
 
             'inject the UOClientDll on this thread
             InjectedDll = New UOClientDll(PStream, TID)
+
+            'get callibration info from the injected dll
+            _CallibrationInfo = InjectedDll.GetCallibrations()
 
             'lock the client's state... this means the itemlists, etc. can not change since the client isn't handling packets
             If InjectedDll.Lock() Then
