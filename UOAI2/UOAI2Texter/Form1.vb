@@ -109,4 +109,8 @@ Public Class Form1
         End Select
 
     End Sub
+
+    Private Sub Button7_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button7.Click
+        UOAI_Cl.Macros.Say(TextBox1.Text)
+    End Sub
 End Class

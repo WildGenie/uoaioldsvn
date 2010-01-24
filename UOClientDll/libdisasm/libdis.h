@@ -5,7 +5,7 @@
 #include <windows.h>
 #endif
 
-#include <stdint.h>
+#include "stdint.h"
 
 /* 'NEW" types
  * __________________________________________________________________________*/

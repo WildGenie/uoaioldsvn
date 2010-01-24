@@ -267,6 +267,51 @@ Partial Class UOAI
 #End Region
 
 #Region "Public Functions and Subs"
+        Public Sub sysmsg(ByVal message As String)
+            sysmsg(0, 0, message)
+        End Sub
+        Public Sub sysmsg(ByVal font As Enums.Fonts, ByVal message As String)
+            sysmsg(font, 0, message)
+        End Sub
+        Public Sub sysmsg(ByVal font As Enums.Fonts, ByVal color As UInteger, ByVal message As String)
+            Dim textpointer As UInteger
+            'allocate buffer on the client for the text message
+            textpointer = InjectedDll.allocate(message.Length + 1)
+            'write the text message to this remote buffer on the client
+            PStream.WriteStr(textpointer, message)
+            'make the sysmessage call
+            InjectedDll.stdcall(_CallibrationInfo.pTextOut, New UInteger() {textpointer, font, color})
+            'clean up the text buffer
+            InjectedDll.free(textpointer)
+        End Sub
+
+        Public Sub Send(ByVal tosend As Packet, ByVal destination As Enums.PacketDestination)
+            Dim networkobject As UInteger
+            Dim remotebuffer As UInteger
+
+            'read the network address of the client's c++ object that handles network traffic
+            networkobject = PStream.ReadUInt(_CallibrationInfo.pSockObject)
+
+            'allocate a buffer to hold the packet
+            remotebuffer = InjectedDll.allocate(tosend.Size)
+
+            'write the packet
+            PStream.Write(remotebuffer, tosend.Data)
+
+            'send the packet
+            Select Case destination
+                Case Enums.PacketDestination.CLIENT
+                    InjectedDll.stdthiscall(_CallibrationInfo.pOriginalHandlePacket, networkobject, New UInteger() {remotebuffer})
+                    Exit Select
+                Case Enums.PacketDestination.SERVER
+                    InjectedDll.skipuoai_stdthiscall(_CallibrationInfo.pLoginCrypt, networkobject, New UInteger() {remotebuffer})
+                    Exit Select
+            End Select
+
+            'clean up packet buffer on the client
+            InjectedDll.free(remotebuffer)
+        End Sub
+
         ''' <summary>Disables the client encryption.</summary>
         ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
         Public Sub PatchEncryption()
@@ -277,11 +322,32 @@ Partial Class UOAI
         ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
         Public Sub UpdatePacket(ByRef newpacket As Packet)
             'force an update of the packet
+            Dim updatemessage As BufferHandler
+            Dim pBuffer() As Byte
+
+            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
+                If (newpacket.Size > m_CurrentPacket.Size) Then
+                    Throw New Exception("Update a packet requires the size of the new packet to be smaller or equal to the old packet!")
+                Else
+                    pBuffer = newpacket.Data 'we do this once, to make sure the dynamic Data properties don't have to do serialization more than once
+                    updatemessage = New BufferHandler(8 + pBuffer.Length)
+                    updatemessage.writeuint(1)
+                    updatemessage.writeint(pBuffer.Length)
+                    updatemessage.Write(pBuffer, 0, pBuffer.Length)
+                    m_EventSocket.Send(updatemessage.buffer)
+                    m_CurrentPacket = newpacket
+                End If
+            End If
         End Sub
 
         ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
         Public Sub DropPacket()
             'current packet is never handled by the client
+            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
+                m_EventSocket.Send(droppacketmessage)
+                m_EventHandled = True
+                m_EventLocked = True
+            End If
         End Sub
 
         ''' <summary>

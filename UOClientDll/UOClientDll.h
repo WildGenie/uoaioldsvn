@@ -189,3 +189,5 @@ typedef struct IPCMessageStruct
 } IPCMessage;
 
 int HandlePacketIPC(BOOL nested);
+
+void windowmessagehandler();
