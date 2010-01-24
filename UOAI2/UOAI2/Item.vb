@@ -77,6 +77,14 @@
             End Get
         End Property
 
+        ''' <summary>The location of the item on the Z axis.  If the item is inside of a container this
+        ''' specifies the "height" of it, like if its on top of other objects.</summary>
+        Public ReadOnly Property Z() As UShort
+            Get
+                Return _Z
+            End Get
+        End Property
+
         ''' <summary>The serial of the container of the item.</summary>
         Public ReadOnly Property Container() As Serial
             Get

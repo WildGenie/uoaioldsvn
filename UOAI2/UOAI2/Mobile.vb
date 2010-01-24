@@ -40,9 +40,27 @@
 #End Region
 
 #Region "Public Events"
-        Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile)
+
+        ''' <summary>
+        ''' Called when the hitpoint value of a mobile reaches zero (0).
+        ''' </summary>
+        ''' <param name="Client">The <see cref="UOAI.Client"/> that called this.</param>
+        ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that has died.</param>
         Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile)
 
+        ''' <summary>
+        ''' This is called immediately after the client handles an update to a mobile.
+        ''' </summary>
+        ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
+        ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
+        Public Event onUpdate(ByVal Client As Client, ByVal Mobile As Mobile)
+
+        ''' <summary>
+        ''' This is called immediately after the client handles an update to a mobile.
+        ''' </summary>
+        ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
+        ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
+        Public Event onStatusChange(ByVal Client As Client, ByVal Mobile As Mobile)
 #End Region
 
 #Region "Public Properties"
