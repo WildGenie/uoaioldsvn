@@ -2,21 +2,70 @@
 
     Partial Class Client
 
-        Private Shared Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
+        Private Function GetBytesFromUIntArray(ByVal toconvert() As UInteger) As Byte()
+            Dim intbytes(toconvert.Length * 4 - 1) As Byte
+            Dim buffer(3) As Byte
+
+            For i As Integer = 0 To toconvert.Length - 1
+                buffer = BitConverter.GetBytes(toconvert(i))
+                intbytes((i * 4) + 0) = buffer(0)
+                intbytes((i * 4) + 1) = buffer(1)
+                intbytes((i * 4) + 2) = buffer(2)
+                intbytes((i * 4) + 3) = buffer(3)
+            Next
+
+            Return intbytes
+        End Function
+
+        Private Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
             'TODO: Make this sub do some macro stuff.
+            Dim StringParameterAddress As UInteger
+            Dim MacroTableAddress As UInteger
+            Dim MacroTable(9) As UInteger
+
+            'Ask the injected dll to allocate a buffer to hold the string parameter (unicode + 0-terminated)
+            'So StringParameterAddress is the address of the buffer on the client where we can write the string onto the client
+            StringParameterAddress = InjectedDll.allocate((StrParameter.Length + 1) * 2)
+
+            'Write the string to the client in the allocated buffer
+            PStream.WriteUStr(StringParameterAddress, StrParameter)
+
+            'build the macro table (parameters to the event macro function of the client come in a table)
+            MacroTable(6) = MacroType
+            MacroTable(7) = IntParameter
+            MacroTable(8) = StringParameterAddress
+
+            'Allocate memory on the client to hold this table:
+            MacroTableAddress = InjectedDll.allocate(40)
+
+            'Write the table onto the Client
+            PStream.Write(MacroTableAddress, GetBytesFromUIntArray(MacroTable))
+
+            'Tell the injected dll to make the call
+            ' ccall EventMacro(index_to_the_macro, macrotableaddress) 
+            InjectedDll.ccall(_CallibrationInfo.pEventMacro, New UInteger() {0, MacroTableAddress})
+
+            'clean up the allocated buffers
+            InjectedDll.free(StringParameterAddress)
+            InjectedDll.free(MacroTableAddress)
         End Sub
 
         ''' <summary>
         ''' Standard UO macros
         ''' </summary>
-        Public Class Macros
+        Public Class UOMacros
+            Private m_Client As Client
+
+            Public Sub New(ByVal onclient As Client)
+                m_Client = onclient
+            End Sub
 
             ''' <summary>
             ''' Says the specified message.
             ''' </summary>
             ''' <param name="message">The message.</param>
             Public Sub Say(ByVal message As String)
-                Macro(1, 0, message)
+                m_Client.Macro(1, 0, message)
             End Sub
 
             ''' <summary>
@@ -24,7 +73,7 @@
             ''' </summary>
             ''' <param name="message">The message.</param>
             Public Sub Emote(ByVal message As String)
-                Macro(2, 0, message)
+                m_Client.Macro(2, 0, message)
             End Sub
 
             ''' <summary>
@@ -32,7 +81,7 @@
             ''' </summary>
             ''' <param name="message">The message.</param>
             Public Sub Whisper(ByVal message As String)
-                Macro(3, 0, message)
+                m_Client.Macro(3, 0, message)
             End Sub
 
             ''' <summary>
@@ -40,7 +89,7 @@
             ''' </summary>
             ''' <param name="message">The message.</param>
             Public Sub Yell(ByVal message As String)
-                Macro(4, 0, message)
+                m_Client.Macro(4, 0, message)
             End Sub
 
             ''' <summary>
@@ -48,21 +97,21 @@
             ''' </summary>
             ''' <param name="direction">The direction.</param>
             Public Sub Walk(ByVal direction As Enums.Direction)
-                Macro(5, CInt(direction), "")
+                m_Client.Macro(5, CInt(direction), "")
             End Sub
 
             ''' <summary>
             ''' Toggles the war/peace mode.
             ''' </summary>
             Public Sub ToggleWarMode()
-                Macro(6, 0, "")
+                m_Client.Macro(6, 0, "")
             End Sub
 
             ''' <summary>
             ''' Pastes.
             ''' </summary>
             Public Sub Paste()
-                Macro(7, 0, "")
+                m_Client.Macro(7, 0, "")
             End Sub
 
             ''' <summary>
@@ -70,7 +119,7 @@
             ''' </summary>
             ''' <param name="element">The element to open.</param>
             Public Sub Open(ByVal element As Enums.Element)
-                Macro(8, CInt(element), "")
+                m_Client.Macro(8, CInt(element), "")
             End Sub
 
             ''' <summary>
@@ -78,7 +127,7 @@
             ''' </summary>
             ''' <param name="element">The element to Close.</param>
             Public Sub Close(ByVal element As Enums.Element)
-                Macro(9, CInt(element), "")
+                m_Client.Macro(9, CInt(element), "")
             End Sub
 
             ''' <summary>
@@ -86,7 +135,7 @@
             ''' </summary>
             ''' <param name="element">The element to Close.</param>
             Public Sub Minimize(ByVal element As Enums.Element)
-                Macro(10, CInt(element), "")
+                m_Client.Macro(10, CInt(element), "")
             End Sub
 
             ''' <summary>
@@ -94,119 +143,119 @@
             ''' </summary>
             ''' <param name="element">The element to Close.</param>
             Public Sub Maximize(ByVal element As Enums.Element)
-                Macro(11, CInt(element), "")
+                m_Client.Macro(11, CInt(element), "")
             End Sub
 
             ''' <summary>
             ''' Opens the door
             ''' </summary>
             Public Sub OpenDoor()
-                Macro(12, 0, "")
+                m_Client.Macro(12, 0, "")
             End Sub
 
             ''' <summary>
             ''' Uses a skill
             ''' </summary>
             Public Sub UseSkill(ByVal skill As Enums.Skills)
-                Macro(13, CInt(skill), "")
+                m_Client.Macro(13, CInt(skill), "")
             End Sub
 
             ''' <summary>
             ''' Uses the last skill
             ''' </summary>
             Public Sub LastSkill()
-                Macro(14, 0, "")
+                m_Client.Macro(14, 0, "")
             End Sub
 
             ''' <summary>
             ''' Casts the specified spell
             ''' </summary>
             Public Sub CastSpell(ByVal spell As Enums.Spell)
-                Macro(15, CInt(spell), "")
+                m_Client.Macro(15, CInt(spell), "")
             End Sub
 
             ''' <summary>
             ''' Casts the last spell
             ''' </summary>
             Public Sub LastSpell()
-                Macro(16, 0, "")
+                m_Client.Macro(16, 0, "")
             End Sub
 
             ''' <summary>
             ''' Sends the last object
             ''' </summary>
             Public Sub LastObject()
-                Macro(17, 0, "")
+                m_Client.Macro(17, 0, "")
             End Sub
 
             ''' <summary>
             ''' Bows
             ''' </summary>
             Public Sub Bow()
-                Macro(18, 0, "")
+                m_Client.Macro(18, 0, "")
             End Sub
 
             ''' <summary>
             ''' Salutes
             ''' </summary>
             Public Sub Salute()
-                Macro(19, 0, "")
+                m_Client.Macro(19, 0, "")
             End Sub
 
             ''' <summary>
             ''' Quits the game.
             ''' </summary>
             Public Sub QuitGame()
-                Macro(20, 0, "")
+                m_Client.Macro(20, 0, "")
             End Sub
 
             ''' <summary>
             ''' Display all the names.
             ''' </summary>
             Public Sub AllNames()
-                Macro(21, 0, "")
+                m_Client.Macro(21, 0, "")
             End Sub
 
             ''' <summary>
             ''' Sends again the last target.
             ''' </summary>
             Public Sub LastTarget()
-                Macro(22, 0, "")
+                m_Client.Macro(22, 0, "")
             End Sub
 
             ''' <summary>
             ''' Send yourself as target
             ''' </summary>
             Public Sub TargetSelf()
-                Macro(23, 0, "")
+                m_Client.Macro(23, 0, "")
             End Sub
 
             ''' <summary>
             ''' Arms or disarms
             ''' </summary>
             Public Sub ArmOrDisarm()
-                Macro(24, 0, "")
+                m_Client.Macro(24, 0, "")
             End Sub
 
             ''' <summary>
             ''' Waits for target.
             ''' </summary>
             Public Sub WaitForTarget()
-                Macro(25, 0, "")
+                m_Client.Macro(25, 0, "")
             End Sub
 
             ''' <summary>
             ''' Targets the next (attackant?).
             ''' </summary>
             Public Sub TargetNext()
-                Macro(26, 0, "")
+                m_Client.Macro(26, 0, "")
             End Sub
 
             ''' <summary>
             ''' Attacks the last target.
             ''' </summary>
             Public Sub AttackLast()
-                Macro(27, 0, "")
+                m_Client.Macro(27, 0, "")
             End Sub
 
             ''' <summary>
@@ -214,63 +263,63 @@
             ''' </summary>
             ''' <param name="seconds">The seconds to wait.</param>
             Public Sub Delay(ByVal seconds As Integer)
-                Macro(28, seconds, "")
+                m_Client.Macro(28, seconds, "")
             End Sub
 
             ''' <summary>
             ''' Entables or disable the circle of transparency.
             ''' </summary>
             Public Sub CircleTrans()
-                Macro(29, 0, "")
+                m_Client.Macro(29, 0, "")
             End Sub
 
             ''' <summary>
             ''' Closes all the gump.
             ''' </summary>
             Public Sub CloseAllGumps()
-                Macro(30, 0, "")
+                m_Client.Macro(30, 0, "")
             End Sub
 
             ''' <summary>
             ''' Enables or disables the Always run option.
             ''' </summary>
             Public Sub AlwaysRun()
-                Macro(31, 0, "")
+                m_Client.Macro(31, 0, "")
             End Sub
 
             ''' <summary>
             ''' Saves the desktop (ie your preferences and interface).
             ''' </summary>
             Public Sub SaveDesktop()
-                Macro(32, 0, "")
+                m_Client.Macro(32, 0, "")
             End Sub
 
             ''' <summary>
             ''' Kills the open gump.
             ''' </summary>
             Public Sub KillGumpOpen()
-                Macro(33, 0, "")
+                m_Client.Macro(33, 0, "")
             End Sub
 
             ''' <summary>
             ''' Uses the weapon primary ability.
             ''' </summary>
             Public Sub UsePrimaryAbility()
-                Macro(34, 0, "")
+                m_Client.Macro(34, 0, "")
             End Sub
 
             ''' <summary>
             ''' Uses the weapon secondary ability.
             ''' </summary>
             Public Sub UseSecondaryAbility()
-                Macro(35, 0, "")
+                m_Client.Macro(35, 0, "")
             End Sub
 
             ''' <summary>
             ''' Equips the last weapon.
             ''' </summary>
             Public Sub EquipLastWeapon()
-                Macro(36, 0, "")
+                m_Client.Macro(36, 0, "")
             End Sub
 
             ''' <summary>
@@ -278,7 +327,7 @@
             ''' </summary>
             ''' <param name="range">The range.</param>
             Public Sub SetUpdateRange(ByVal range As Integer)
-                Macro(37, range, "")
+                m_Client.Macro(37, range, "")
             End Sub
 
             ''' <summary>
@@ -286,70 +335,70 @@
             ''' </summary>
             ''' <param name="range">The range.</param>
             Public Sub ModifyUpdateRange(ByVal range As Integer)
-                Macro(38, range, "")
+                m_Client.Macro(38, range, "")
             End Sub
 
             ''' <summary>
             ''' Increases the update range.
             ''' </summary>
             Public Sub IncreaseUpdateRange()
-                Macro(39, 0, "")
+                m_Client.Macro(39, 0, "")
             End Sub
 
             ''' <summary>
             ''' Decreases the update range.
             ''' </summary>
             Public Sub DecreaseUpdateRange()
-                Macro(40, 0, "")
+                m_Client.Macro(40, 0, "")
             End Sub
 
             ''' <summary>
             ''' Sets the update range at maximum.
             ''' </summary>
             Public Sub MaxUpdateRange()
-                Macro(41, 0, "")
+                m_Client.Macro(41, 0, "")
             End Sub
 
             ''' <summary>
             ''' Sets the update range at minimum.
             ''' </summary>
             Public Sub MinUpdateRange()
-                Macro(42, 0, "")
+                m_Client.Macro(42, 0, "")
             End Sub
 
             ''' <summary>
             ''' Sets the update range at default value.
             ''' </summary>
             Public Sub DefaultUpdateRange()
-                Macro(43, 0, "")
+                m_Client.Macro(43, 0, "")
             End Sub
 
             ''' <summary>
             ''' Updates the range info.
             ''' </summary>
             Public Sub UpdateRangeInfo()
-                Macro(44, 0, "")
+                m_Client.Macro(44, 0, "")
             End Sub
 
             ''' <summary>
             ''' Enables the color of the range.
             ''' </summary>
             Public Sub EnableRangeColor()
-                Macro(45, 0, "")
+                m_Client.Macro(45, 0, "")
             End Sub
 
             ''' <summary>
             ''' Disables the color of the range.
             ''' </summary>
             Public Sub DisableRangeColor()
-                Macro(46, 0, "")
+                m_Client.Macro(46, 0, "")
             End Sub
 
             ''' <summary>
             ''' Enables or disables the color of the range.
             ''' </summary>
             Public Sub ToggleRangeColor()
-                Macro(47, 0, "")
+                m_Client.Macro(47, 0, "")
             End Sub
 
 
@@ -358,7 +407,7 @@
             ''' </summary>
             ''' <param name="virtue">The virtue to invoke.</param>
             Public Sub InvokeVirtue(ByVal virtue As Enums.Virtues)
-                Macro(48, CInt(virtue), "")
+                m_Client.Macro(48, CInt(virtue), "")
             End Sub
         End Class
     End Class
