@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Macros.vb" />
     <Compile Include="Mobile.vb" />
+    <Compile Include="MobileList.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

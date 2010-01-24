@@ -2,9 +2,11 @@
 
     Public Class Mobile
         Inherits Item
+        Private _Layers As LayersClass
 
-        Friend Sub New(ByVal Serial As Serial, ByVal Client As Client)
+        Friend Sub New(ByVal Client As Client)
             MyBase.New(Client)
+            _Layers = New LayersClass(Client)
         End Sub
 
 #Region "Private Variables"
@@ -35,10 +37,24 @@
         Friend _DamageMin As UShort
         Friend _DamageMax As UShort
         Friend _TithingPoints As UShort
+#End Region
+
+#Region "Public Events"
+        Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile)
+        Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile)
 
 #End Region
 
 #Region "Public Properties"
+        ''' <summary>
+        ''' Returns the item on the specified layer.
+        ''' </summary>
+        Public ReadOnly Property Layers() As LayersClass
+            Get
+                Return _Layers
+            End Get
+        End Property
+
         ''' <summary>
         ''' The character's serial.
         ''' </summary>
@@ -292,200 +308,180 @@
             End Get
         End Property
 
-        ''' <summary>
-        ''' Returns the item on the specified layer.
-        ''' </summary>
-        Public Class Layers
-            Friend _LeftHand As Item
-            Friend _RightHand As Item
-            Friend _Shoes As Item
-            Friend _Pants As Item
-            Friend _Shirt As Item
-            Friend _Head As Item
-            Friend _Gloves As Item
-            Friend _Ring As Item
-            Friend _Neck As Item
-            Friend _Hair As Item
-            Friend _Waist As Item
-            Friend _InnerTorso As Item
-            Friend _Bracelet As Item
-            Friend _FacialHair As Item
-            Friend _MiddleTorso As Item
-            Friend _Ears As Item
-            Friend _Arms As Item
-            Friend _Back As Item
-            Friend _BackPack As Item
-            Friend _OuterTorso As Item
-            Friend _OuterLegs As Item
-            Friend _InnerLegs As Item
-            Friend _Mount As Item
-            Friend _Bank As Item
+        'Hide this class from the user, there is no reason from him/her to see it.
+        <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
+        Class LayersClass
+            Friend Sub New(ByVal Client As Client)
+                _Client = Client
+            End Sub
 
-            Public ReadOnly Property LeftHand()
+            Private _Client As Client
+            Friend _LeftHand As Serial
+            Friend _RightHand As Serial
+            Friend _Shoes As Serial
+            Friend _Pants As Serial
+            Friend _Shirt As Serial
+            Friend _Head As Serial
+            Friend _Gloves As Serial
+            Friend _Ring As Serial
+            Friend _Neck As Serial
+            Friend _Hair As Serial
+            Friend _Waist As Serial
+            Friend _InnerTorso As Serial
+            Friend _Bracelet As Serial
+            Friend _FacialHair As Serial
+            Friend _MiddleTorso As Serial
+            Friend _Ears As Serial
+            Friend _Arms As Serial
+            Friend _Back As Serial
+            Friend _BackPack As Serial
+            Friend _OuterTorso As Serial
+            Friend _OuterLegs As Serial
+            Friend _InnerLegs As Serial
+            Friend _Mount As Serial
+            Friend _Bank As Serial
+
+            Public ReadOnly Property LeftHand() As Item
                 Get
-                    If _LeftHand Is Nothing Then Return Nothing
-                    Return _LeftHand
+                    Return _Client._AllItems(_LeftHand)
                 End Get
             End Property
 
-            Public ReadOnly Property RightHand()
+            Public ReadOnly Property RightHand() As Item
                 Get
-                    If _RightHand Is Nothing Then Return Nothing
-                    Return _RightHand
+                    Return _Client._AllItems(_RightHand)
                 End Get
             End Property
 
-            Public ReadOnly Property Shoes()
+            Public ReadOnly Property Shoes() As Item
                 Get
-                    If _Shoes Is Nothing Then Return Nothing
-                    Return _Shoes
+                    Return _Client._AllItems(_Shoes)
                 End Get
             End Property
 
-            Public ReadOnly Property Pants()
+            Public ReadOnly Property Pants() As Item
                 Get
-                    If _Pants Is Nothing Then Return Nothing
-                    Return _Pants
+                    Return _Client._AllItems(_Pants)
                 End Get
             End Property
 
-            Public ReadOnly Property Shirt()
+            Public ReadOnly Property Shirt() As Item
                 Get
-                    If _Shirt Is Nothing Then Return Nothing
-                    Return _Shirt
+                    Return _Client._AllItems(_Shirt)
                 End Get
             End Property
 
-            Public ReadOnly Property Head()
+            Public ReadOnly Property Head() As Item
                 Get
-                    If _Head Is Nothing Then Return Nothing
-                    Return _Head
+                    Return _Client._AllItems(_Head)
                 End Get
             End Property
 
-            Public ReadOnly Property Gloves()
+            Public ReadOnly Property Gloves() As Item
                 Get
-                    If _Gloves Is Nothing Then Return Nothing
-                    Return _Gloves
+                    Return _Client._AllItems(_Gloves)
                 End Get
             End Property
 
-            Public ReadOnly Property Ring()
+            Public ReadOnly Property Ring() As Item
                 Get
-                    If _Ring Is Nothing Then Return Nothing
-                    Return _Ring
+                    Return _Client._AllItems(_Ring)
                 End Get
             End Property
 
-            Public ReadOnly Property Neck()
+            Public ReadOnly Property Neck() As Item
                 Get
-                    If _Neck Is Nothing Then Return Nothing
-                    Return _Neck
+                    Return _Client._AllItems(_Neck)
                 End Get
             End Property
 
-            Public ReadOnly Property Hair()
+            Public ReadOnly Property Hair() As Item
                 Get
-                    If _Hair Is Nothing Then Return Nothing
-                    Return _Hair
+                    Return _Client._AllItems(_Hair)
                 End Get
             End Property
 
-            Public ReadOnly Property Waist()
+            Public ReadOnly Property Waist() As Item
                 Get
-                    If _Waist Is Nothing Then Return Nothing
-                    Return _Waist
+                    Return _Client._AllItems(_Waist)
                 End Get
             End Property
 
-            Public ReadOnly Property InnerTorso()
+            Public ReadOnly Property InnerTorso() As Item
                 Get
-                    If _InnerTorso Is Nothing Then Return Nothing
-                    Return _InnerTorso
+                    Return _Client._AllItems(_InnerTorso)
                 End Get
             End Property
 
-            Public ReadOnly Property Bracelet()
+            Public ReadOnly Property Bracelet() As Item
                 Get
-                    If _Bracelet Is Nothing Then Return Nothing
-                    Return _Bracelet
+                    Return _Client._AllItems(_Bracelet)
                 End Get
             End Property
 
-            Public ReadOnly Property FacialHair()
+            Public ReadOnly Property FacialHair() As Item
                 Get
-                    If _FacialHair Is Nothing Then Return Nothing
-                    Return _FacialHair
+                    Return _Client._AllItems(_FacialHair)
                 End Get
             End Property
 
-            Public ReadOnly Property MiddleTorso()
+            Public ReadOnly Property MiddleTorso() As Item
                 Get
-                    If _MiddleTorso Is Nothing Then Return Nothing
-                    Return _MiddleTorso
+                    Return _Client._AllItems(_MiddleTorso)
                 End Get
             End Property
 
-            Public ReadOnly Property Ears()
+            Public ReadOnly Property Ears() As Item
                 Get
-                    If _Ears Is Nothing Then Return Nothing
-                    Return _Ears
+                    Return _Client._AllItems(_Ears)
                 End Get
             End Property
 
-            Public ReadOnly Property Arms()
+            Public ReadOnly Property Arms() As Item
                 Get
-                    If _Arms Is Nothing Then Return Nothing
-                    Return _Arms
+                    Return _Client._AllItems(_Arms)
                 End Get
             End Property
 
-            Public ReadOnly Property Back()
+            Public ReadOnly Property Back() As Item
                 Get
-                    If _Back Is Nothing Then Return Nothing
-                    Return _Back
+                    Return _Client._AllItems(_Back)
                 End Get
             End Property
 
-            Public ReadOnly Property BackPack()
+            Public ReadOnly Property BackPack() As Item
                 Get
-                    If _BackPack Is Nothing Then Return Nothing
-                    Return _BackPack
+                    Return _Client._AllItems(_BackPack)
                 End Get
             End Property
 
-            Public ReadOnly Property OuterTorso()
+            Public ReadOnly Property OuterTorso() As Item
                 Get
-                    If _OuterTorso Is Nothing Then Return Nothing
-                    Return _OuterTorso
+                    Return _Client._AllItems(_OuterTorso)
                 End Get
             End Property
 
-            Public ReadOnly Property OuterLegs()
+            Public ReadOnly Property OuterLegs() As Item
                 Get
-                    If _OuterLegs Is Nothing Then Return Nothing
-                    Return _OuterLegs
+                    Return _Client._AllItems(_OuterLegs)
                 End Get
             End Property
 
-            Public ReadOnly Property InnerLegs()
+            Public ReadOnly Property InnerLegs() As Item
                 Get
-                    If _InnerLegs Is Nothing Then Return Nothing
-                    Return _InnerLegs
+                    Return _Client._AllItems(_InnerLegs)
                 End Get
             End Property
 
-            Public ReadOnly Property Mount()
+            Public ReadOnly Property Mount() As Item
                 Get
-                    If _Mount Is Nothing Then Return Nothing
-                    Return _Mount
+                    Return _Client._AllItems(_Mount)
                 End Get
             End Property
 
-            Public ReadOnly Property Bank()
+            Public ReadOnly Property Bank() As Item
                 Get
-                    If _Bank Is Nothing Then Return Nothing
-                    Return _Bank
+                    Return _Client._AllItems(_Bank)
                 End Get
             End Property
 
