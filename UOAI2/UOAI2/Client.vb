@@ -19,8 +19,8 @@ Partial Class UOAI
         Private m_EventTimer As System.Threading.Timer
         Private m_ShutdownEventTimer As Boolean
         Private _Items As ItemList
-        Friend _AllItems As New ItemList
-        Friend GIANTSerialHash As Hashtable
+        Friend _AllItems As New Hashtable
+        Friend GIANTSerialHash As New Hashtable
 
 
         ''' <summary>

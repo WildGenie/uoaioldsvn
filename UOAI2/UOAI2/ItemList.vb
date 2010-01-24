@@ -53,12 +53,12 @@ Partial Class UOAI
                     _MyClient.GIANTSerialHash.Add(Item.Serial, _ParentItem)
 
                     'Add it to the client's Allitem list, for access to as a container.
-                    _MyClient._AllItems.AddItem(Item)
+                    _MyClient._AllItems.Add(Item.Serial, Item)
                 Else
                     'If this item's container is NOT this container,
                     'then look up the container by Serial in the client's master item list
                     'and add the item to that items contents.
-                    _MyClient._AllItems.bySerial(Item.Container).Contents.AddItem(Item)
+                    _MyClient._AllItems(Item.Container).Contents.AddItem(Item)
                 End If
             End If
 
@@ -89,7 +89,7 @@ Partial Class UOAI
                         _MyClient.GIANTSerialHash.Remove(ContainerSerial)
 
                         'Remvoe it from the all items hash.
-                        _MyClient._AllItems.RemoveItem(ItemSerial, ContainerSerial)
+                        _MyClient._AllItems.Remove(ItemSerial)
 
                     Else 'This is not the item's container
                         'Perform a reverse lookup of the container's ITEM class using the GIANTSerialHash, 
