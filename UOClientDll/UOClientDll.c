@@ -1,5 +1,11 @@
+/*
 #if WINVER < 0x0500
 #define  WINVER  0x0500
+#endif
+*/
+
+#if WINVER < 0x0500
+#define HWND_MESSAGE 4294967293
 #endif
 
 #define BUILDING_DLL
@@ -158,7 +164,10 @@ unsigned int BroadcastEvent(unsigned type, unsigned int size, BYTE * data)
 			if(CSend(curclient,eventbuffer,size+8))
 			{
 				while((status=CHasData(curclient))==0)
+				{
 					HandlePacketIPC(FALSE);
+					Sleep(0);
+				}
 
 				if(status!=SOCKET_ERROR)
 				{
@@ -186,7 +195,10 @@ unsigned int BroadcastEvent(unsigned type, unsigned int size, BYTE * data)
 						}
 
 						while((status=CHasData(curclient))==0)
+						{
 							HandlePacketIPC(FALSE);
+							Sleep(0);
+						}
 						if(status==SOCKET_ERROR)
 							break;
 					}
@@ -271,7 +283,7 @@ LRESULT CALLBACK GetMsgHook(int code,WPARAM wParam,LPARAM lParam)
 	{
 		//initilialization:
 
-		debugprintf("initializing\n");
+		//debugprintf("initializing\n");
 
 		//	-	setup messagehandlers
 
@@ -384,7 +396,7 @@ UOCLIENTDLLAPI void injectself(DWORD dwThreadId)
 {
 	//old verison: SetWindowsHookEx(WH_CBT,(HOOKPROC)GetMsgHook,GetModuleHandle("UOClientDll.dll"),dwThreadId);
 	
-	debugprintf("injecting\n");
+	//debugprintf("injecting\n");
 
 	//sets a getmessage hook and therefore effectively injects this dll into the specified trhead on the client's process
 	curhook=SetWindowsHookEx(WH_GETMESSAGE,(HOOKPROC)GetMsgHook,GetModuleHandle("UOClientDll.dll"),dwThreadId);
@@ -530,7 +542,7 @@ void CreateLocalIPCWindow(DWORD id)
 
 	RegisterClass(&rpcwinclass);
 
-	LocalIPCHWnd=CreateWindow(winname,winname,WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,HWND_MESSAGE,0,GetModuleHandle(0),0);
+	LocalIPCHWnd=CreateWindow(winname,winname,WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,(struct HWND__ *)HWND_MESSAGE,0,GetModuleHandle(0),0);
 
 	return;
 }
@@ -626,6 +638,19 @@ unsigned int handle_skipuoaistdthiscallmessage(unsigned int wParam, unsigned int
 unsigned int handle_stdthiscallmessage(unsigned int wParam, unsigned int lParam)
 {
 	return dostdthiscall((unsigned int)wParam,(Stack *)lParam);
+}
+
+void windowmessagehandler()
+{
+	MSG msg;
+	if(GetMessage(&msg,0,0,0))
+	{
+		if(msg.message!=WM_TIMER)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 }
 
 //client locking means entering an embedded message loop
@@ -1861,7 +1886,8 @@ void EventTimerProc(HWND hWnd,unsigned int uMsg,unsigned int * idEvent, unsigned
 
 unsigned int handle_setupeventtimermessage(unsigned int para, unsigned int parb)
 {
-	debugprintf("setting up event timer, port is %x\n",ipcserver->port);
+	//
+	("setting up event timer, port is %x\n",ipcserver->port);
 	if(InterlockedExchange(&eventtimersetup,1)==0)
 		SetTimer(LocalIPCHWnd,0,250,(TIMERPROC)EventTimerProc);
 	return ipcserver->port;

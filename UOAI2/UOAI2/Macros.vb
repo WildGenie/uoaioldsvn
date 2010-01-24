@@ -22,7 +22,6 @@
         ''' Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Private Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
-            'TODO: Make this sub do some macro stuff.
             Dim StringParameterAddress As UInteger
             Dim MacroTableAddress As UInteger
             Dim MacroTable(9) As UInteger
