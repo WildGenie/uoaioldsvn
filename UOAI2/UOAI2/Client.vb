@@ -71,7 +71,6 @@ Partial Class UOAI
             End Get
         End Property
 
-
 #End Region
 
 #Region "Constructor and InjectedDll Communication"

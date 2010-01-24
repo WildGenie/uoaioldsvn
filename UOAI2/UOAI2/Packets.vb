@@ -84,12 +84,12 @@ Partial Class UOAI
             ''' <summary>Gets or Sets the speech type as <see cref="UOAI.Enums.SpeechTypes"/>.</summary>
             Public Property Mode() As Enums.SpeechTypes
                 Get
-                    Return _Mode
+                    Return _mode
                 End Get
                 Set(ByVal value As Enums.SpeechTypes)
-                    _Mode = value
+                    _mode = value
                     buff.Position = 3
-                    buff.writebyte(_Mode)
+                    buff.writebyte(_mode)
                 End Set
             End Property
 
@@ -807,6 +807,8 @@ Partial Class UOAI
 
     End Class
 
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class EditableItem
         Friend _Serial As Serial
         Friend _Type As ItemType
@@ -1168,6 +1170,8 @@ Partial Class UOAI
     End Class
 
     'Buffer Serialization and Deserialization
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Friend Class BufferHandler
         Inherits Stream
         Public curpos As Long

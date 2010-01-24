@@ -8,6 +8,8 @@ Imports System.IO
 
 Partial Class UOAI
     'CallibrationInfo structure to hold info read from the injected dll
+    'Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     <StructLayout(LayoutKind.Sequential, Size:=640)> _
     Public Structure CallibrationInfo
         Public pSendHook As UInt32
@@ -290,7 +292,9 @@ Partial Class UOAI
         Public oGumpElementClick As UInt32
     End Structure
 
-    '''<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+    ''' <summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Friend Class IPCConstants
         ''' <summary></summary>
         Friend Shared customcallmessage As UInteger = 0
@@ -410,6 +414,8 @@ Partial Class UOAI
     'To perform synchronized calls, a stack datastructure is set up in injected dll (remotely)
     'and all parameters are pushed onto that through the message based IPC.
     'This RStack class hides the details of that.
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class RStack
         Private m_Stack As UInteger
         Private m_Client As Client
@@ -430,6 +436,8 @@ Partial Class UOAI
     End Class
 
     'Wraps up functionality of UOClientDll
+    'Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Friend Class UOClientDll
         'private members
         Private m_ClientProcess As ProcessStream

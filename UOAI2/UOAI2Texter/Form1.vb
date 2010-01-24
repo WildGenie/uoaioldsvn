@@ -51,20 +51,7 @@ Public Class Form1
     End Sub
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
-        'Dump skills Enumeration.
-        Dim s As StreamWriter
-        s = File.CreateText(Application.StartupPath & "\skills.vb")
-        s.WriteLine("Public Enum Skills")
-
-        For i As Integer = 0 To Ultima.Skills.List.Length - 1
-            s.WriteLine(vbTab & Ultima.Skills.GetSkill(i).Name.Replace(" ", "").Replace("/", "") & " = " & Ultima.Skills.GetSkill(i).ID)
-        Next
-
-        s.WriteLine("End Enum")
-        s.Close()
-
-
-
+        UOAI_Cl.Macros.Say("test!")
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click

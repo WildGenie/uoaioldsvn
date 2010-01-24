@@ -76,11 +76,11 @@ Partial Class Form1
         '
         'Button4
         '
-        Me.Button4.Location = New System.Drawing.Point(6, 6)
+        Me.Button4.Location = New System.Drawing.Point(12, 12)
         Me.Button4.Name = "Button4"
         Me.Button4.Size = New System.Drawing.Size(137, 23)
         Me.Button4.TabIndex = 5
-        Me.Button4.Text = "Dump Skills Enum"
+        Me.Button4.Text = "Macro Test"
         Me.Button4.UseVisualStyleBackColor = True
         '
         'TabControl1
@@ -140,7 +140,6 @@ Partial Class Form1
         'TabPage2
         '
         Me.TabPage2.Controls.Add(Me.Button5)
-        Me.TabPage2.Controls.Add(Me.Button4)
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
@@ -164,6 +163,7 @@ Partial Class Form1
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(504, 407)
         Me.Controls.Add(Me.TabControl1)
+        Me.Controls.Add(Me.Button4)
         Me.Name = "Form1"
         Me.Text = "Form1"
         Me.TabControl1.ResumeLayout(False)
