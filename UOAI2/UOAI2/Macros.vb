@@ -2,6 +2,8 @@
 
     Partial Class Client
 
+        ''' Hide this class from the user, there is no reason from him/her to see it.
+        <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Private Function GetBytesFromUIntArray(ByVal toconvert() As UInteger) As Byte()
             Dim intbytes(toconvert.Length * 4 - 1) As Byte
             Dim buffer(3) As Byte
@@ -17,6 +19,8 @@
             Return intbytes
         End Function
 
+        ''' Hide this class from the user, there is no reason from him/her to see it.
+        <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Private Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
             'TODO: Make this sub do some macro stuff.
             Dim StringParameterAddress As UInteger
@@ -53,10 +57,12 @@
         ''' <summary>
         ''' Standard UO macros
         ''' </summary>
+        ''' Hide this class from the user, there is no reason from him/her to see it.
+        <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Public Class UOMacros
             Private m_Client As Client
 
-            Public Sub New(ByVal onclient As Client)
+            Friend Sub New(ByVal onclient As Client)
                 m_Client = onclient
             End Sub
 

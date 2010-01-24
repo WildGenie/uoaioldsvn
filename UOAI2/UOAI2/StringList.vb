@@ -4,6 +4,8 @@
 
 Partial Class UOAI
 
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class StringList
         Private m_Table As Hashtable
         Private m_Entries As StringEntry()
@@ -71,6 +73,8 @@ Partial Class UOAI
         End Sub
     End Class
 
+    ''' Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class StringEntry
         Private m_Number As Integer
         Private m_Text As String
