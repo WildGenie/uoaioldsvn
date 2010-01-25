@@ -52,6 +52,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.SpeechUnicode)
                 _Data = bytes
+                _size = bytes.Length
 
                 buff = New BufferHandler(bytes)
 
@@ -167,6 +168,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.TextUnicode)
                 _Data = bytes
+                _size = bytes.Length
 
                 buff = New BufferHandler(bytes, True)
 
@@ -334,6 +336,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.OpenContainer)
                 _Data = bytes
+                _size = bytes.Length
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -396,6 +399,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ObjecttoObject)
                 _Data = bytes
+                _size = bytes.Length
                 buff = New BufferHandler(bytes)
 
                 _size = &H14
@@ -534,6 +538,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ObjecttoObject)
                 _Data = bytes
+                _size = bytes.Length
                 buff = New BufferHandler(bytes)
 
                 _size = 2
@@ -572,6 +577,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.EquipItem)
                 _Data = bytes
+                _size = bytes.Length
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -681,6 +687,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ContainerContents)
                 _Data = bytes
+                _size = bytes.Length
 
                 buff.Position = 1
                 buff.networkorder = False
@@ -694,6 +701,7 @@ Partial Class UOAI
                 Dim it As New EditableItem
 
                 For i As UShort = 1 To _Count - 1
+                    it = New EditableItem
                     buff.Position = (i * 19) + 5
                     it._Serial = buff.readuint
                     it._Type = buff.readushort
@@ -766,6 +774,7 @@ Partial Class UOAI
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.RenameMOB)
                 _Data = bytes
+                _size = bytes.Length
                 buff = New BufferHandler(bytes)
 
                 buff.Position = 1
@@ -801,6 +810,952 @@ Partial Class UOAI
                         Throw New ConstraintException("String specified for name is too long, it must be < 30 characters long.")
                     End If
                 End Set
+            End Property
+
+        End Class
+
+        ''' <summary>
+        ''' Yo programmer, I'm really happy for you and I'm gona let you finish 
+        ''' but this is one of the biggest packet classes of all time, OF ALL TIME!
+        '''  -Kanye West
+        ''' </summary>
+        Public Class MobileStats
+            Inherits Packet
+
+            Friend _Serial As Serial
+            Friend _Name As String = ""
+            Friend _Hits As UShort = 1
+            Friend _HitsMax As UShort = 1
+            Friend _Renamable As Enums.Renamable = Enums.Renamable.NotRenamable
+            Friend _DisplayMode As Enums.DisplayMode = Enums.DisplayMode.Normal
+            Friend _Gender As Enums.Gender = Enums.Gender.Neutral
+            Friend _Strength As UShort = 1
+            Friend _Dexterity As UShort = 1
+            Friend _Intelligence As UShort = 1
+            Friend _Stamina As UShort = 1
+            Friend _StaminaMax As UShort = 1
+            Friend _Mana As UShort = 1
+            Friend _ManaMax As UShort = 1
+            Friend _Gold As UInt32 = 0
+            Friend _ResistPhysical As UShort = 0
+            Friend _Weight As UShort = 0
+
+            'Included in Mobile Stat Packet if SF 0x03
+            Friend _StatCap As UShort = 1
+            Friend _Followers As Byte = 0
+            Friend _FollowersMax As Byte = 5
+
+            'Included in Mobile Stat Packet if SF 0x04
+            Friend _ResistFire As UShort = 0
+            Friend _ResistCold As UShort = 0
+            Friend _ResistPoison As UShort = 0
+            Friend _ResistEnergy As UShort = 0
+            Friend _Luck As UShort = 0
+            Friend _DamageMin As UShort = 1
+            Friend _DamageMax As UShort = 1
+            Friend _TithingPoints As UShort = 0
+
+            'Included in Mobile Stat Packet if SF 0x05
+            Friend _Race As Byte = 0
+            Friend _WeightMax As UShort = 0
+
+            'Included in Mobile Stat Packet if SF 0x06
+            Friend _HitChanceIncrease As Short = 1
+            Friend _SwingSpeedIncrease As Short = 1
+            Friend _DamageChanceIncrease As Short = 1
+            Friend _LowerReagentCost As Short = 1
+            Friend _HitPointsRegeneration As Short = 1
+            Friend _StaminaRegeneration As Short = 1
+            Friend _ManaRegeneration As Short = 1
+            Friend _ReflectPhysicalDamage As Short = 1
+            Friend _EnhancePotions As Short = 1
+            Friend _DefenseChanceIncrease As Short = 1
+            Friend _SpellDamageIncrease As Short = 1
+            Friend _FasterCastRecovery As Short = 1
+            Friend _FasterCasting As Short = 1
+            Friend _LowerManaCost As Short = 1
+            Friend _StrengthIncrease As Short = 1
+            Friend _DexterityIncrease As Short = 1
+            Friend _IntelligenceIncrease As Short = 1
+            Friend _HitPointsIncrease As Short = 1
+            Friend _StaminaIncrease As Short = 1
+            Friend _ManaIncrease As Short = 1
+            Friend _MaximumHitPointsIncrease As Short = 1
+            Friend _MaximumStaminaIncrease As Short = 1
+            Friend _MaximumManaIncrease As Short = 1
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.MobileStats)
+                buff = New BufferHandler(bytes)
+                _size = bytes.Length
+                _Data = bytes
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+                    _Name = .readstrn(30)
+                    _Hits = .readushort
+                    _HitsMax = .readushort
+                    _Renamable = .readbyte
+                    _DisplayMode = .readbyte
+                    _Gender = .readbyte
+                    _Strength = .readushort
+                    _Dexterity = .readushort
+                    _Intelligence = .readushort
+                    _Stamina = .readushort
+                    _StaminaMax = .readushort
+                    _Mana = .readushort
+                    _ManaMax = .readushort
+                    _Gold = .readuint
+                    _ResistPhysical = .readushort
+                    _Weight = .readushort
+
+                    Select Case _DisplayMode
+
+                        Case 3 ' 0x00 through 0x03
+                            _StatCap = .readushort
+                            _Followers = .readbyte
+                            _FollowersMax = .readbyte
+                        Case Enums.DisplayMode.StatCap_Followers_Resistances ' 0x04
+                            _StatCap = .readushort
+                            _Followers = .readbyte
+                            _FollowersMax = .readbyte
+                            _ResistFire = .readushort
+                            _ResistCold = .readushort
+                            _ResistPoison = .readushort
+                            _ResistEnergy = .readushort
+                            _Luck = .readushort
+                            _DamageMin = .readushort
+                            _DamageMax = .readushort
+                            _TithingPoints = .readushort
+                        Case Enums.DisplayMode.SupportedFeatures5 ' 0x05
+                            _WeightMax = .readushort
+                            _Race = .readbyte
+                            _StatCap = .readushort
+                            _Followers = .readbyte
+                            _FollowersMax = .readbyte
+                            _ResistFire = .readushort
+                            _ResistCold = .readushort
+                            _ResistPoison = .readushort
+                            _ResistEnergy = .readushort
+                            _Luck = .readushort
+                            _DamageMin = .readushort
+                            _DamageMax = .readushort
+                            _TithingPoints = .readushort
+
+                        Case Enums.DisplayMode.KR ' 0x06
+                            _WeightMax = .readushort
+                            _Race = .readbyte
+                            _StatCap = .readushort
+                            _Followers = .readbyte
+                            _FollowersMax = .readbyte
+                            _ResistFire = .readushort
+                            _ResistCold = .readushort
+                            _ResistPoison = .readushort
+                            _ResistEnergy = .readushort
+                            _Luck = .readushort
+                            _DamageMin = .readushort
+                            _DamageMax = .readushort
+                            _TithingPoints = .readushort
+
+                            _HitChanceIncrease = .readushort
+                            _SwingSpeedIncrease = .readushort
+                            _DamageChanceIncrease = .readushort
+                            _LowerReagentCost = .readushort
+                            _HitPointsRegeneration = .readushort
+                            _StaminaRegeneration = .readushort
+                            _ManaRegeneration = .readushort
+                            _ReflectPhysicalDamage = .readushort
+                            _EnhancePotions = .readushort
+                            _DefenseChanceIncrease = .readushort
+                            _SpellDamageIncrease = .readushort
+                            _FasterCastRecovery = .readushort
+                            _FasterCasting = .readushort
+                            _LowerManaCost = .readushort
+                            _StrengthIncrease = .readushort
+                            _DexterityIncrease = .readushort
+                            _IntelligenceIncrease = .readushort
+                            _HitPointsIncrease = .readushort
+                            _StaminaIncrease = .readushort
+                            _ManaIncrease = .readushort
+                            _MaximumHitPointsIncrease = .readushort
+                            _MaximumStaminaIncrease = .readushort
+                            _MaximumManaIncrease = .readushort
+
+
+                    End Select
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Name() As String
+                Get
+                    Return _Name
+                End Get
+            End Property
+
+            Public ReadOnly Property Hits() As UShort
+                Get
+                    Return _Hits
+                End Get
+            End Property
+
+            Public ReadOnly Property HitsMax() As UShort
+                Get
+                    Return _HitsMax
+                End Get
+            End Property
+
+            Public ReadOnly Property Renamable() As Enums.Renamable
+                Get
+                    Return _Renamable
+                End Get
+            End Property
+
+            Public ReadOnly Property DisplayMode() As Enums.DisplayMode
+                Get
+                    Return _DisplayMode
+                End Get
+            End Property
+
+            Public ReadOnly Property Gender() As Enums.Gender
+                Get
+                    Return _Gender
+                End Get
+            End Property
+
+            Public ReadOnly Property Strength() As UShort
+                Get
+                    Return _Strength
+                End Get
+            End Property
+
+            Public ReadOnly Property Dexterity() As UShort
+                Get
+                    Return _Dexterity
+                End Get
+            End Property
+
+            Public ReadOnly Property Intelligence() As UShort
+                Get
+                    Return _Intelligence
+                End Get
+            End Property
+
+            Public ReadOnly Property Stamina() As UShort
+                Get
+                    Return _Stamina
+                End Get
+            End Property
+
+            Public ReadOnly Property StaminaMax() As UShort
+                Get
+                    Return _StaminaMax
+                End Get
+            End Property
+
+            Public ReadOnly Property Mana() As UShort
+                Get
+                    Return _Mana
+                End Get
+            End Property
+
+            Public ReadOnly Property ManaMax() As UShort
+                Get
+                    Return _ManaMax
+                End Get
+            End Property
+
+            Public ReadOnly Property Gold() As UInt32
+                Get
+                    Return _Gold
+                End Get
+            End Property
+
+            Public ReadOnly Property ResistPhysical() As UShort
+                Get
+                    Return _ResistPhysical
+                End Get
+            End Property
+
+            Public ReadOnly Property Weight() As UShort
+                Get
+                    Return _Weight
+                End Get
+            End Property
+
+            Public ReadOnly Property StatCap() As UShort
+                Get
+                    Return _StatCap
+                End Get
+            End Property
+
+            Public ReadOnly Property Followers() As Byte
+                Get
+                    Return _Followers
+                End Get
+            End Property
+
+            Public ReadOnly Property FollowersMax() As Byte
+                Get
+                    Return _FollowersMax
+                End Get
+            End Property
+
+            Public ReadOnly Property ResistFire() As UShort
+                Get
+                    Return _ResistFire
+                End Get
+            End Property
+
+            Public ReadOnly Property ResistCold() As UShort
+                Get
+                    Return _ResistCold
+                End Get
+            End Property
+
+            Public ReadOnly Property ResistPoison() As UShort
+                Get
+                    Return _ResistPoison
+                End Get
+            End Property
+
+            Public ReadOnly Property ResistEnergy() As UShort
+                Get
+                    Return _ResistEnergy
+                End Get
+            End Property
+
+            Public ReadOnly Property Luck() As UShort
+                Get
+                    Return _Luck
+                End Get
+            End Property
+
+            Public ReadOnly Property DamageMin() As UShort
+                Get
+                    Return _DamageMin
+                End Get
+            End Property
+
+            Public ReadOnly Property DamageMax() As UShort
+                Get
+                    Return _DamageMax
+                End Get
+            End Property
+
+            Public ReadOnly Property TithingPoints() As UShort
+                Get
+                    Return _TithingPoints
+                End Get
+            End Property
+
+            Public ReadOnly Property Race() As Byte
+                Get
+                    Return _Race
+                End Get
+            End Property
+
+            Public ReadOnly Property WeightMax() As UShort
+                Get
+                    Return _WeightMax
+                End Get
+            End Property
+
+            Public ReadOnly Property HitChanceIncrease() As Short
+                Get
+                    Return _HitChanceIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property SwingSpeedIncrease() As Short
+                Get
+                    Return _SwingSpeedIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property DamageChanceIncrease() As Short
+                Get
+                    Return _DamageChanceIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property LowerReagentCost() As Short
+                Get
+                    Return _LowerReagentCost
+                End Get
+            End Property
+
+            Public ReadOnly Property HitPointsRegeneration() As Short
+                Get
+                    Return _HitPointsRegeneration
+                End Get
+            End Property
+
+            Public ReadOnly Property StaminaRegeneration() As Short
+                Get
+                    Return _StaminaRegeneration
+                End Get
+            End Property
+
+            Public ReadOnly Property ManaRegeneration() As Short
+                Get
+                    Return _ManaRegeneration
+                End Get
+            End Property
+
+            Public ReadOnly Property ReflectPhysicalDamage() As Short
+                Get
+                    Return _ReflectPhysicalDamage
+                End Get
+            End Property
+
+            Public ReadOnly Property EnhancePotions() As Short
+                Get
+                    Return _EnhancePotions
+                End Get
+            End Property
+
+            Public ReadOnly Property DefenseChanceIncrease() As Short
+                Get
+                    Return _DefenseChanceIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property SpellDamageIncrease() As Short
+                Get
+                    Return _SpellDamageIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property FasterCastRecovery() As Short
+                Get
+                    Return _FasterCastRecovery
+                End Get
+            End Property
+
+            Public ReadOnly Property FasterCasting() As Short
+                Get
+                    Return _FasterCasting
+                End Get
+            End Property
+
+            Public ReadOnly Property LowerManaCost() As Short
+                Get
+                    Return _LowerManaCost
+                End Get
+            End Property
+
+            Public ReadOnly Property StrengthIncrease() As Short
+                Get
+                    Return _StrengthIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property DexterityIncrease() As Short
+                Get
+                    Return _DexterityIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property IntelligenceIncrease() As Short
+                Get
+                    Return _IntelligenceIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property HitPointsIncrease() As Short
+                Get
+                    Return _HitPointsIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property StaminaIncrease() As Short
+                Get
+                    Return _StaminaIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property ManaIncrease() As Short
+                Get
+                    Return _ManaIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property MaximumHitPointsIncrease() As Short
+                Get
+                    Return _MaximumHitPointsIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property MaximumStaminaIncrease() As Short
+                Get
+                    Return _MaximumStaminaIncrease
+                End Get
+            End Property
+
+            Public ReadOnly Property MaximumManaIncrease() As Short
+                Get
+                    Return _MaximumManaIncrease
+                End Get
+            End Property
+
+
+        End Class
+
+        Public Class HPHealth
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _HitsMax As UShort
+            Private _Hits As UShort
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.HPHealth)
+                buff = New BufferHandler(bytes)
+                _size = bytes.Length
+                _Data = bytes
+
+                With buff
+                    .Position = 1
+                    '1-4
+                    _Serial = .readuint
+
+                    '5-6
+                    _HitsMax = .readushort
+
+                    '7-8
+                    _Hits = .readushort
+                End With
+            End Sub
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal value As Serial)
+                    _Serial = value
+                    buff.Position = 1
+                    buff.writeuint(value.Value)
+                End Set
+            End Property
+
+            Public Property HitsMax() As UShort
+                Get
+                    Return _HitsMax
+                End Get
+                Set(ByVal value As UShort)
+                    _HitsMax = value
+                    buff.Position = 5
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+            Public Property Hits() As UShort
+                Get
+                    Return _Hits
+                End Get
+                Set(ByVal value As UShort)
+                    _Hits = value
+                    buff.Position = 7
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+        End Class
+
+        Public Class FatHealth
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _StamMax As UShort
+            Private _Stam As UShort
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.FatHealth)
+                buff = New BufferHandler(bytes)
+                _size = bytes.Length
+                _Data = bytes
+
+                With buff
+                    .Position = 1
+                    '1-4
+                    _Serial = .readuint
+
+                    '5-6
+                    _StamMax = .readushort
+
+                    '7-8
+                    _Stam = .readushort
+                End With
+            End Sub
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal value As Serial)
+                    _Serial = value
+                    buff.Position = 1
+                    buff.writeuint(value.Value)
+                End Set
+            End Property
+
+            Public Property StamMax() As UShort
+                Get
+                    Return _StamMax
+                End Get
+                Set(ByVal value As UShort)
+                    _StamMax = value
+                    buff.Position = 5
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+            Public Property Stam() As UShort
+                Get
+                    Return _Stam
+                End Get
+                Set(ByVal value As UShort)
+                    _Stam = value
+                    buff.Position = 7
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+        End Class
+
+        Public Class ManaHealth
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _ManaMax As UShort
+            Private _Mana As UShort
+
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.ManaHealth)
+                buff = New BufferHandler(bytes)
+                _size = bytes.Length
+                _Data = bytes
+
+                With buff
+                    .Position = 1
+                    '1-4
+                    _Serial = .readuint
+
+                    '5-6
+                    _ManaMax = .readushort
+
+                    '7-8
+                    _Mana = .readushort
+                End With
+            End Sub
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal value As Serial)
+                    _Serial = value
+                    buff.Position = 1
+                    buff.writeuint(value.Value)
+                End Set
+            End Property
+
+            Public Property ManaMax() As UShort
+                Get
+                    Return _ManaMax
+                End Get
+                Set(ByVal value As UShort)
+                    _ManaMax = value
+                    buff.Position = 5
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+            Public Property Mana() As UShort
+                Get
+                    Return _Mana
+                End Get
+                Set(ByVal value As UShort)
+                    _Mana = value
+                    buff.Position = 7
+                    buff.writeushort(value)
+                End Set
+            End Property
+
+        End Class
+
+        Public Class EquippedMobile
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _BodyType As UShort
+            Private _X As UShort
+            Private _Y As UShort
+            Private _Z As SByte
+            Private _Direction As Enums.Direction
+            Private _Hue As UShort
+            Private _Status As Enums.MobileStatus
+            Private _Notoriety As Enums.Reputation
+            Private _EquippedItems As New ItemList
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.EquippedMOB)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+                    _BodyType = .readushort
+                    _X = .readushort
+                    _Y = .readushort
+                    _Z = .readbyte
+                    _Direction = .readbyte
+                    _Hue = .readushort
+                    _Status = .readbyte
+                    _Notoriety = .readbyte
+
+                    Dim i As Item
+                    Do
+                        i = New Item
+
+                        'TODO: the container needs to be changed somehow when we implement a scavenger type thing.
+                        'since the items position will always be that of the user, distance will always be 0.
+                        'Though i dont know if thats how it works... we might be fine.
+                        i._Container = _Serial
+                        i._Serial = .readuint
+                        i._Type.BaseValue = .readushort
+                        i._Layer = .readbyte
+
+                        'Check for the Hue flag in the item Type
+                        If i._Type.BaseValue > 32768 Then _Hue = .readushort
+
+                    Loop Until _size - buff.Position <= 5
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property BodyType() As UShort
+                Get
+                    Return _BodyType
+                End Get
+            End Property
+
+            Public ReadOnly Property X() As UShort
+                Get
+                    Return _X
+                End Get
+            End Property
+
+            Public ReadOnly Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+            End Property
+
+            Public ReadOnly Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction() As Byte
+                Get
+                    Return _Direction
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+            End Property
+
+            Public ReadOnly Property Status() As UShort
+                Get
+                    Return _Status
+                End Get
+            End Property
+
+            Public ReadOnly Property Notoriety()
+                Get
+                    Return _Notoriety
+                End Get
+            End Property
+
+            Public ReadOnly Property EquippedItems() As ItemList
+                Get
+                    Return _EquippedItems
+                End Get
+            End Property
+
+        End Class
+
+        Public Class NakedMobile
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _BodyType As UShort
+            Private _X As UShort
+            Private _Y As UShort
+            Private _Z As Byte
+            Private _Direction As Enums.Direction
+            Private _Hue As UShort
+            Private _Status As Enums.MobileStatus
+            Private _Notoriety As Enums.Reputation
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.NakedMOB)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+                    _BodyType = .readushort
+                    _X = .readushort
+                    _Y = .readushort
+                    _Z = .readbyte
+                    _Direction = .readbyte
+                    _Hue = .readushort
+                    _Status = .readbyte
+                    _Notoriety = .readbyte
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property BodyType() As UShort
+                Get
+                    Return _BodyType
+                End Get
+            End Property
+
+            Public ReadOnly Property X() As UShort
+                Get
+                    Return _X
+                End Get
+            End Property
+
+            Public ReadOnly Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+            End Property
+
+            Public ReadOnly Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction() As Byte
+                Get
+                    Return _Direction
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+            End Property
+
+            Public ReadOnly Property Status() As UShort
+                Get
+                    Return _Status
+                End Get
+            End Property
+
+            Public ReadOnly Property Notoriety()
+                Get
+                    Return _Notoriety
+                End Get
+            End Property
+
+        End Class
+
+        Public Class DeathAnimation
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _CorpseSerial As Serial
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.DeathAnimation)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    buff.Position = 1
+
+                    _Serial = .readuint
+                    _CorpseSerial = .readuint
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property CorpseSerial() As Serial
+                Get
+                    Return _CorpseSerial
+                End Get
+            End Property
+
+        End Class
+
+        Public Class Destroy
+            Inherits Packet
+
+            Private _serial As Serial
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.Destroy)
+                _size = bytes.Length
+                _Data = bytes
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 1
+                    _serial = .readuint
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _serial
+                End Get
             End Property
 
         End Class
@@ -1171,8 +2126,7 @@ Partial Class UOAI
 
     'Buffer Serialization and Deserialization
     ''' Hide this class from the user, there is no reason from him/her to see it.
-    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
-    Friend Class BufferHandler
+    Public Class BufferHandler
         Inherits Stream
         Public curpos As Long
         Private m_buffer As Byte()

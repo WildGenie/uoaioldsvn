@@ -1,6 +1,9 @@
 ﻿Imports System.Net.Sockets, System.Net, System.Threading
 
 Partial Class UOAI
+    'The Serial for the world, its where you store the mobiles, and items that mobiles people are wearing.
+    'And items that are on the ground, basicaly anything thats not in some sort of container.
+    Friend Shared ReadOnly WorldSerial As New Serial(Convert.ToUInt32(4294967295))
 
     ''' <summary>Represents an Ultima Online client.</summary>
     Public Class Client
@@ -20,9 +23,11 @@ Partial Class UOAI
         Private m_ShutdownEventTimer As Boolean
         Private _Items As ItemList
         Friend _AllItems As New Hashtable
-        Private _MobileList As MobileList
+        Private _MobileList As New MobileList(Me)
         Private _Macros As New UOMacros(Me)
         Private _CallibrationInfo As CallibrationInfo
+        Friend _ItemInHand As Item '  <---For drag/drop stuff, to remove the item from the item list and place it here until its dropped.
+        Friend _Player As PlayerClass
 
         ''' <summary>
         ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -68,6 +73,12 @@ Partial Class UOAI
         Public ReadOnly Property Macros() As UOMacros
             Get
                 Return _Macros
+            End Get
+        End Property
+
+        Public ReadOnly Property Player() As PlayerClass
+            Get
+                Return _Player
             End Get
         End Property
 
@@ -132,7 +143,7 @@ Partial Class UOAI
             End If
 
             'b. setup item list; mobile list and gumplist
-            _Items = New ItemList(New Serial(Convert.ToUInt32(4294967295)))
+            _Items = New ItemList(WorldSerial)
 
             'c. timer
             m_ShutdownEventTimer = False
@@ -151,10 +162,36 @@ Partial Class UOAI
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
 
             Select Case DirectCast(packetbuffer(0), Enums.PacketType)
+
                 Case Enums.PacketType.TextUnicode
                     Return New Packets.UnicodeTextPacket(packetbuffer)
+
                 Case Enums.PacketType.SpeechUnicode
                     Return New Packets.UnicodeSpeechPacket(packetbuffer)
+
+                Case Enums.PacketType.NakedMOB
+                    Return New Packets.NakedMobile(packetbuffer)
+
+                Case Enums.PacketType.EquippedMOB
+                    Return New Packets.EquippedMobile(packetbuffer)
+
+                Case Enums.PacketType.FatHealth
+                    Return New Packets.FatHealth(packetbuffer)
+
+                Case Enums.PacketType.HPHealth
+                    Return New Packets.HPHealth(packetbuffer)
+
+                Case Enums.PacketType.ManaHealth
+                    Return New Packets.ManaHealth(packetbuffer)
+
+                Case Enums.PacketType.DeathAnimation
+                    Return New Packets.DeathAnimation(packetbuffer)
+
+                Case Enums.PacketType.Destroy
+                    Return New Packets.Destroy(packetbuffer)
+
+                Case Enums.PacketType.MobileStats
+                    Return New Packets.MobileStats(packetbuffer)
 
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
@@ -203,6 +240,30 @@ Partial Class UOAI
 
         Private Sub EarlyPacketHandling(ByRef currentpacket As Packet)
             'whatever we need to do with the current packet BEFORE the client handled it goes here
+            Select Case currentpacket.Type
+                Case Enums.PacketType.MobileStats
+                    'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
+                    'So there is no need to check for the existance of the MOB. Just send the packet to the mobile for it to update itself.
+                    'This is done through direct casts and hash tables, so its REALLY fast.
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.MobileStats).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.MobileStats))
+
+                Case Enums.PacketType.HPHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HPHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HPHealth))
+
+                Case Enums.PacketType.FatHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.FatHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.FatHealth))
+                Case Enums.PacketType.ManaHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.ManaHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.ManaHealth))
+                Case Enums.PacketType.NakedMOB
+                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.NakedMobile))
+                Case Enums.PacketType.EquippedMOB
+                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.EquippedMobile))
+                Case Enums.PacketType.DeathAnimation
+                    Mobiles.RemoveMobile(DirectCast(currentpacket, Packets.DeathAnimation))
+                Case Enums.PacketType.Destroy
+                    RemoveObject(DirectCast(currentpacket, Packets.Destroy).Serial)
+            End Select
+
         End Sub
 
         Private Sub LatePacketHandling(ByRef currentpacket As Packet)
@@ -212,14 +273,17 @@ Partial Class UOAI
         ''' <summary>Remove an item, mobile, etc... from the collections</summary>
         ''' <param name="address">The 32-bit address in the client's memory of the object as <see cref="UInteger"/></param>
         Private Sub RemoveObject(ByVal address As UInteger)
-            'TODO: I recommend using "serial" for this, since thats the key i use in the collections.
-            'Although i could just add a function to remove by address.
-
             'remove item, mobile, ... from the collections
+
         End Sub
 
-        Private Sub CreateNewItem(ByVal address As UInteger)
-
+        Private Sub RemoveObject(ByVal Serial As Serial)
+            'RemoveObject(Me.Items.Item(Serial).MemoryOffset)
+            If Me.Items.Exists(Serial) Then
+                Me.Items.RemoveItem(Serial)
+            Else
+                Mobiles.RemoveMobile(Serial)
+            End If
         End Sub
 
 #End Region
@@ -230,6 +294,12 @@ Partial Class UOAI
         ''' </summary>
         ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
         Public Event onClientExit(ByRef Client As Client)
+
+        ''' <summary>
+        ''' Called when the client recieves a login confirm packets from the game server, and the player character is created.
+        ''' </summary>
+        ''' <remarks></remarks>
+        Public Event onLogin()
 
         ''' <summary>
         ''' Called when a Packet arrives on this client.
@@ -463,6 +533,7 @@ Partial Class UOAI
             End Select
 
         End Function
+
 #End Region
 
 #Region "Window Control"

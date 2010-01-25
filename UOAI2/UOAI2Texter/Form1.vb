@@ -4,6 +4,9 @@ Public Class Form1
     Private WithEvents UOAIObj As New UOAI
     Private WithEvents UOAI_Cl As UOAI.Client
 
+    Private packetlog As StreamWriter
+    Private packetnumber As Integer = 0
+
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         ListBox1.Items.Clear()
 
@@ -46,12 +49,17 @@ Public Class Form1
     End Sub
     Private Delegate Sub WriteToLabelDelegate(ByVal text As String)
 
+    Private Sub Form1_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+        packetlog.Close()
+    End Sub
+
     Private Sub Form1_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         If UOAIObj.Clients.Count > 0 Then UOAI_Cl = UOAIObj.Clients.Client(0)
+        packetlog = File.CreateText(Application.StartupPath & "\Packets.txt")
     End Sub
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
-        UOAI_Cl.Macros.Say("test!")
+
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
@@ -90,22 +98,33 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
+        packetlog.WriteLine("'Recieved Packet #" & packetnumber)
+        packetlog.WriteLine("'" & BitConverter.ToString(packet.Data))
+        packetlog.WriteLine("")
+        packetnumber += 1
+        UOAI_Cl.HandlePacket()
 
+        Exit Sub
         Select Case packet.Type
             Case UOAI.Enums.PacketType.TextUnicode
-                Dim j As UOAI.Packets.UnicodeTextPacket = DirectCast(packet, UOAI.Packets.UnicodeTextPacket)
-                MsgBox(j.Name & ":" & j.Serial.Value)
-                MsgBox(j.Text & ":" & j.Name)
+                'Dim j As UOAI.Packets.UnicodeTextPacket = DirectCast(packet, UOAI.Packets.UnicodeTextPacket)
 
         End Select
 
     End Sub
 
     Private Sub UOAI_Cl_onPacketSend(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketSend
+        packetlog.WriteLine("'Sent Packet #" & packetnumber)
+        packetlog.Write("'" & BitConverter.ToString(packet.Data))
+        packetlog.WriteLine("")
+        packetlog.WriteLine("")
+        packetnumber += 1
+        UOAI_Cl.HandlePacket()
+
+        Exit Sub
         Select Case packet.Type
             Case UOAI.Enums.PacketType.SpeechUnicode
-                'Dim j As UOAI.Packets.UnicodeSpeechPacket = DirectCast(packet, UOAI.Packets.UnicodeSpeechPacket)
-                'MsgBox(j.Text & "|" & j.Font)
+
         End Select
 
     End Sub

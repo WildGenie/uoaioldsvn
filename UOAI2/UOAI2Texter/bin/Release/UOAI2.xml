@@ -26,6 +26,141 @@ UOAI2
 	<summary>Enumeration of the different facets.</summary>
 </member><member name="T:UOAI2.UOAI.Enums">
 	<summary>A simple list of enumerations used primarily internally.</summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+	<summary>Specifies all possible access flags for the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
+	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
+	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
+	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
+	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
+	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
+	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
+	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
+	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
+	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="M:UOAI2.UOAI.Item.#ctor">
+	<summary>
+ When using this new, never ever ever try to access the contents!
+ </summary>
+	<remarks></remarks>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Serial">
+	<summary>The serial of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Type">
+	<summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
+</member><member name="P:UOAI2.UOAI.Item.StackID">
+	<summary>The number to add the the artwork number to get the artwork number of the item if it is a stack. 
+ Usualy this is 0x01.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Amount">
+	<summary>The number of objects in a stack.</summary>
+</member><member name="P:UOAI2.UOAI.Item.X">
+	<summary>The location of the item on the X axis. If the item is inside of a container, 
+ this represents the number of pixels within the container from the left side at which 
+ the item will be placed.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Y">
+	<summary>The location of the item on the Y axis. If the item is inside of a container, 
+ this represents the number of pixels from the top of the container that the item will 
+ be placed</summary>
+</member><member name="P:UOAI2.UOAI.Item.Z">
+	<summary>The location of the item on the Z axis.  If the item is inside of a container this
+ specifies the "height" of it, like if its on top of other objects.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Container">
+	<summary>The serial of the container of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Hue">
+	<summary>The item's hue.</summary>
+</member><member name="P:UOAI2.UOAI.Item.TypeName">
+	<summary>
+ Returns a string containing the ASCII name of the item artwork name.
+ </summary>
+</member><member name="M:UOAI2.UOAI.ItemList.AddItem(UOAI2.UOAI.Item)">
+	<summary>
+ Adds the specified item to the Item List.
+ </summary>
+	<param name="Item">The item to add.</param>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.ItemList.RemoveItem(UOAI2.UOAI.Serial)">
+	<summary>
+ Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
+ </summary>
+	<param name="ItemSerial">The serial of the item to be removed.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Item(UOAI2.UOAI.Serial)">
+	<summary>
+ Returns the specified item, either by index or <see cref="T:UOAI2.UOAI.Serial"/>
+	</summary>
+	<param name="Serial">The serial of the item to be returned.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Item(System.Int32)">
+	<param name="OffSet">The offset of the item in the client's memory.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.byType(UOAI2.UOAI.ItemType)">
+	<summary>
+ Returns an itemlist containing the items of the specified type.
+ </summary>
+	<param name="Type">The type of item you want to search for.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Serial)">
+	<summary>
+ Checks to see if the specified item exists in the item list.
+ </summary>
+	<param name="Serial">The serial of the item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(System.Int32)">
+	<param name="Offset">The offset item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
+	<param name="Item">The item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Count">
+	<summary>
+ Returns the number of items in the list.
+ </summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Mobile)">
+	<summary>
+ Adds the specified mobile to the mobile list.
+ </summary>
+	<param name="Mobile"></param>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Packets.EquippedMobile)">
+	<summary>
+ Adds the a new mobile to the <see cref="T:UOAI2.UOAI.MobileList"/> based on a supplied packet.
+ </summary>
+	<param name="Packet">The packet as a <see cref="T:UOAI2.UOAI.Packets.EquippedMobile"/>.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Packets.NakedMobile)">
+	<param name="Packet">The packet as a <see cref="T:UOAI2.UOAI.Packets.NakedMobile"/>.</param>
 </member><member name="M:UOAI2.UOAI.MobileList.RemoveMobile(UOAI2.UOAI.Serial)">
 	<summary>
  Removes the specified mobile formt he MobileList.
@@ -45,6 +180,187 @@ UOAI2
  Returns a MobileList containing all of the mobiles with the specified name.
  </summary>
 	<param name="Name">The name you want to search for.</param>
+</member><member name="P:UOAI2.UOAI.MobileList.Mobile(UOAI2.UOAI.Serial)">
+	<summary>
+ Returns mobile specified by serial.
+ </summary>
+	<param name="Serial">The serial of the mobile.</param>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:UOAI2.UOAI.MobileList.Mobile(System.Int32)">
+	<summary>
+ Returns mobile specified by offset
+ </summary>
+	<param name="Offset">The offset of the mobile object in the client's memory.</param>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOAI2.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="P:UOAI2.UOAI.Clients">
+	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
+</member><member name="F:UOAI2.UOAI.Clientpath">
+	<summary>Gets or sets the path of the client executable, usualy something like 
+ "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
+ working directory for the clients launched using UOAI.</summary>
+</member><member name="F:UOAI2.UOAI.ClientExe">
+	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
+</member><member name="E:UOAI2.UOAI.Mobile.onDeath">
+	<summary>
+ Called when the hitpoint value of a mobile reaches zero (0).
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that called this.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that has died.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onUpdate">
+	<summary>
+ This is called immediately after the client handles an update to a mobile.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onStatusChange">
+	<summary>
+ This is called immediately after the client handles an update to a mobile.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+</member><member name="P:UOAI2.UOAI.Mobile.Layers">
+	<summary>
+ Returns the item on the specified layer.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Serial">
+	<summary>
+ The character's serial.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Name">
+	<summary>
+ The character's name.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Hits">
+	<summary>
+ The character's current amount of hit points.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.HitsMax">
+	<summary>
+ The character's maximum amount of hit points.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Renamable">
+	<summary>
+ Specifies whether or not the player can rename this mobile. Generaly only the player's pets are renamable.
+ This is a good way to tell if a mobile is a follower of the player. Although, It will be false for NPC followers like escorts.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DisplayMode">
+	<summary>
+ Specifies what of information is displayed by the client.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Gender">
+	<summary>
+ The gender of the mobile.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Strength">
+	<summary>
+ The character's Strength.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Dexterity">
+	<summary>
+ The character's Dexterity.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Intelligence">
+	<summary>
+ The character's Intelligence.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Stamina">
+	<summary>
+ The character's current Stamina.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.StaminaMax">
+	<summary>
+ The character's maximum Stamina.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Mana">
+	<summary>
+ The character's current Mana.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ManaMax">
+	<summary>
+ The character's maximum Mana.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Gold">
+	<summary>
+ How much gold the character is currently carrying.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistPhysical">
+	<summary>
+ The character's physical resistance value (old clients: AC).
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Weight">
+	<summary>
+ The character's current weight value.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.StatCap">
+	<summary>
+ The character's total allowable sum of Strength, Intelligence, and Dexterity.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Followers">
+	<summary>
+ The number of "Follower Slots" that are currently being used.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.FollowersMax">
+	<summary>
+ The maximum number of "Follower Slots" the character has available.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistFire">
+	<summary>
+ The character's resistance to fire.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistCold">
+	<summary>
+ The character's resistance to cold.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistPoison">
+	<summary>
+ The character's resistance to poison.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistEnergy">
+	<summary>
+ The character's resistance to energy.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Luck">
+	<summary>
+ The character's Luck value.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DamangeMin">
+	<summary>
+ The minimum amount of damage the character can deal.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DamageMax">
+	<summary>
+ The maximum amount of damage the character can deal.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.TithingPoints">
+	<summary>
+ The character's current amount of Tithing points.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Mobile.HandleUpdatePacket(UOAI2.UOAI.Packets.MobileStats)">
+	<summary>
+ Updates the class given a mobile related packet.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Enums.Renamable">
+	<summary>
+ Whether or not a mobile can be renamed by the player.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Enums.DisplayMode">
+	<summary>
+ What data is displayed about the mobile.
+ </summary>
 </member><member name="M:UOAI2.UOAI.Client.GetBytesFromUIntArray(System.UInt32[])">
  Hide this class from the user, there is no reason from him/her to see it.
 
@@ -262,67 +578,6 @@ UOAI2
  </summary>
  Hide this class from the user, there is no reason from him/her to see it.
 
-</member><member name="P:UOAI2.UOAI.Clients">
-	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
-</member><member name="F:UOAI2.UOAI.Clientpath">
-	<summary>Gets or sets the path of the client executable, usualy something like 
- "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
- working directory for the clients launched using UOAI.</summary>
-</member><member name="F:UOAI2.UOAI.ClientExe">
-	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
-	<summary></summary>
-</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
-	<summary></summary>
-</member><member name="T:UOAI2.UOAI.IPCConstants">
-	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
- Hide this class from the user, there is no reason from him/her to see it.
-
-</member><member name="T:UOAI2.UOAI.RStack">
- Hide this class from the user, there is no reason from him/her to see it.
-
 </member><member name="P:UOAI2.UOAI.Client.PID">
 	<summary>
  Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -349,6 +604,11 @@ UOAI2
  Called when the client process closes.
  </summary>
 	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+</member><member name="E:UOAI2.UOAI.Client.onLogin">
+	<summary>
+ Called when the client recieves a login confirm packets from the game server, and the player character is created.
+ </summary>
+	<remarks></remarks>
 </member><member name="E:UOAI2.UOAI.Client.onPacketReceive">
 	<summary>
  Called when a Packet arrives on this client.
@@ -495,6 +755,12 @@ UOAI2
 	<summary>
  Sent by the client to rename another mobile.
  </summary>
+</member><member name="T:UOAI2.UOAI.Packets.MobileStats">
+	<summary>
+ Yo programmer, I'm really happy for you and I'm gona let you finish 
+ but this is one of the biggest packet classes of all time, OF ALL TIME!
+  -Kanye West
+ </summary>
 </member><member name="T:UOAI2.UOAI.Packets">
 	<summary>A namespace encapsulating the packet types classes.</summary>
 </member><member name="P:UOAI2.UOAI.EditableItem.Serial">
@@ -561,67 +827,59 @@ UOAI2
 </member><member name="T:UOAI2.UOAI.StringEntry">
  Hide this class from the user, there is no reason from him/her to see it.
 
-</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
-	<summary>
-  Returns the cached ResourceManager instance used by this class.
-</summary>
-</member><member name="P:UOAI2.My.Resources.Resources.Culture">
-	<summary>
-  Overrides the current thread's CurrentUICulture property for all
-  resource lookups using this strongly typed resource class.
-</summary>
-</member><member name="T:UOAI2.My.Resources.Resources">
-	<summary>
-  A strongly-typed resource class, for looking up localized strings, etc.
-</summary>
-</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
-	<summary>
- Constructs a Point given its coordinates.
- </summary>
-	<param name="x">X-coordinate</param>
-	<param name="y">Y-coordinate</param>
-	<param name="z">Z-coordinate</param>
-</member><member name="P:UOAI2.UOAI.Point3D.X">
-	<summary>
- X coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Y">
-	<summary>
- Y coordinate
- </summary>
-</member><member name="P:UOAI2.UOAI.Point3D.Z">
-	<summary>
- Z coordinate
- </summary>
-</member><member name="M:UOAI2.UOAI.Point3D.ToString">
-	<summary>
- String representation of this location.
- </summary>
-	<returns>String representation of this location.</returns>
-</member><member name="T:UOAI2.UOAI.Point3D">
-	<summary>Represents an in-game 3D location.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
-	<summary>Specifies all possible access flags for the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
-	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.DuplicateHandle">
-	<summary>Enables usage of the process handle as either the source or target process in the DuplicateHandle function to duplicate a handle.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.QueryInformation">
-	<summary>Enables usage of the process handle in the GetExitCodeProcess and GetPriorityClass functions to read information from the process object.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.SetInformation">
-	<summary>Enables usage of the process handle in the SetPriorityClass function to set the priority class of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Terminate">
-	<summary>Enables usage of the process handle in the TerminateProcess function to terminate the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMOperation">
-	<summary>Enables usage of the process handle in the VirtualProtectEx and WriteProcessMemory functions to modify the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMRead">
-	<summary>Enables usage of the process handle in the ReadProcessMemory function to' read from the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.VMWrite">
-	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
-</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
-	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
-</member><member name="T:UOAI2.UOAI.Imports">
-	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
+	<summary></summary>
+</member><member name="T:UOAI2.UOAI.IPCConstants">
+	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="T:UOAI2.UOAI.RStack">
+ Hide this class from the user, there is no reason from him/her to see it.
+
 </member><member name="M:UOAI2.UOAI.ClientList.InitializeClientPaths">
 	<summary>Gets the working directory and location of client.exe from the registry.</summary>
 </member><member name="M:UOAI2.UOAI.ClientList.LaunchClient">
@@ -652,220 +910,6 @@ UOAI2
 	<param name="e">Nothing usefull.</param>
 </member><member name="T:UOAI2.UOAI.ClientList">
 	<summary>A list of Ultima Online clients.</summary>
-</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
-	<summary>Where the actual memory offset of the item is stored</summary>
-</member><member name="F:UOAI2.UOAI.Item._Serial">
-	<summary>Item serial as UOAI.ItemSerial, private.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Serial">
-	<summary>The serial of the item.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Type">
-	<summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
-</member><member name="P:UOAI2.UOAI.Item.StackID">
-	<summary>The number to add the the artwork number to get the artwork number of the item if it is a stack. 
- Usualy this is 0x01.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Amount">
-	<summary>The number of objects in a stack.</summary>
-</member><member name="P:UOAI2.UOAI.Item.X">
-	<summary>The location of the item on the X axis. If the item is inside of a container, 
- this represents the number of pixels within the container from the left side at which 
- the item will be placed.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Y">
-	<summary>The location of the item on the Y axis. If the item is inside of a container, 
- this represents the number of pixels from the top of the container that the item will 
- be placed</summary>
-</member><member name="P:UOAI2.UOAI.Item.Z">
-	<summary>The location of the item on the Z axis.  If the item is inside of a container this
- specifies the "height" of it, like if its on top of other objects.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Container">
-	<summary>The serial of the container of the item.</summary>
-</member><member name="P:UOAI2.UOAI.Item.Hue">
-	<summary>The item's hue.</summary>
-</member><member name="P:UOAI2.UOAI.Item.TypeName">
-	<summary>
- Returns a string containing the ASCII name of the item artwork name.
- </summary>
-</member><member name="M:UOAI2.UOAI.ItemList.AddItem(UOAI2.UOAI.Item)">
-	<summary>
- Adds the specified item to the Item List.
- </summary>
-	<param name="Item">The item to add.</param>
-	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.ItemList.RemoveItem(UOAI2.UOAI.Serial,UOAI2.UOAI.Serial)">
-	<summary>
- Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
- </summary>
-	<param name="ItemSerial">The serial of the item to be removed.</param>
-	<param name="ContainerSerial">The serial of the Container.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.bySerial(UOAI2.UOAI.Serial)">
-	<summary>
- Returns the specified item, either by index or <see cref="T:UOAI2.UOAI.Serial"/>
-	</summary>
-	<param name="Serial">The serial of the item to be returned.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.byOffset(System.Int32)">
-	<param name="OffSet">The offset of the item in the client's memory.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.byType(UOAI2.UOAI.ItemType)">
-	<summary>
- Returns an itemlist containing the items of the specified type.
- </summary>
-	<param name="Type">The type of item you want to search for.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Serial)">
-	<summary>
- Checks to see if the specified item exists in the item list.
- </summary>
-	<param name="Serial">The serial of the item you want to check the existance of.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.Exists(System.Int32)">
-	<param name="Offset">The offset item you want to check the existance of.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
-	<param name="Item">The item you want to check the existance of.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.Count">
-	<summary>
- Returns the number of items in the list.
- </summary>
-</member><member name="T:UOAI2.UOAI.ItemList">
-	<summary>Contains a list of UOAI.Item's</summary>
-</member><member name="E:UOAI2.UOAI.Mobile.onDeath">
-	<summary>
- Called when the hitpoint value of a mobile reaches zero (0).
- </summary>
-	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that called this.</param>
-	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that has died.</param>
-</member><member name="E:UOAI2.UOAI.Mobile.onUpdate">
-	<summary>
- This is called immediately after the client handles an update to a mobile.
- </summary>
-	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
-	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
-</member><member name="E:UOAI2.UOAI.Mobile.onStatusChange">
-	<summary>
- This is called immediately after the client handles an update to a mobile.
- </summary>
-	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
-	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
-</member><member name="P:UOAI2.UOAI.Mobile.Layers">
-	<summary>
- Returns the item on the specified layer.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Serial">
-	<summary>
- The character's serial.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Name">
-	<summary>
- The character's name.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Hits">
-	<summary>
- The character's current amount of hit points.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.HitsMax">
-	<summary>
- The character's maximum amount of hit points.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Renamable">
-	<summary>
- Specifies whether or not the player can rename this mobile. Generaly only the player's pets are renamable.
- This is a good way to tell if a mobile is a follower of the player. Although, It will be false for NPC followers like escorts.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.DisplayMode">
-	<summary>
- Specifies what of information is displayed by the client.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Gender">
-	<summary>
- The gender of the mobile.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Strength">
-	<summary>
- The character's Strength.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Dexterity">
-	<summary>
- The character's Dexterity.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Intelligence">
-	<summary>
- The character's Intelligence.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Stamina">
-	<summary>
- The character's current Stamina.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.StaminaMax">
-	<summary>
- The character's maximum Stamina.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Mana">
-	<summary>
- The character's current Mana.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ManaMax">
-	<summary>
- The character's maximum Mana.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Gold">
-	<summary>
- How much gold the character is currently carrying.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ResistPhysical">
-	<summary>
- The character's physical resistance value (old clients: AC).
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Weight">
-	<summary>
- The character's current weight value.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.StatCap">
-	<summary>
- The character's total allowable sum of Strength, Intelligence, and Dexterity.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Followers">
-	<summary>
- The number of "Follower Slots" that are currently being used.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.FollowersMax">
-	<summary>
- The maximum number of "Follower Slots" the character has available.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ResistFire">
-	<summary>
- The character's resistance to fire.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ResistCold">
-	<summary>
- The character's resistance to cold.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ResistPoison">
-	<summary>
- The character's resistance to poison.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.ResistEnergy">
-	<summary>
- The character's resistance to energy.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.Luck">
-	<summary>
- The character's Luck value.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.DamangeMin">
-	<summary>
- The minimum amount of damage the character can deal.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.DamageMax">
-	<summary>
- The maximum amount of damage the character can deal.
- </summary>
-</member><member name="P:UOAI2.UOAI.Mobile.TithingPoints">
-	<summary>
- The character's current amount of Tithing points.
- </summary>
-</member><member name="T:UOAI2.UOAI.Enums.Renamable">
-	<summary>
- Whether or not a mobile can be renamed by the player.
- </summary>
-</member><member name="T:UOAI2.UOAI.Enums.DisplayMode">
-	<summary>
- What data is displayed about the mobile.
- </summary>
 </member>
 </members>
 </doc>
