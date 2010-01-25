@@ -4,8 +4,8 @@
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class MobileList
         Implements IEnumerable
-        Private _MobileHashBySerial As Hashtable
-        Private _MobileHashByOffset As Hashtable
+        Private _MobileHashBySerial As New Hashtable
+        Private _MobileHashByOffset As New Hashtable
         Private _Client As Client
         Private _IsSearchResult As Boolean = False
 
@@ -17,10 +17,153 @@
             _IsSearchResult = True
         End Sub
 
+        ''' <summary>
+        ''' Adds the specified mobile to the mobile list.
+        ''' </summary>
+        ''' <param name="Mobile"></param>
         Public Sub AddMobile(ByVal Mobile As Mobile)
-            _MobileHashBySerial.Add(Mobile.Serial, Mobile)
-            _MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile)
+            If Exists(Mobile.Serial) Then
+                Me.Mobile(Mobile.Serial)._Type.BaseValue = Mobile.Type
+                Me.Mobile(Mobile.Serial)._X = Mobile.X
+                Me.Mobile(Mobile.Serial)._Y = Mobile.Y
+                Me.Mobile(Mobile.Serial)._Z = Mobile.Z
+                Me.Mobile(Mobile.Serial)._Direction = Mobile.Direction
+                Me.Mobile(Mobile.Serial)._Hue = Mobile.Hue
+                Me.Mobile(Mobile.Serial)._Notoriety = Mobile.Notoriety
+                Me.Mobile(Mobile.Serial)._Status = Mobile.Status
+            Else
+                _MobileHashBySerial.Add(Mobile.Serial, Mobile)
+                'TODO: Make an AddHash sub for post-packet handling to add this to the memory offset hash.
+                '_MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile)
+            End If
+
         End Sub
+
+        ''' <summary>
+        ''' Adds the a new mobile to the <see cref="UOAI.MobileList"/> based on a supplied packet.
+        ''' </summary>
+        ''' <param name="Packet">The packet as a <see cref="UOAI.Packets.EquippedMobile"/>.</param>
+        Friend Sub AddMobile(ByVal Packet As Packets.EquippedMobile)
+            'Create a new empty mobile on the current client.
+            Dim NewMobile As New Mobile(_Client)
+
+            NewMobile._Serial = Packet.Serial
+            NewMobile._Type.BaseValue = Packet.BodyType
+            NewMobile._X = Packet.X
+            NewMobile._Y = Packet.Y
+            NewMobile._Z = Packet.Z
+            NewMobile._Direction = Packet.Direction
+            NewMobile._Hue = Packet.Hue
+            NewMobile._Notoriety = Packet.Notoriety
+            NewMobile._Status = Packet.Status
+
+            'Loop through the items and add their serials to the proper layers for later reference
+            For Each i As Item In Packet.EquippedItems
+                Select Case i._Layer
+                    Case Enums.Layers.Arms
+                        NewMobile._Layers.SetLayer(Enums.Layers.Arms, i.Serial)
+
+                    Case Enums.Layers.Back
+                        NewMobile._Layers.SetLayer(Enums.Layers.Back, i.Serial)
+
+                    Case Enums.Layers.BackPack
+                        NewMobile._Layers.SetLayer(Enums.Layers.BackPack, i.Serial)
+
+                    Case Enums.Layers.Bank
+                        NewMobile._Layers.SetLayer(Enums.Layers.Bank, i.Serial)
+
+                    Case Enums.Layers.Bracelet
+                        NewMobile._Layers.SetLayer(Enums.Layers.Bracelet, i.Serial)
+
+                    Case Enums.Layers.Ears
+                        NewMobile._Layers.SetLayer(Enums.Layers.Ears, i.Serial)
+
+                    Case Enums.Layers.FacialHair
+                        NewMobile._Layers.SetLayer(Enums.Layers.FacialHair, i.Serial)
+
+                    Case Enums.Layers.Gloves
+                        NewMobile._Layers.SetLayer(Enums.Layers.Gloves, i.Serial)
+
+                    Case Enums.Layers.Hair
+                        NewMobile._Layers.SetLayer(Enums.Layers.Hair, i.Serial)
+
+                    Case Enums.Layers.Head
+                        NewMobile._Layers.SetLayer(Enums.Layers.Head, i.Serial)
+
+                    Case Enums.Layers.InnerLegs
+                        NewMobile._Layers.SetLayer(Enums.Layers.InnerLegs, i.Serial)
+
+                    Case Enums.Layers.InnerTorso
+                        NewMobile._Layers.SetLayer(Enums.Layers.InnerTorso, i.Serial)
+
+                    Case Enums.Layers.LeftHand
+                        NewMobile._Layers.SetLayer(Enums.Layers.LeftHand, i.Serial)
+
+                    Case Enums.Layers.MiddleTorso
+                        NewMobile._Layers.SetLayer(Enums.Layers.MiddleTorso, i.Serial)
+
+                    Case Enums.Layers.Mount
+                        NewMobile._Layers.SetLayer(Enums.Layers.Mount, i.Serial)
+
+                    Case Enums.Layers.Neck
+                        NewMobile._Layers.SetLayer(Enums.Layers.Neck, i.Serial)
+
+                    Case Enums.Layers.OuterLegs
+                        NewMobile._Layers.SetLayer(Enums.Layers.OuterLegs, i.Serial)
+
+                    Case Enums.Layers.OuterTorso
+                        NewMobile._Layers.SetLayer(Enums.Layers.OuterTorso, i.Serial)
+
+                    Case Enums.Layers.Pants
+                        NewMobile._Layers.SetLayer(Enums.Layers.Pants, i.Serial)
+
+                    Case Enums.Layers.RightHand
+                        NewMobile._Layers.SetLayer(Enums.Layers.RightHand, i.Serial)
+
+                    Case Enums.Layers.Ring
+                        NewMobile._Layers.SetLayer(Enums.Layers.Ring, i.Serial)
+
+                    Case Enums.Layers.Shirt
+                        NewMobile._Layers.SetLayer(Enums.Layers.Shirt, i.Serial)
+
+                    Case Enums.Layers.Shoes
+                        NewMobile._Layers.SetLayer(Enums.Layers.Shoes, i.Serial)
+
+                    Case Enums.Layers.Unequipped
+                        NewMobile._Layers.SetLayer(Enums.Layers.Unequipped, i.Serial)
+
+                    Case Enums.Layers.Unequipped
+                        NewMobile._Layers.SetLayer(Enums.Layers.Unequipped, i.Serial)
+                End Select
+
+                'Adds the item to the world item list for later reference.
+                'The container is set to the WorldSerial
+                _Client.Items.AddItem(i)
+            Next
+
+            AddMobile(NewMobile)
+        End Sub
+
+        ''' <param name="Packet">The packet as a <see cref="UOAI.Packets.NakedMobile"/>.</param>
+        Friend Sub AddMobile(ByVal Packet As Packets.NakedMobile)
+            'Create a new empty mobile on the current client.
+            Dim NewMobile As New Mobile(_Client)
+
+            'Fill in the mobile's data.
+            NewMobile._Serial = Packet.Serial
+            NewMobile._Type.BaseValue = Packet.BodyType
+            NewMobile._X = Packet.X
+            NewMobile._Y = Packet.Y
+            NewMobile._Z = Packet.Z
+            NewMobile._Direction = Packet.Direction
+            NewMobile._Hue = Packet.Hue
+            NewMobile._Notoriety = Packet.Notoriety
+            NewMobile._Status = Packet.Status
+
+            AddMobile(NewMobile)
+        End Sub
+
+        'Friend Sub AddPlayer(
 
         ''' <summary>
         ''' Removes the specified mobile formt he MobileList.
@@ -46,6 +189,10 @@
             End Try
             Return True
         End Function
+
+        Friend Sub RemoveMobile(ByVal DeathPacket As Packets.DeathAnimation)
+            DirectCast(_MobileHashBySerial(DeathPacket.Serial), Mobile).HandleDeathPacket(DeathPacket)
+        End Sub
 
         ''' <summary>
         ''' Checks to see if the specified mobile exists in the MobileList.
@@ -73,6 +220,30 @@
 
             Return ml
         End Function
+
+        ''' <summary>
+        ''' Returns mobile specified by serial.
+        ''' </summary>
+        ''' <param name="Serial">The serial of the mobile.</param>
+        ''' <value></value>
+        ''' <returns></returns>
+        ''' <remarks></remarks>
+        Public ReadOnly Property Mobile(ByVal Serial As Serial) As Mobile
+            Get
+                Return _MobileHashBySerial(Serial)
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Returns mobile specified by offset
+        ''' </summary>
+        ''' <param name="Offset">The offset of the mobile object in the client's memory.</param>
+        Friend ReadOnly Property Mobile(ByVal Offset As Int32) As Mobile
+            Get
+                Return _MobileHashByOffset(Offset)
+            End Get
+        End Property
+
 
         Public Function GetEnumerator() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
             Return _MobileHashBySerial.Values.GetEnumerator()

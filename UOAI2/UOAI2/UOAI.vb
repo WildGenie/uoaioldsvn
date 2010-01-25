@@ -5,7 +5,6 @@ Public Class UOAI
 #Region "UOAI Variables"
     Private _ClientList As New ClientList
 
-
     Shared UOClientDllPath As String = My.Application.Info.DirectoryPath & "\UOClientDll.dll"
 #End Region
 

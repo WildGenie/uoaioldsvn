@@ -6,9 +6,9 @@ Partial Class UOAI
     ''' <summary>Contains a list of UOAI.Item's</summary>
     Public Class ItemList
         Implements IEnumerable
-        Private _ItemHashBySerial As Hashtable
-        Private _ItemHashByType As Hashtable
-        Private _ItemHashByOffset As Hashtable
+        Private _ItemHashBySerial As New Hashtable
+        Private _ItemHashByType As New Hashtable
+        Private _ItemHashByOffset As New Hashtable
         Private _ParentItem As Item
         Private _Serial As Serial
         Private _SearchReturn As Boolean = False
@@ -57,6 +57,7 @@ Partial Class UOAI
                     'and add the item to that items contents.
                     _MyClient._AllItems(Item.Container).Contents.AddItem(Item)
                 End If
+
             End If
 
         End Sub
@@ -65,8 +66,7 @@ Partial Class UOAI
         ''' Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
         ''' </summary>
         ''' <param name="ItemSerial">The serial of the item to be removed.</param>
-        '''<param name="ContainerSerial">The serial of the Container.</param>
-        Friend Function RemoveItem(ByVal ItemSerial As UOAI.Serial, ByVal ContainerSerial As Serial) As Boolean
+        Friend Function RemoveItem(ByVal ItemSerial As UOAI.Serial) As Boolean
             Try
                 If _SearchReturn = True Then
                     'use the serial hash to locat the item inside the offset hash and remove it
@@ -88,14 +88,16 @@ Partial Class UOAI
                     Else 'This is not the item's container
                         'Perform a reverse lookup of the container's ITEM class using the GIANTSerialHash, 
                         'and has the item removed from its container's contents
-                        DirectCast(_MyClient._AllItems(ContainerSerial), Item).Contents.RemoveItem(ItemSerial, ContainerSerial)
+                        DirectCast(_MyClient._AllItems(ItemSerial).Container, Item).Contents.RemoveItem(ItemSerial)
 
                     End If
                 End If
             Catch ex As Exception
+                Console.WriteLine("Mobile deletion failed due to: " & ex.Message)
                 Return False
             End Try
 
+            Console.WriteLine("Mobile deleted successfuly!")
             Return True
         End Function
 
@@ -103,14 +105,18 @@ Partial Class UOAI
         ''' Returns the specified item, either by index or <see cref="UOAI.serial"/>
         ''' </summary>
         ''' <param name="Serial">The serial of the item to be returned.</param>
-        Public ReadOnly Property bySerial(ByVal Serial As UOAI.Serial) As UOAI.Item
+        Public ReadOnly Property Item(ByVal Serial As UOAI.Serial) As UOAI.Item
             Get
-                Return _ItemHashBySerial(Serial)
+                If _Serial = WorldSerial Then
+                    Return _MyClient._AllItems(Serial)
+                Else
+                    Return _ItemHashBySerial(Serial)
+                End If
             End Get
         End Property
 
         ''' <param name="OffSet">The offset of the item in the client's memory.</param>
-        Friend ReadOnly Property byOffset(ByVal OffSet As Int32) As UOAI.Item
+        Friend ReadOnly Property Item(ByVal OffSet As Int32) As UOAI.Item
             Get
                 Return _ItemHashByOffset(OffSet)
             End Get
@@ -127,9 +133,9 @@ Partial Class UOAI
                 'check each item in the hash 
                 For Each s As Serial In _ItemHashBySerial.Keys
                     'to see if its type maches the one specified.
-                    If Me.bySerial(s).Type = Type Then
+                    If Me.Item(s).Type = Type Then
                         'Then add that to the itemlist to return
-                        k.AddItem(Me.bySerial(s))
+                        k.AddItem(Me.Item(s))
                     End If
                 Next
 

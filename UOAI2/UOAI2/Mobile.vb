@@ -2,41 +2,79 @@
 
     Public Class Mobile
         Inherits Item
-        Private _Layers As LayersClass
+        Friend _Layers As LayersClass
 
         Friend Sub New(ByVal Client As Client)
             MyBase.New(Client)
             _Layers = New LayersClass(Client)
+            _Client = Client
         End Sub
 
 #Region "Private Variables"
-        Friend _Name As String
-        Friend _Hits As UShort
-        Friend _HitsMax As UShort
-        Friend _Renamable As Enums.Renamable
-        Friend _DisplayMode As Enums.DisplayMode
-        Friend _Gender As Enums.Gender
-        Friend _Strength As UShort
-        Friend _Dexterity As UShort
-        Friend _Intelligence As UShort
-        Friend _Stamina As UShort
-        Friend _StaminaMax As UShort
-        Friend _Mana As UShort
-        Friend _ManaMax As UShort
-        Friend _Gold As UInt32
-        Friend _ResistPhysical As UShort
-        Friend _Weight As UShort
-        Friend _StatCap As UShort
-        Friend _Followers As Byte
-        Friend _FollowersMax As Byte
-        Friend _ResistFire As UShort
-        Friend _ResistCold As UShort
-        Friend _ResistPoison As UShort
-        Friend _ResistEnergy As UShort
-        Friend _Luck As UShort
-        Friend _DamageMin As UShort
-        Friend _DamageMax As UShort
-        Friend _TithingPoints As UShort
+        Friend _Client As Client
+        Friend _Name As String = ""
+        Friend _Status As Enums.MobileStatus
+        Friend _Notoriety As Enums.Reputation
+        Friend _Hits As UShort = 1
+        Friend _HitsMax As UShort = 1
+        Friend _Renamable As Enums.Renamable = Enums.Renamable.NotRenamable
+        Friend _DisplayMode As Enums.DisplayMode = Enums.DisplayMode.Normal
+        Friend _Gender As Enums.Gender = Enums.Gender.Neutral
+        Friend _Strength As UShort = 1
+        Friend _Dexterity As UShort = 1
+        Friend _Intelligence As UShort = 1
+        Friend _Stamina As UShort = 1
+        Friend _StaminaMax As UShort = 1
+        Friend _Mana As UShort = 1
+        Friend _ManaMax As UShort = 1
+        Friend _Gold As UInt32 = 0
+        Friend _ResistPhysical As UShort = 0
+        Friend _Weight As UShort = 0
+
+        'Included in Mobile Stat Packet if SF 0x03
+        Friend _StatCap As UShort = 1
+        Friend _Followers As Byte = 0
+        Friend _FollowersMax As Byte = 5
+
+        'Included in Mobile Stat Packet if SF 0x04
+        Friend _ResistFire As UShort = 0
+        Friend _ResistCold As UShort = 0
+        Friend _ResistPoison As UShort = 0
+        Friend _ResistEnergy As UShort = 0
+        Friend _Luck As UShort = 0
+        Friend _DamageMin As UShort = 0
+        Friend _DamageMax As UShort = 0
+        Friend _TithingPoints As UShort = 0
+
+        'Included in Mobile Stat Packet if SF 0x05
+        Friend _Race As Byte = 0
+        Friend _WeightMax As UShort = 0
+
+        'Included in Mobile Stat Packet if SF 0x06
+        Friend _HitChanceIncrease As Short = 1
+        Friend _SwingSpeedIncrease As Short = 1
+        Friend _DamageChanceIncrease As Short = 1
+        Friend _LowerReagentCost As Short = 1
+        Friend _HitPointsRegeneration As Short = 1
+        Friend _StaminaRegeneration As Short = 1
+        Friend _ManaRegeneration As Short = 1
+        Friend _ReflectPhysicalDamage As Short = 1
+        Friend _EnhancePotions As Short = 1
+        Friend _DefenseChanceIncrease As Short = 1
+        Friend _SpellDamageIncrease As Short = 1
+        Friend _FasterCastRecovery As Short = 1
+        Friend _FasterCasting As Short = 1
+        Friend _LowerManaCost As Short = 1
+        Friend _StrengthIncrease As Short = 1
+        Friend _DexterityIncrease As Short = 1
+        Friend _IntelligenceIncrease As Short = 1
+        Friend _HitPointsIncrease As Short = 1
+        Friend _StaminaIncrease As Short = 1
+        Friend _ManaIncrease As Short = 1
+        Friend _MaximumHitPointsIncrease As Short = 1
+        Friend _MaximumStaminaIncrease As Short = 1
+        Friend _MaximumManaIncrease As Short = 1
+
 #End Region
 
 #Region "Public Events"
@@ -46,14 +84,14 @@
         ''' </summary>
         ''' <param name="Client">The <see cref="UOAI.Client"/> that called this.</param>
         ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that has died.</param>
-        Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile)
+        Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile, ByVal CorpseSerial As Serial)
 
         ''' <summary>
         ''' This is called immediately after the client handles an update to a mobile.
         ''' </summary>
         ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
         ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
-        Public Event onUpdate(ByVal Client As Client, ByVal Mobile As Mobile)
+        Public Event onUpdate(ByVal Client As Client, ByVal Mobile As Mobile, ByVal UpdateType As Enums.MobileUpdateType)
 
         ''' <summary>
         ''' This is called immediately after the client handles an update to a mobile.
@@ -61,6 +99,7 @@
         ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
         ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
         Public Event onStatusChange(ByVal Client As Client, ByVal Mobile As Mobile)
+
 #End Region
 
 #Region "Public Properties"
@@ -326,6 +365,24 @@
             End Get
         End Property
 
+        Public ReadOnly Property Notoriety() As Enums.Reputation
+            Get
+                Return _Notoriety
+            End Get
+        End Property
+
+        Public ReadOnly Property Status() As Enums.MobileStatus
+            Get
+                Return _Status
+            End Get
+        End Property
+
+        Public ReadOnly Property Direction() As Enums.Direction
+            Get
+                Return _Direction
+            End Get
+        End Property
+
         'Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Class LayersClass
@@ -333,31 +390,137 @@
                 _Client = Client
             End Sub
 
+            Friend Sub SetLayer(ByVal Layer As Enums.Layers, ByVal Serial As Serial)
+                Select Case Layer
+                    Case Enums.Layers.LeftHand
+                        _LeftHand = Serial
+                    Case Enums.Layers.RightHand
+                        _RightHand = Serial
+                    Case Enums.Layers.Shoes
+                        _Shoes = Serial
+                    Case Enums.Layers.Pants
+                        _Pants = Serial
+                    Case Enums.Layers.Shirt
+                        _Shirt = Serial
+                    Case Enums.Layers.Head
+                        _Head = Serial
+                    Case Enums.Layers.Gloves
+                        _Gloves = Serial
+                    Case Enums.Layers.Ring
+                        _Ring = Serial
+                    Case Enums.Layers.Neck
+                        _Neck = Serial
+                    Case Enums.Layers.Hair
+                        _Hair = Serial
+                    Case Enums.Layers.Waist
+                        _Waist = Serial
+                    Case Enums.Layers.InnerTorso
+                        _InnerTorso = Serial
+                    Case Enums.Layers.Bracelet
+                        _Bracelet = Serial
+                    Case Enums.Layers.FacialHair
+                        _FacialHair = Serial
+                    Case Enums.Layers.MiddleTorso
+                        _MiddleTorso = Serial
+                    Case Enums.Layers.Ears
+                        _Ears = Serial
+                    Case Enums.Layers.Arms
+                        _Arms = Serial
+                    Case Enums.Layers.Back
+                        _Back = Serial
+                    Case Enums.Layers.BackPack
+                        _Back = Serial
+                    Case Enums.Layers.OuterTorso
+                        _OuterTorso = Serial
+                    Case Enums.Layers.OuterLegs
+                        _OuterLegs = Serial
+                    Case Enums.Layers.InnerLegs
+                        _InnerLegs = Serial
+                    Case Enums.Layers.Mount
+                        _Mount = Serial
+                    Case Enums.Layers.Bank
+                        _Bank = Serial
+                End Select
+            End Sub
+
+            Friend Sub ResetLayer(ByVal Layer As Enums.Layers)
+                Select Case Layer
+                    Case Enums.Layers.LeftHand
+                        _LeftHand = New Serial(0)
+                    Case Enums.Layers.RightHand
+                        _RightHand = New Serial(0)
+                    Case Enums.Layers.Shoes
+                        _Shoes = New Serial(0)
+                    Case Enums.Layers.Pants
+                        _Pants = New Serial(0)
+                    Case Enums.Layers.Shirt
+                        _Shirt = New Serial(0)
+                    Case Enums.Layers.Head
+                        _Head = New Serial(0)
+                    Case Enums.Layers.Gloves
+                        _Gloves = New Serial(0)
+                    Case Enums.Layers.Ring
+                        _Ring = New Serial(0)
+                    Case Enums.Layers.Neck
+                        _Neck = New Serial(0)
+                    Case Enums.Layers.Hair
+                        _Hair = New Serial(0)
+                    Case Enums.Layers.Waist
+                        _Waist = New Serial(0)
+                    Case Enums.Layers.InnerTorso
+                        _InnerTorso = New Serial(0)
+                    Case Enums.Layers.Bracelet
+                        _Bracelet = New Serial(0)
+                    Case Enums.Layers.FacialHair
+                        _FacialHair = New Serial(0)
+                    Case Enums.Layers.MiddleTorso
+                        _MiddleTorso = New Serial(0)
+                    Case Enums.Layers.Ears
+                        _Ears = New Serial(0)
+                    Case Enums.Layers.Arms
+                        _Arms = New Serial(0)
+                    Case Enums.Layers.Back
+                        _Back = New Serial(0)
+                    Case Enums.Layers.BackPack
+                        _Back = New Serial(0)
+                    Case Enums.Layers.OuterTorso
+                        _OuterTorso = New Serial(0)
+                    Case Enums.Layers.OuterLegs
+                        _OuterLegs = New Serial(0)
+                    Case Enums.Layers.InnerLegs
+                        _InnerLegs = New Serial(0)
+                    Case Enums.Layers.Mount
+                        _Mount = New Serial(0)
+                    Case Enums.Layers.Bank
+                        _Bank = New Serial(0)
+                End Select
+            End Sub
+
             Private _Client As Client
-            Friend _LeftHand As Serial
-            Friend _RightHand As Serial
-            Friend _Shoes As Serial
-            Friend _Pants As Serial
-            Friend _Shirt As Serial
-            Friend _Head As Serial
-            Friend _Gloves As Serial
-            Friend _Ring As Serial
-            Friend _Neck As Serial
-            Friend _Hair As Serial
-            Friend _Waist As Serial
-            Friend _InnerTorso As Serial
-            Friend _Bracelet As Serial
-            Friend _FacialHair As Serial
-            Friend _MiddleTorso As Serial
-            Friend _Ears As Serial
-            Friend _Arms As Serial
-            Friend _Back As Serial
-            Friend _BackPack As Serial
-            Friend _OuterTorso As Serial
-            Friend _OuterLegs As Serial
-            Friend _InnerLegs As Serial
-            Friend _Mount As Serial
-            Friend _Bank As Serial
+            Friend _LeftHand As New Serial(0)
+            Friend _RightHand As New Serial(0)
+            Friend _Shoes As New Serial(0)
+            Friend _Pants As New Serial(0)
+            Friend _Shirt As New Serial(0)
+            Friend _Head As New Serial(0)
+            Friend _Gloves As New Serial(0)
+            Friend _Ring As New Serial(0)
+            Friend _Neck As New Serial(0)
+            Friend _Hair As New Serial(0)
+            Friend _Waist As New Serial(0)
+            Friend _InnerTorso As New Serial(0)
+            Friend _Bracelet As New Serial(0)
+            Friend _FacialHair As New Serial(0)
+            Friend _MiddleTorso As New Serial(0)
+            Friend _Ears As New Serial(0)
+            Friend _Arms As New Serial(0)
+            Friend _Back As New Serial(0)
+            Friend _BackPack As New Serial(0)
+            Friend _OuterTorso As New Serial(0)
+            Friend _OuterLegs As New Serial(0)
+            Friend _InnerLegs As New Serial(0)
+            Friend _Mount As New Serial(0)
+            Friend _Bank As New Serial(0)
 
             Public ReadOnly Property LeftHand() As Item
                 Get
@@ -525,6 +688,196 @@
             End If
         End Function
 
+        Public Sub AddItemToLayer(ByVal Layer As Enums.Layers, ByVal Serial As Serial)
+            _Layers.SetLayer(Layer, Serial)
+        End Sub
+
+        Public Sub RemoveItemFromLayer(ByVal Layer As Enums.Layers)
+            _Layers.ResetLayer(Layer)
+        End Sub
+
+        ''' <summary>
+        ''' Updates the class given a mobile related packet.
+        ''' </summary>
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.MobileStats)
+            Select Case Packet.DisplayMode
+                Case 0, 1, 2
+                    _Name = Packet.Name
+                    _Hits = Packet.Hits
+                    _HitsMax = Packet.HitsMax
+                    _Renamable = Packet.Renamable
+                    _DisplayMode = Packet.DisplayMode
+                    _Gender = Packet.Gender
+                    _Strength = Packet.Strength
+                    _Dexterity = Packet.Dexterity
+                    _Intelligence = Packet.Intelligence
+                    _Stamina = Packet.Stamina
+                    _StaminaMax = Packet.StaminaMax
+                    _Mana = Packet.Mana
+                    _ManaMax = Packet.ManaMax
+                    _Gold = Packet.Gold
+                    _ResistPhysical = Packet.ResistPhysical
+                    _Weight = Packet.Weight
+                Case 3
+                    _Name = Packet.Name
+                    _Hits = Packet.Hits
+                    _HitsMax = Packet.HitsMax
+                    _Renamable = Packet.Renamable
+                    _DisplayMode = Packet.DisplayMode
+                    _Gender = Packet.Gender
+                    _Strength = Packet.Strength
+                    _Dexterity = Packet.Dexterity
+                    _Intelligence = Packet.Intelligence
+                    _Stamina = Packet.Stamina
+                    _StaminaMax = Packet.StaminaMax
+                    _Mana = Packet.Mana
+                    _ManaMax = Packet.ManaMax
+                    _Gold = Packet.Gold
+                    _ResistPhysical = Packet.ResistPhysical
+                    _Weight = Packet.Weight
+                    _StatCap = Packet.StatCap
+                    _Followers = Packet.Followers
+                    _FollowersMax = Packet.FollowersMax
+
+                Case 4
+                    _Name = Packet.Name
+                    _Hits = Packet.Hits
+                    _HitsMax = Packet.HitsMax
+                    _Renamable = Packet.Renamable
+                    _DisplayMode = Packet.DisplayMode
+                    _Gender = Packet.Gender
+                    _Strength = Packet.Strength
+                    _Dexterity = Packet.Dexterity
+                    _Intelligence = Packet.Intelligence
+                    _Stamina = Packet.Stamina
+                    _StaminaMax = Packet.StaminaMax
+                    _Mana = Packet.Mana
+                    _ManaMax = Packet.ManaMax
+                    _Gold = Packet.Gold
+                    _ResistPhysical = Packet.ResistPhysical
+                    _Weight = Packet.Weight
+                    _StatCap = Packet.StatCap
+                    _Followers = Packet.Followers
+                    _FollowersMax = Packet.FollowersMax
+                    _ResistFire = Packet.ResistFire
+                    _ResistCold = Packet.ResistCold
+                    _ResistPoison = Packet.ResistPoison
+                    _ResistEnergy = Packet.ResistEnergy
+                    _Luck = Packet.Luck
+                    _DamageMin = Packet.DamageMin
+                    _DamageMax = Packet.DamageMax
+                    _TithingPoints = Packet.TithingPoints
+
+                Case 5
+                    _Name = Packet.Name
+                    _Hits = Packet.Hits
+                    _HitsMax = Packet.HitsMax
+                    _Renamable = Packet.Renamable
+                    _DisplayMode = Packet.DisplayMode
+                    _Gender = Packet.Gender
+                    _Strength = Packet.Strength
+                    _Dexterity = Packet.Dexterity
+                    _Intelligence = Packet.Intelligence
+                    _Stamina = Packet.Stamina
+                    _StaminaMax = Packet.StaminaMax
+                    _Mana = Packet.Mana
+                    _ManaMax = Packet.ManaMax
+                    _Gold = Packet.Gold
+                    _ResistPhysical = Packet.ResistPhysical
+                    _Weight = Packet.Weight
+                    _StatCap = Packet.StatCap
+                    _Followers = Packet.Followers
+                    _FollowersMax = Packet.FollowersMax
+                    _ResistFire = Packet.ResistFire
+                    _ResistCold = Packet.ResistCold
+                    _ResistPoison = Packet.ResistPoison
+                    _ResistEnergy = Packet.ResistEnergy
+                    _Luck = Packet.Luck
+                    _DamageMin = Packet.DamageMin
+                    _DamageMax = Packet.DamageMax
+                    _TithingPoints = Packet.TithingPoints
+                    _Race = Packet.Race
+                    _WeightMax = Packet.WeightMax
+
+                Case 6
+                    _Name = Packet.Name
+                    _Hits = Packet.Hits
+                    _HitsMax = Packet.HitsMax
+                    _Renamable = Packet.Renamable
+                    _DisplayMode = Packet.DisplayMode
+                    _Gender = Packet.Gender
+                    _Strength = Packet.Strength
+                    _Dexterity = Packet.Dexterity
+                    _Intelligence = Packet.Intelligence
+                    _Stamina = Packet.Stamina
+                    _StaminaMax = Packet.StaminaMax
+                    _Mana = Packet.Mana
+                    _ManaMax = Packet.ManaMax
+                    _Gold = Packet.Gold
+                    _ResistPhysical = Packet.ResistPhysical
+                    _Weight = Packet.Weight
+                    _StatCap = Packet.StatCap
+                    _Followers = Packet.Followers
+                    _FollowersMax = Packet.FollowersMax
+                    _ResistFire = Packet.ResistFire
+                    _ResistCold = Packet.ResistCold
+                    _ResistPoison = Packet.ResistPoison
+                    _ResistEnergy = Packet.ResistEnergy
+                    _Luck = Packet.Luck
+                    _DamageMin = Packet.DamageMin
+                    _DamageMax = Packet.DamageMax
+                    _TithingPoints = Packet.TithingPoints
+                    _Race = Packet.Race
+                    _WeightMax = Packet.WeightMax
+                    _HitChanceIncrease = Packet.HitChanceIncrease
+                    _SwingSpeedIncrease = Packet.SwingSpeedIncrease
+                    _DamageChanceIncrease = Packet.DamageChanceIncrease
+                    _LowerReagentCost = Packet.LowerReagentCost
+                    _HitPointsRegeneration = Packet.HitPointsRegeneration
+                    _StaminaRegeneration = Packet.StaminaRegeneration
+                    _ManaRegeneration = Packet.ManaRegeneration
+                    _ReflectPhysicalDamage = Packet.ReflectPhysicalDamage
+                    _EnhancePotions = Packet.EnhancePotions
+                    _DefenseChanceIncrease = Packet.DefenseChanceIncrease
+                    _SpellDamageIncrease = Packet.SpellDamageIncrease
+                    _FasterCastRecovery = Packet.FasterCastRecovery
+                    _FasterCasting = Packet.FasterCasting
+                    _LowerManaCost = Packet.LowerManaCost
+                    _StrengthIncrease = Packet.StrengthIncrease
+                    _DexterityIncrease = Packet.DexterityIncrease
+                    _IntelligenceIncrease = Packet.IntelligenceIncrease
+                    _HitPointsIncrease = Packet.HitPointsIncrease
+                    _StaminaIncrease = Packet.StaminaIncrease
+                    _ManaIncrease = Packet.ManaIncrease
+                    _MaximumHitPointsIncrease = Packet.MaximumHitPointsIncrease
+                    _MaximumStaminaIncrease = Packet.MaximumStaminaIncrease
+                    _MaximumManaIncrease = Packet.MaximumManaIncrease
+
+            End Select
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.HPHealth)
+            _Hits = Packet.Hits
+            _HitsMax = Packet.HitsMax
+            RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Health)
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.ManaHealth)
+            _Mana = Packet.Mana
+            _ManaMax = Packet.ManaMax
+            RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Mana)
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.FatHealth)
+            _Stamina = Packet.Stam
+            _StaminaMax = Packet.StamMax
+            RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Stamina)
+        End Sub
+
+        Friend Sub HandleDeathPacket(ByVal packet As Packets.DeathAnimation)
+            RaiseEvent onDeath(_Client, Me, packet.CorpseSerial)
+        End Sub
+
 #End Region
 
     End Class
@@ -544,9 +897,11 @@
         ''' </summary>
         Public Enum DisplayMode As Byte
             Normal = 1
-            StatCap
-            StatCap_Followers
-            StatCap_Followers_Resistances
+            StatCap = 2
+            StatCap_Followers = 3
+            StatCap_Followers_Resistances = 4
+            SupportedFeatures5 = 5
+            KR = 6
         End Enum
 
     End Class

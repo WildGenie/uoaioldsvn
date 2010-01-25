@@ -216,8 +216,24 @@
             QuestLog
         End Enum
 
+        <Flags()> _
+        Public Enum Features As Short
+            enableT2Afeatures_chatbutton_regions = &H1
+            enablerenaissancefeatures = &H2
+            enablethirddownfeatures = &H4
+            enableLBRfeatures_skills_map = &H8
+            enableAOSfeatures_skills_spells_map_fightbook = &H10
+            enable6thcharacterslot = &H20
+            enableSEfeatures_spells_skills_map = &H40
+            enableMLfeatures_elvenrace_spells_skills = &H80
+            enableTheEightAgesplashscreen = &H100
+            enableTheNinthAgesplashscreen = &H200
+            enable7thcharacterslot = &H1000
+            enableTheTenthAgeKRfaces = &H2000
+        End Enum
+
         ''' <summary>Enumeration of mobile gender.</summary>
-        Public Enum Gender
+        Public Enum Gender As Byte
             Male = &H0
             Female = &H1
             Neutral = &H2
@@ -298,6 +314,28 @@
             SouthWest = &H5
             West = &H6
             NorthWest = &H7
+            NorthRunning = &H80
+            NorthEastRunning = &H81
+            EastRunning = &H82
+            SouthEastRunning = &H83
+            SouthRunning = &H84
+            SouthWestRunning = &H85
+            WestRunning = &H86
+            NorthWestRunning = &H87
+        End Enum
+
+        Public Enum WarMode
+            Disabled
+            Enabled
+        End Enum
+
+        Public Enum MobileUpdateType As Byte
+            Health
+            Stamina
+            Mana
+            Status
+            FullUpdate
+            Move
         End Enum
 
         'UOML ItemFlags
@@ -320,7 +358,8 @@
             Invulnerable = &H7
         End Enum
 
-        Public Enum Layers As UInteger
+        Public Enum Layers As Byte
+            Unequipped = &H0
             LeftHand = &H1
             RightHand = &H2
             Shoes = &H3

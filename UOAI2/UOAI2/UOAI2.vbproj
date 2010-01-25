@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8C4C1C1B-0BED-4153-905D-3C7840B5EAF2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -101,6 +101,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Packets.vb" />
+    <Content Include="Info\Packet Guides\PacketsWalkthrough.vb" />
+    <Compile Include="Player.vb" />
     <Compile Include="Point3D.vb" />
     <Compile Include="ProcessStream.vb" />
     <Compile Include="Serial.vb" />
@@ -118,6 +120,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Info\Packet Guides\Ultima Online Protocol.url" />
+    <None Include="Info\Packet Guides\UO Protocol Guide.docx" />
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -129,7 +133,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Notes.txt" />
+    <Content Include="Info\Notes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="UOClientDll.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

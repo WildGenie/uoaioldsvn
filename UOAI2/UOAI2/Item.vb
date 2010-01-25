@@ -6,6 +6,13 @@
         Friend Sub New(ByVal Client As Client) 'New(byval offset as int32)
             _contents = New ItemList(Me, Client)
         End Sub
+
+        ''' <summary>
+        ''' When using this new, never ever ever try to access the contents!
+        ''' </summary>
+        ''' <remarks></remarks>
+        Friend Sub New()
+        End Sub
 #End Region
 
 #Region "Variables"
@@ -14,16 +21,17 @@
         Friend MemoryOffset As Int32
 
         ''' <summary>Item serial as UOAI.ItemSerial, private.</summary>
-        Friend _Serial As Serial
-        Friend _Type As ItemType
-        Friend _StackID As Byte
-        Friend _Amount As UShort
-        Friend _X As UShort
-        Friend _Y As UShort
-        Friend _Z As SByte
-        Friend _Container As Serial
-        Friend _Hue As UShort
-        Friend _Direction As Enums.Direction
+        Friend _Serial As New Serial(0)
+        Friend _Type As New ItemType(Convert.ToUInt16(0))
+        Friend _Layer As Enums.Layers
+        Friend _StackID As Byte = 0
+        Friend _Amount As UShort = 1
+        Friend _X As UShort = 0
+        Friend _Y As UShort = 0
+        Friend _Z As Byte = 0
+        Friend _Container As Serial = WorldSerial
+        Friend _Hue As UShort = 0
+        Friend _Direction As Enums.Direction = Enums.Direction.North
         Friend _contents As ItemList
 
 #End Region
@@ -104,7 +112,7 @@
         ''' </summary>
         Public ReadOnly Property TypeName() As String
             Get
-                Return StrLst.Table(1040391 + _Type.BaseValue).ToString()
+                Return StrLst.Table(1036383 + _Type.BaseValue).ToString()
             End Get
         End Property
 
@@ -117,11 +125,5 @@
 #End Region
 
     End Class
-
-    Friend Class Container
-        'Private _
-
-    End Class
-
 
 End Class

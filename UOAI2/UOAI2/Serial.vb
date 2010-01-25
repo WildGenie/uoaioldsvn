@@ -3,7 +3,7 @@
     Public Class Serial
         Implements IComparable
         Implements IComparable(Of Serial)
-        Public Shared ReadOnly MinusOne As New Serial(4294967295)
+        Public Shared ReadOnly MinusOne As New Serial(Convert.ToUInt32(4294967295))
         Public Shared ReadOnly Zero As New Serial(Convert.ToUInt32(0))
 
         Private ReadOnly m_IntValue As UInt32
@@ -25,7 +25,8 @@
         End Property
 
         Public Overloads Overrides Function GetHashCode() As Integer
-            Return CInt(m_IntValue)
+            'Console.WriteLine(m_IntValue.GetHashCode.ToString)
+            Return CInt(m_IntValue.GetHashCode)
         End Function
 
         Public Function CompareTo(ByVal other As Serial) As Integer Implements IComparable(Of Serial).CompareTo
@@ -173,21 +174,27 @@
             m_multitype = 0
         End Sub
 
-        Public ReadOnly Property BaseValue() As UShort
+        Public Property BaseValue() As UShort
             Get
                 Return m_basetype
             End Get
+            Friend Set(ByVal value As UShort)
+                m_basetype = value
+            End Set
         End Property
+
         Public ReadOnly Property Increment() As Integer
             Get
                 Return m_typeincrement
             End Get
         End Property
+
         Public ReadOnly Property IsMulti() As Boolean
             Get
                 Return ((m_basetype = 1) AndAlso (m_multitype <> 0))
             End Get
         End Property
+
         Public ReadOnly Property MultiType() As UInteger
             Get
                 Return m_multitype
