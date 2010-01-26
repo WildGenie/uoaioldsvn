@@ -33,6 +33,7 @@
         Friend _Hue As UShort = 0
         Friend _Direction As Enums.Direction = Enums.Direction.North
         Friend _contents As ItemList
+        Friend _IsMobile As Boolean = False
 
 #End Region
 
@@ -119,6 +120,12 @@
         Public ReadOnly Property Contents() As ItemList
             Get
                 Return _contents
+            End Get
+        End Property
+
+        Public ReadOnly Property Layer() As Enums.Layers
+            Get
+                Return _Layer
             End Get
         End Property
 

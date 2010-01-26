@@ -143,7 +143,7 @@ Partial Class UOAI
             End If
 
             'b. setup item list; mobile list and gumplist
-            _Items = New ItemList(WorldSerial)
+            _Items = New ItemList(WorldSerial, Me)
 
             'c. timer
             m_ShutdownEventTimer = False
@@ -192,6 +192,18 @@ Partial Class UOAI
 
                 Case Enums.PacketType.MobileStats
                     Return New Packets.MobileStats(packetbuffer)
+
+                Case Enums.PacketType.EquipItem
+                    Return New Packets.EquipItem(packetbuffer)
+
+                Case Enums.PacketType.ContainerContents
+                    Return New Packets.ContainerContents(packetbuffer)
+
+                Case Enums.PacketType.ObjecttoObject
+                    Return New Packets.ObjectToObject(packetbuffer)
+
+                Case Enums.PacketType.ShowItem
+                    Return New Packets.ShowItem(packetbuffer)
 
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
@@ -252,16 +264,33 @@ Partial Class UOAI
 
                 Case Enums.PacketType.FatHealth
                     Mobiles.Mobile(DirectCast(currentpacket, Packets.FatHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.FatHealth))
+
                 Case Enums.PacketType.ManaHealth
                     Mobiles.Mobile(DirectCast(currentpacket, Packets.ManaHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.ManaHealth))
+
                 Case Enums.PacketType.NakedMOB
                     Mobiles.AddMobile(DirectCast(currentpacket, Packets.NakedMobile))
+
                 Case Enums.PacketType.EquippedMOB
                     Mobiles.AddMobile(DirectCast(currentpacket, Packets.EquippedMobile))
+
                 Case Enums.PacketType.DeathAnimation
                     Mobiles.RemoveMobile(DirectCast(currentpacket, Packets.DeathAnimation))
+
                 Case Enums.PacketType.Destroy
                     RemoveObject(DirectCast(currentpacket, Packets.Destroy).Serial)
+
+                Case Enums.PacketType.EquipItem
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.EquipItem).Container).HandleUpdatePacket(DirectCast(currentpacket, Packets.EquipItem))
+
+                Case Enums.PacketType.ContainerContents
+                    Items.AddItem(DirectCast(currentpacket, Packets.ContainerContents))
+
+                Case Enums.PacketType.ObjecttoObject
+                    Items.AddItem(DirectCast(currentpacket, Packets.ObjectToObject))
+
+                Case Enums.PacketType.ShowItem
+                    Items.AddItem(DirectCast(currentpacket, Packets.ShowItem))
             End Select
 
         End Sub
