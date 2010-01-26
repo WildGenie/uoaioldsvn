@@ -1,0 +1,10 @@
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\bin\Release\Packet Class Builder.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\bin\Release\Packet Class Builder.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\bin\Release\Packet Class Builder.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet_Class_Builder.Form1.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet_Class_Builder.Resources.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet Class Builder.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet Class Builder.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet Class Builder.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\Packet Class Builder\obj\Release\Packet Class Builder.pdb

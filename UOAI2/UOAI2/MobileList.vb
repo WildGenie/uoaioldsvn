@@ -22,20 +22,11 @@
         ''' </summary>
         ''' <param name="Mobile"></param>
         Public Sub AddMobile(ByVal Mobile As Mobile)
-            If Exists(Mobile.Serial) Then
-                Me.Mobile(Mobile.Serial)._Type.BaseValue = Mobile.Type
-                Me.Mobile(Mobile.Serial)._X = Mobile.X
-                Me.Mobile(Mobile.Serial)._Y = Mobile.Y
-                Me.Mobile(Mobile.Serial)._Z = Mobile.Z
-                Me.Mobile(Mobile.Serial)._Direction = Mobile.Direction
-                Me.Mobile(Mobile.Serial)._Hue = Mobile.Hue
-                Me.Mobile(Mobile.Serial)._Notoriety = Mobile.Notoriety
-                Me.Mobile(Mobile.Serial)._Status = Mobile.Status
-            Else
-                _MobileHashBySerial.Add(Mobile.Serial, Mobile)
-                'TODO: Make an AddHash sub for post-packet handling to add this to the memory offset hash.
-                '_MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile)
-            End If
+
+            _MobileHashBySerial.Add(Mobile.Serial, Mobile)
+            'TODO: Make an AddHash sub for post-packet handling to add this to the memory offset hash.
+            '_MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile)
+            Console.WriteLine("Added Mobile: " & Mobile.Serial.ToString)
 
         End Sub
 
@@ -44,6 +35,14 @@
         ''' </summary>
         ''' <param name="Packet">The packet as a <see cref="UOAI.Packets.EquippedMobile"/>.</param>
         Friend Sub AddMobile(ByVal Packet As Packets.EquippedMobile)
+            If Exists(Packet.Serial) Then
+                'Instead of trying to create a new mobile, just tell the mobile to udpate itself with the given packet.
+                Me.Mobile(Packet.Serial).HandleUpdatePacket(Packet)
+
+                'Return to the sub that called this.
+                Exit Sub
+            End If
+
             'Create a new empty mobile on the current client.
             Dim NewMobile As New Mobile(_Client)
 
@@ -129,15 +128,13 @@
                     Case Enums.Layers.Shoes
                         NewMobile._Layers.SetLayer(Enums.Layers.Shoes, i.Serial)
 
-                    Case Enums.Layers.Unequipped
-                        NewMobile._Layers.SetLayer(Enums.Layers.Unequipped, i.Serial)
+                    Case Enums.Layers.None
+                        NewMobile._Layers.SetLayer(Enums.Layers.None, i.Serial)
 
-                    Case Enums.Layers.Unequipped
-                        NewMobile._Layers.SetLayer(Enums.Layers.Unequipped, i.Serial)
                 End Select
 
                 'Adds the item to the world item list for later reference.
-                'The container is set to the WorldSerial
+                'The container is set to the mobile serial.
                 _Client.Items.AddItem(i)
             Next
 
@@ -146,6 +143,14 @@
 
         ''' <param name="Packet">The packet as a <see cref="UOAI.Packets.NakedMobile"/>.</param>
         Friend Sub AddMobile(ByVal Packet As Packets.NakedMobile)
+            If Exists(Packet.Serial) Then
+                'Instead of trying to create a new mobile, just tell the mobile to udpate itself with the given packet.
+                Me.Mobile(Packet.Serial).HandleUpdatePacket(Packet)
+
+                'Return to the sub that called this.
+                Exit Sub
+            End If
+
             'Create a new empty mobile on the current client.
             Dim NewMobile As New Mobile(_Client)
 
@@ -163,7 +168,11 @@
             AddMobile(NewMobile)
         End Sub
 
-        'Friend Sub AddPlayer(
+        Friend Sub HashByOffset(ByVal Serial As Serial, ByVal Offset As UInt32)
+            _MobileHashByOffset.Add(Offset, Mobile(Serial))
+        End Sub
+
+        'Friend Sub AddPlayer(byval 
 
         ''' <summary>
         ''' Removes the specified mobile formt he MobileList.
@@ -171,11 +180,18 @@
         ''' <param name="Serial">The serial of the mobile to be removed.</param>
         Public Function RemoveMobile(ByVal Serial As Serial)
             Try
-                _MobileHashByOffset.Remove(DirectCast(_MobileHashBySerial(Serial), Mobile).MemoryOffset)
-                _MobileHashBySerial.Remove(Serial)
+                'TODO: Memory offset
+                '_MobileHashByOffset.Remove(DirectCast(_MobileHashBySerial(Serial), Mobile).MemoryOffset)
+                If Exists(Serial) Then
+                    _MobileHashBySerial.Remove(Serial)
+                Else
+                    Throw New ApplicationException("The mobile does not exist in the hash!")
+                End If
             Catch ex As Exception
+                Console.WriteLine("Remove Mobile by Serial Failed: " & Serial.ToString)
                 Return False
             End Try
+            Console.WriteLine("Removed Mobile by Serial: " & Serial.ToString)
             Return True
         End Function
 
@@ -185,13 +201,17 @@
                 _MobileHashBySerial.Remove(DirectCast(_MobileHashBySerial(Offset), Mobile).Serial)
                 _MobileHashByOffset.Remove(Offset)
             Catch ex As Exception
+                Console.WriteLine("Remove Mobile by Offset Failed: " & Offset)
                 Return False
             End Try
+            Console.WriteLine("Removed Mobile by Offset: " & Offset)
             Return True
         End Function
 
         Friend Sub RemoveMobile(ByVal DeathPacket As Packets.DeathAnimation)
             DirectCast(_MobileHashBySerial(DeathPacket.Serial), Mobile).HandleDeathPacket(DeathPacket)
+            RemoveMobile(DeathPacket.Serial)
+            Console.WriteLine("Removed Mobile by Death Packet: " & DeathPacket.Serial.ToString)
         End Sub
 
         ''' <summary>
@@ -243,7 +263,6 @@
                 Return _MobileHashByOffset(Offset)
             End Get
         End Property
-
 
         Public Function GetEnumerator() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
             Return _MobileHashBySerial.Values.GetEnumerator()

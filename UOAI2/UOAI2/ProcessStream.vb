@@ -108,10 +108,10 @@ Partial Class UOAI
             End If
         End Function
 
-        Function ReadChar(ByVal address As UInteger) As SByte
+        Function ReadChar(ByVal address As UInteger) As Byte
             Dim bytes As Byte() = Read(address, 4)
             If bytes IsNot Nothing Then
-                Return CSByte(bytes(0))
+                Return bytes(0)
             Else
                 Return 0
             End If
@@ -223,8 +223,8 @@ Partial Class UOAI
             Return Write(address, New Byte() {towrite})
         End Function
 
-        Function WriteChar(ByVal address As UInteger, ByVal towrite As SByte) As Boolean
-            Return Write(address, New Byte() {CByte(towrite)})
+        Function WriteChar(ByVal address As UInteger, ByVal towrite As Byte) As Boolean
+            Return Write(address, New Byte() {towrite})
         End Function
 
         Function InlineAssignHelper(Of T)(ByRef target As T, ByVal value As T) As T

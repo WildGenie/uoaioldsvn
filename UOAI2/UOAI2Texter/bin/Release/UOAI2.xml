@@ -222,10 +222,17 @@ UOAI2
 	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that has died.</param>
 </member><member name="E:UOAI2.UOAI.Mobile.onUpdate">
 	<summary>
- This is called immediately after the client handles an update to a mobile.
+ This is called immediately before the client handles an update to a mobile.
  </summary>
 	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
 	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onEquipmentUpdate">
+	<summary>
+ This is called immediately after a packet is recieved to equip an item.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+	<param name="EquipmentLayers">The <see cref="T:UOAI2.UOAI.Enums.Layers">layers</see> that were changed.</param>
 </member><member name="E:UOAI2.UOAI.Mobile.onStatusChange">
 	<summary>
  This is called immediately after the client handles an update to a mobile.

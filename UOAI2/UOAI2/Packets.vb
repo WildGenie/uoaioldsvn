@@ -387,14 +387,14 @@ Partial Class UOAI
         Public Class ObjectToObject
             Inherits Packet
 
-            Private _Serial As Serial
-            Private _Itemtype As ItemType
-            Private _stackID As Byte
-            Private _amount As UShort
-            Private _X As UShort
-            Private _Y As UShort
-            Private _Container As Serial
-            Private _Hue As UShort
+            Friend _Serial As Serial
+            Friend _Itemtype As New ItemType(CUShort(0))
+            Friend _stackID As Byte
+            Friend _amount As UShort
+            Friend _X As UShort
+            Friend _Y As UShort
+            Friend _Container As Serial
+            Friend _Hue As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ObjecttoObject)
@@ -409,7 +409,7 @@ Partial Class UOAI
                 _Serial = buff.readuint
 
                 '5-6
-                _Itemtype = buff.readushort
+                _Itemtype.BaseValue = buff.readushort
 
                 '7
                 _stackID = buff.readbyte
@@ -569,7 +569,7 @@ Partial Class UOAI
             Inherits Packet
 
             Private _serial As Serial
-            Private _itemtype As ItemType
+            Private _itemtype As New ItemType(Convert.ToUInt16(0))
             Private _layer As Enums.Layers
             Private _container As Serial
             Private _hue As UShort
@@ -585,10 +585,10 @@ Partial Class UOAI
                 _serial = buff.readuint
 
                 '5-6
-                _itemtype = buff.readushort
+                _itemtype.BaseValue = buff.readushort
 
                 '7
-                'Unknown byte 0x00
+                'Skip Unknown byte 0x00
                 buff.Position += 1
 
                 '8
@@ -681,13 +681,15 @@ Partial Class UOAI
         Public Class ContainerContents
             Inherits Packet
 
-            Private _ItemList() As EditableItem
+            Private _ItemList As New ItemList
             Private _Count As UShort
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ContainerContents)
                 _Data = bytes
                 _size = bytes.Length
+
+                buff = New BufferHandler(bytes)
 
                 buff.Position = 1
                 buff.networkorder = False
@@ -698,64 +700,26 @@ Partial Class UOAI
                 '3-4
                 _Count = buff.readushort
 
-                Dim it As New EditableItem
+                Dim it As New Item
 
                 For i As UShort = 1 To _Count - 1
-                    it = New EditableItem
+                    it = New Item
                     buff.Position = (i * 19) + 5
                     it._Serial = buff.readuint
-                    it._Type = buff.readushort
+                    it._Type.BaseValue = buff.readushort
                     it._StackID = buff.readbyte
                     it._X = buff.readushort
                     it._Y = buff.readushort
                     it._Container = buff.readuint
                     it._Hue = buff.readushort
-                    _ItemList(i) = it
+                    _ItemList.AddItem(it)
                 Next
 
             End Sub
 
-            Public Overloads ReadOnly Property Items() As EditableItem()
+            Public Overloads ReadOnly Property Items() As ItemList
                 Get
                     Return _ItemList
-                End Get
-            End Property
-
-            Public Overloads Property Items(ByVal Index As UShort) As EditableItem
-                Get
-                    Return _ItemList(Index)
-                End Get
-                Set(ByVal value As EditableItem)
-                    _ItemList(Index) = value
-                End Set
-            End Property
-
-            Public Overrides ReadOnly Property Data() As Byte()
-                Get
-                    'Write the byte array dynamically
-                    buff = New BufferHandler(_Data)
-
-                    buff.Position = 1
-                    buff.networkorder = False
-                    '1-2
-                    buff.writeushort(_size)
-                    buff.networkorder = True
-
-                    '3-4
-                    buff.writeushort(_Count)
-
-                    For i As UShort = 0 To _Count
-                        buff.Position = (i * 19) + 5
-                        buff.writeuint(_ItemList(i)._Serial)
-                        buff.writeushort(_ItemList(i)._Type.BaseValue)
-                        buff.writebyte(_ItemList(i)._StackID)
-                        buff.writeushort(_ItemList(i)._X)
-                        buff.writeushort(_ItemList(i)._Y)
-                        buff.writeuint(_ItemList(i)._Container)
-                        buff.writeushort(_ItemList(i)._Hue)
-                    Next
-
-                    Return _Data
                 End Get
             End Property
 
@@ -1500,7 +1464,7 @@ Partial Class UOAI
             Private _BodyType As UShort
             Private _X As UShort
             Private _Y As UShort
-            Private _Z As SByte
+            Private _Z As Byte
             Private _Direction As Enums.Direction
             Private _Hue As UShort
             Private _Status As Enums.MobileStatus
@@ -1525,13 +1489,11 @@ Partial Class UOAI
                     _Status = .readbyte
                     _Notoriety = .readbyte
 
+
                     Dim i As Item
                     Do
                         i = New Item
 
-                        'TODO: the container needs to be changed somehow when we implement a scavenger type thing.
-                        'since the items position will always be that of the user, distance will always be 0.
-                        'Though i dont know if thats how it works... we might be fine.
                         i._Container = _Serial
                         i._Serial = .readuint
                         i._Type.BaseValue = .readushort
@@ -1603,6 +1565,12 @@ Partial Class UOAI
             Public ReadOnly Property EquippedItems() As ItemList
                 Get
                     Return _EquippedItems
+                End Get
+            End Property
+
+            Public ReadOnly Property Count() As Byte
+                Get
+                    Return _EquippedItems.Count
                 End Get
             End Property
 
@@ -1760,6 +1728,117 @@ Partial Class UOAI
 
         End Class
 
+        Public Class ShowItem
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _ItemType As New ItemType(CUShort(0))
+            Private _Amount As UShort = 1
+            Private _StackID As Byte = 0
+            Private _X As UShort = 0
+            Private _Y As UShort = 0
+            Private _Direction As Byte = 0
+            Private _Z As Byte = 0
+            Private _Hue As UShort = 0
+            Private _Status As Byte = 0
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.ShowItem)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+                    _ItemType.BaseValue = .readushort
+
+                    If _Serial.Value >= 2147483648 Then _Amount = .readushort 'Check Serial for flag 0x80000000
+                    If _ItemType.BaseValue >= 32768 Then _StackID = .readbyte 'Check Item Type for flag 0x8000
+
+                    _X = .readushort
+                    _Y = .readushort
+
+                    If _X >= 32768 Then _Direction = .readbyte 'Check _X for flag 0x8000
+
+                    _Z = .readbyte
+
+                    Select Case _Y
+                        Case Is > 49152 'Flag 0x8000 and 0x4000
+                            _Hue = .readushort
+                            _Status = .readbyte
+                        Case Is > 32768 'Flag 0x8000
+                            _Hue = .readushort
+                        Case Is > 16384 'Flag 0x4000
+                            _Status = .readbyte
+                    End Select
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property ItemType() As ItemType
+                Get
+                    Return _ItemType
+                End Get
+            End Property
+
+            Public ReadOnly Property Amount() As UShort
+                Get
+                    Return _Amount
+                End Get
+            End Property
+
+            Public ReadOnly Property StackID() As UShort
+                Get
+                    Return _StackID
+                End Get
+            End Property
+
+            Public ReadOnly Property X() As UShort
+                Get
+                    Return _X
+                End Get
+            End Property
+
+            Public ReadOnly Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction() As Enums.Direction
+                Get
+                    Return _Direction
+                End Get
+            End Property
+
+            Public ReadOnly Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+            End Property
+
+            Public ReadOnly Property Status() As Byte
+                Get
+                    Return _Status
+                End Get
+            End Property
+
+        End Class
+
     End Class
 
     ''' Hide this class from the user, there is no reason from him/her to see it.
@@ -1771,7 +1850,7 @@ Partial Class UOAI
         Friend _Amount As UShort
         Friend _X As UShort
         Friend _Y As UShort
-        Friend _Z As SByte
+        Friend _Z As Byte
         Friend _Container As Serial
         Friend _Hue As UShort
         Friend _Direction As Enums.Direction
@@ -2323,10 +2402,10 @@ Partial Class UOAI
 
 #Region "Byte/Character"
 
-        Public Function readchar() As SByte
+        Public Function readchar() As Byte
             If Length > 0 Then
                 curpos = curpos + 1
-                Return CSByte(m_buffer(curpos - 1))
+                Return m_buffer(curpos - 1)
             Else
                 Return 0
             End If
@@ -2422,7 +2501,7 @@ Partial Class UOAI
             End If
         End Sub
 
-        Public Sub writechar(ByVal towrite As SByte)
+        Public Sub writechar(ByVal towrite As Byte)
             If Length > 0 Then
                 m_buffer(curpos) = CByte(towrite)
                 curpos += 1

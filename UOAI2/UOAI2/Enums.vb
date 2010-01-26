@@ -329,15 +329,6 @@
             Enabled
         End Enum
 
-        Public Enum MobileUpdateType As Byte
-            Health
-            Stamina
-            Mana
-            Status
-            FullUpdate
-            Move
-        End Enum
-
         'UOML ItemFlags
         <Flags()> _
         Public Enum ItemFlags As UInteger
@@ -359,7 +350,7 @@
         End Enum
 
         Public Enum Layers As Byte
-            Unequipped = &H0
+            None = &H0
             LeftHand = &H1
             RightHand = &H2
             Shoes = &H3

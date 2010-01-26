@@ -8,6 +8,8 @@
             MyBase.New(Client)
             _Layers = New LayersClass(Client)
             _Client = Client
+            _IsMobile = True
+            _Container = WorldSerial
         End Sub
 
 #Region "Private Variables"
@@ -87,11 +89,20 @@
         Public Event onDeath(ByVal Client As Client, ByVal Mobile As Mobile, ByVal CorpseSerial As Serial)
 
         ''' <summary>
-        ''' This is called immediately after the client handles an update to a mobile.
+        ''' This is called immediately before the client handles an update to a mobile.
         ''' </summary>
         ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
         ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
         Public Event onUpdate(ByVal Client As Client, ByVal Mobile As Mobile, ByVal UpdateType As Enums.MobileUpdateType)
+
+        ''' <summary>
+        ''' This is called immediately after a packet is recieved to equip an item.
+        ''' </summary>
+        ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
+        ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
+        ''' <param name="EquipmentLayers">The <see cref="Enums.Layers">layers</see> that were changed.</param>
+        Public Event onEquipmentUpdate(ByVal Client As Client, ByVal Mobile As Mobile, ByVal EquipmentLayers() As Enums.Layers)
+
 
         ''' <summary>
         ''' This is called immediately after the client handles an update to a mobile.
@@ -689,11 +700,16 @@
         End Function
 
         Public Sub AddItemToLayer(ByVal Layer As Enums.Layers, ByVal Serial As Serial)
+            '
             _Layers.SetLayer(Layer, Serial)
+
         End Sub
 
         Public Sub RemoveItemFromLayer(ByVal Layer As Enums.Layers)
+            'Set the layer's item serial to 0
             _Layers.ResetLayer(Layer)
+
+            RaiseEvent onUpdate(_Client, Me, Layer)
         End Sub
 
         ''' <summary>
@@ -854,24 +870,160 @@
                     _MaximumManaIncrease = Packet.MaximumManaIncrease
 
             End Select
+
+            Console.WriteLine("Updated Mobile Status: " & Packet.Serial.ToString)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.HPHealth)
             _Hits = Packet.Hits
             _HitsMax = Packet.HitsMax
+            Console.WriteLine("Updated Mobile Hitpoints: " & Packet.Serial.ToString)
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Health)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.ManaHealth)
             _Mana = Packet.Mana
             _ManaMax = Packet.ManaMax
+            Console.WriteLine("Updated Mobile Mana: " & Packet.Serial.ToString)
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Mana)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.FatHealth)
             _Stamina = Packet.Stam
             _StaminaMax = Packet.StamMax
+            Console.WriteLine("Updated Mobile Stamina: " & Packet.Serial.ToString)
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Stamina)
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.EquipItem)
+            'Create a new item on the client that this mobile belongs to.
+            Dim NewItem As New Item(_Client)
+
+            'Assign the item's properties based on the packet info
+            NewItem._Serial = Packet.Serial
+            NewItem._Type = Packet.ItemType
+            NewItem._Container = Packet.Container
+            NewItem._Layer = Packet.Layer
+            NewItem._Hue = Packet.Hue
+
+            'Add the item to the itemlist.
+            _Client.Items.AddItem(NewItem)
+
+            'Assign the item to the proper layer on this mobile.
+            Layers.SetLayer(Packet.Layer, Packet.Serial)
+
+            RaiseEvent onUpdate(_Client, Me, Packet.Layer)
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.EquippedMobile)
+            Me._Type.BaseValue = Packet.BodyType
+            Me._X = Packet.X
+            Me._Y = Packet.Y
+            Me._Z = Packet.Z
+            Me._Direction = Packet.Direction
+            Me._Hue = Packet.Hue
+            Me._Notoriety = Packet.Notoriety
+            Me._Status = Packet.Status
+
+            If Packet.Count >= 1 Then
+                Dim k(Packet.Count) As Enums.Layers
+
+                'Loop through the items and add their serials to the proper layers for later reference
+                For i As Byte = 0 To Packet.Count - 1
+                    Select Case DirectCast(Packet.EquippedItems(i), Item).Layer
+                        Case Enums.Layers.Arms
+                            Me._Layers.SetLayer(Enums.Layers.Arms, Packet.EquippedItems(i).Serial)
+                            k(i) = Enums.Layers.Arms
+                        Case Enums.Layers.Back
+                            Me._Layers.SetLayer(Enums.Layers.Back, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.BackPack
+                            Me._Layers.SetLayer(Enums.Layers.BackPack, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Bank
+                            Me._Layers.SetLayer(Enums.Layers.Bank, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Bracelet
+                            Me._Layers.SetLayer(Enums.Layers.Bracelet, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Ears
+                            Me._Layers.SetLayer(Enums.Layers.Ears, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.FacialHair
+                            Me._Layers.SetLayer(Enums.Layers.FacialHair, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Gloves
+                            Me._Layers.SetLayer(Enums.Layers.Gloves, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Hair
+                            Me._Layers.SetLayer(Enums.Layers.Hair, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Head
+                            Me._Layers.SetLayer(Enums.Layers.Head, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.InnerLegs
+                            Me._Layers.SetLayer(Enums.Layers.InnerLegs, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.InnerTorso
+                            Me._Layers.SetLayer(Enums.Layers.InnerTorso, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.LeftHand
+                            Me._Layers.SetLayer(Enums.Layers.LeftHand, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.MiddleTorso
+                            Me._Layers.SetLayer(Enums.Layers.MiddleTorso, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Mount
+                            Me._Layers.SetLayer(Enums.Layers.Mount, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Neck
+                            Me._Layers.SetLayer(Enums.Layers.Neck, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.OuterLegs
+                            Me._Layers.SetLayer(Enums.Layers.OuterLegs, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.OuterTorso
+                            Me._Layers.SetLayer(Enums.Layers.OuterTorso, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Pants
+                            Me._Layers.SetLayer(Enums.Layers.Pants, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.RightHand
+                            Me._Layers.SetLayer(Enums.Layers.RightHand, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Ring
+                            Me._Layers.SetLayer(Enums.Layers.Ring, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Shirt
+                            Me._Layers.SetLayer(Enums.Layers.Shirt, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.Shoes
+                            Me._Layers.SetLayer(Enums.Layers.Shoes, Packet.EquippedItems(i).Serial)
+
+                        Case Enums.Layers.None
+                            Me._Layers.SetLayer(Enums.Layers.None, Packet.EquippedItems(i).Serial)
+
+                    End Select
+
+                    'Adds the item to the world item list for later reference.
+                    'The container is set to the Mobile Serial
+                    _Client.Items.AddItem(Packet.EquippedItems(i))
+                Next
+            End If
+
+            Console.WriteLine("Updated Mobile Equipped: " & Packet.Serial.ToString)
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.NakedMobile)
+            _Type.BaseValue = Packet.BodyType
+            _X = Packet.X
+            _Y = Packet.Y
+            _Z = Packet.Z
+            _Direction = Packet.Direction
+            _Hue = Packet.Hue
+            _Notoriety = Packet.Notoriety
+            _Status = Packet.Status
+            Console.WriteLine("Updated Mobile Naked: " & Packet.Serial.ToString)
         End Sub
 
         Friend Sub HandleDeathPacket(ByVal packet As Packets.DeathAnimation)
@@ -902,6 +1054,16 @@
             StatCap_Followers_Resistances = 4
             SupportedFeatures5 = 5
             KR = 6
+        End Enum
+
+        Public Enum MobileUpdateType As Byte
+            Health
+            Stamina
+            Mana
+            Status
+            FullUpdate
+            Move
+            EquipItem
         End Enum
 
     End Class
