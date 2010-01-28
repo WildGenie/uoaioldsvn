@@ -111,7 +111,7 @@ UOAI2
 	<summary>
  Returns a string containing the ASCII name of the item artwork name.
  </summary>
-</member><member name="M:UOAI2.UOAI.ItemList.AddItem(UOAI2.UOAI.Item)">
+</member><member name="M:UOAI2.UOAI.ItemList.Add(UOAI2.UOAI.Item)">
 	<summary>
  Adds the specified item to the Item List.
  </summary>
@@ -143,7 +143,7 @@ UOAI2
 	<param name="Offset">The offset item you want to check the existance of.</param>
 </member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
 	<param name="Item">The item you want to check the existance of.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.Count">
+</member><member name="M:UOAI2.UOAI.ItemList.Clear">
 	<summary>
  Returns the number of items in the list.
  </summary>
@@ -767,6 +767,7 @@ UOAI2
  Yo programmer, I'm really happy for you and I'm gona let you finish 
  but this is one of the biggest packet classes of all time, OF ALL TIME!
   -Kanye West
+ 757 lines...
  </summary>
 </member><member name="T:UOAI2.UOAI.Packets">
 	<summary>A namespace encapsulating the packet types classes.</summary>

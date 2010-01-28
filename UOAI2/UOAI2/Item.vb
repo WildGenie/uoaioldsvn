@@ -113,7 +113,11 @@
         ''' </summary>
         Public ReadOnly Property TypeName() As String
             Get
-                Return StrLst.Table(1036383 + _Type.BaseValue).ToString()
+                If StrLst.Table(1036383 + _Type.BaseValue) Is Nothing Then
+                    Return "Blank"
+                End If
+
+                Return StrLst.Table(1036383 + _Type.BaseValue)
             End Get
         End Property
 

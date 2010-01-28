@@ -407,7 +407,7 @@
             Roof = &H10000000
             Door = &H20000000
             StairBack = &H40000000
-            'TODO: Fix this, should this be Integer, not UInteger?
+            'TODO: WIM LOOK AT THIS!
             'StairRight = &H80000000
         End Enum
 

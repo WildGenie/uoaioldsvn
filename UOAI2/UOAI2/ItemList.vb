@@ -5,12 +5,14 @@ Partial Class UOAI
 
     ''' <summary>Contains a list of UOAI.Item's</summary>
     Public Class ItemList
-        Implements IEnumerable
-        Private _ItemHashBySerial As New Hashtable
+        Implements ICollection(Of Item)
+
+        Private position As Integer = 0
+        Friend _ItemHashBySerial As New Hashtable
         Private _ItemHashByType As New Hashtable
         Private _ItemHashByOffset As New Hashtable
         Private _ParentItem As Item
-        Private _Serial As Serial
+        Private _Serial As New Serial(0)
         Private _SearchReturn As Boolean = False
         Private _MyClient As Client
 
@@ -19,18 +21,21 @@ Partial Class UOAI
             _ParentItem = ParentItem
             _Serial = ParentItem.Serial
             _MyClient = Client
+
         End Sub
 
         'Only the Client should cast this as the world object!
         Friend Sub New(ByVal Serial As Serial, ByVal Client As Client)
             _Serial = Serial
             _MyClient = Client
+
         End Sub
 
         'This is to use as a holder for search results!
         Friend Sub New()
             'Tells the rest of the code that this is just the return of a search.
             _SearchReturn = True
+
         End Sub
 
         ''' <summary>
@@ -38,10 +43,11 @@ Partial Class UOAI
         ''' </summary>
         ''' <param name="Item">The item to add.</param>
         ''' <remarks></remarks>
-        Friend Sub AddItem(ByVal Item As Item)
+        Friend Sub Add(ByVal Item As Item) Implements System.Collections.Generic.ICollection(Of Item).Add
             Try
                 If _MyClient Is Nothing Then
                     'dont add search results to the giant hash!
+                    If Exists(Item.Serial) Then Exit Sub
                     _ItemHashBySerial.Add(Item.Serial, Item)
                 ElseIf _MyClient.Mobiles.Exists(Item.Container) Then 'Check to see if the item's container is a mobile.
                     'If it is, then add the item to the _AllItems hash and bypass the recursive container checks.
@@ -63,22 +69,21 @@ Partial Class UOAI
 
                 End If
             Catch ex As Exception
-                Console.WriteLine("Failed to Added Item: " & Item.Serial.ToString & " " & ex.Message)
+                Debug.WriteLine("Failed to Added Item: " & Item.Serial.ToString & " " & ex.Message)
             End Try
 
-            Console.WriteLine("Successfully Added Item: " & Item.Serial.ToString)
+            Debug.WriteLine("Successfully Added Item: " & Item.Serial.ToString)
         End Sub
 
-        Friend Sub Additem(ByVal Packet As Packets.ContainerContents)
+        Friend Sub Add(ByVal Packet As Packets.ContainerContents)
             Dim j As Item
 
             For Each i As Item In Packet.Items
                 If Exists(i.Serial) Then Continue For
 
-                Console.WriteLine("Adding Item by ContainerContents: " & i.Serial.ToString)
-
                 j = New Item(_MyClient)
-                j._Serial = i._Serial
+
+                j._Serial = i.Serial
                 j._Type = i._Type
                 j._StackID = i._StackID
                 j._X = i._X
@@ -86,17 +91,17 @@ Partial Class UOAI
                 j._Container = i._Container
                 j._Hue = i._Hue
 
-                AddItem(j)
+                Debug.WriteLine("Adding Item by ContainerContents: Container: " & j._Container.ToString & " Serial:" & i.Serial.ToString)
+
+                Add(j)
             Next
 
         End Sub
 
-        Friend Sub AddItem(ByVal Packet As Packets.ObjectToObject)
+        Friend Sub Add(ByVal Packet As Packets.ObjectToObject)
             If Exists(Packet.Serial) Then Exit Sub
 
             Dim j As New Item(_MyClient)
-
-            Console.WriteLine("Adding Item by ObjectToObject: " & j.Serial.ToString)
 
             j._Serial = Packet._Serial
             j._Type = Packet._Itemtype
@@ -107,17 +112,18 @@ Partial Class UOAI
             j._Container = Packet._Container
             j._Hue = Packet._Hue
 
-            AddItem(j)
+            Debug.WriteLine("Adding Item by ObjectToObject: " & j.Serial.ToString)
+
+            Add(j)
         End Sub
 
-        Friend Sub AddItem(ByVal Packet As Packets.ShowItem)
+        Friend Sub Add(ByVal Packet As Packets.ShowItem)
             If Exists(Packet.Serial) Then Exit Sub
 
             Dim j As New Item(_MyClient)
 
-            Console.WriteLine("Adding Item by ShowItem: " & j.Serial.ToString)
-
             j._Serial = Packet.Serial
+            j._Container = WorldSerial 'Set the container to the worldserial, because thats where this is.
             j._Type = Packet.ItemType
             j._Amount = Packet.Amount
             j._StackID = Packet.StackID
@@ -127,7 +133,9 @@ Partial Class UOAI
             j._Z = Packet.Z
             j._Hue = Packet.Hue
 
-            AddItem(j)
+            Debug.WriteLine("Adding Item by ShowItem: " & j.Serial.ToString)
+
+            Add(j)
 
         End Sub
 
@@ -173,11 +181,11 @@ Partial Class UOAI
                 End If
 
             Catch ex As Exception
-                Console.WriteLine("Item deletion failed due to: " & ex.Message)
+                Debug.WriteLine("Item deletion failed due to: " & ex.Message)
                 Return False
             End Try
 
-            Console.WriteLine("Item deleted successfuly: " & ItemSerial.ToString)
+            Debug.WriteLine("Item deleted successfuly: " & ItemSerial.ToString)
             Return True
         End Function
 
@@ -215,7 +223,7 @@ Partial Class UOAI
                     'to see if its type maches the one specified.
                     If Me.Item(s).Type = Type Then
                         'Then add that to the itemlist to return
-                        k.AddItem(Me.Item(s))
+                        k.Add(Me.Item(s))
                     End If
                 Next
 
@@ -229,12 +237,15 @@ Partial Class UOAI
         ''' <param name="Serial">The serial of the item you want to check the existance of.</param>
         Public ReadOnly Property Exists(ByVal Serial As Serial) As Boolean
             Get
-                If _Serial = WorldSerial Then
-                    Return _MyClient._AllItems.ContainsKey(Serial)
-                Else
-                    Return _ItemHashBySerial.ContainsKey(Serial)
-                End If
-
+                Try
+                    If _Serial = WorldSerial Then
+                        Return _MyClient._AllItems.ContainsKey(Serial)
+                    Else
+                        Return _ItemHashBySerial.ContainsKey(Serial)
+                    End If
+                Catch ex As Exception
+                    Return True
+                End Try
             End Get
         End Property
 
@@ -248,28 +259,57 @@ Partial Class UOAI
         ''' <param name="Item">The item you want to check the existance of.</param>
         Public ReadOnly Property Exists(ByVal Item As Item) As Boolean
             Get
-                If _Serial = WorldSerial Then
-                    Return _MyClient._AllItems.ContainsValue(Item)
-                Else
-                    Return _ItemHashBySerial.ContainsValue(Item)
-                End If
-
+                Try
+                    If _Serial = WorldSerial Then
+                        Return _MyClient._AllItems.ContainsValue(Item)
+                    Else
+                        Return _ItemHashBySerial.ContainsValue(Item)
+                    End If
+                Catch ex As Exception
+                    Return True
+                End Try
             End Get
         End Property
 
         ''' <summary>
         ''' Returns the number of items in the list.
         ''' </summary>
-        Public ReadOnly Property Count() As Integer
+
+        Public Sub Clear() Implements System.Collections.Generic.ICollection(Of Item).Clear
+
+        End Sub
+
+        Public Function Contains(ByVal item As Item) As Boolean Implements System.Collections.Generic.ICollection(Of Item).Contains
+
+        End Function
+
+        Public Sub CopyTo(ByVal array() As Item, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of Item).CopyTo
+
+        End Sub
+
+        Public ReadOnly Property Count() As Integer Implements System.Collections.Generic.ICollection(Of Item).Count
             Get
                 Return _ItemHashBySerial.Count
             End Get
         End Property
 
-        Public Function GetEnumerator() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
-            Return _ItemHashBySerial.Values.GetEnumerator
+        Public ReadOnly Property IsReadOnly() As Boolean Implements System.Collections.Generic.ICollection(Of Item).IsReadOnly
+            Get
+                Return False
+            End Get
+        End Property
+
+        Public Function Remove(ByVal item As Item) As Boolean Implements System.Collections.Generic.ICollection(Of Item).Remove
+
         End Function
 
+        Public Function GetEnumerator() As System.Collections.Generic.IEnumerator(Of Item) Implements System.Collections.Generic.IEnumerable(Of Item).GetEnumerator
+            Return DirectCast(_ItemHashBySerial.Values.GetEnumerator, IEnumerator(Of Item))
+        End Function
+
+        Public Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
+            Return _ItemHashBySerial.Values.GetEnumerator
+        End Function
     End Class
 
 End Class

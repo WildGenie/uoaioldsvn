@@ -1,0 +1,4 @@
+C:\Users\Eric\Documents\Visual Studio 2008\Projects\UOLite\UOLite\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eric\Documents\Visual Studio 2008\Projects\UOLite\UOLite\obj\Release\UOLite.Form1.resources
+C:\Users\Eric\Documents\Visual Studio 2008\Projects\UOLite\UOLite\obj\Release\UOLite.Resources.resources
+C:\Users\Eric\Documents\Visual Studio 2008\Projects\UOLite\UOLite\obj\Release\UOLite.vbproj.GenerateResource.Cache

@@ -702,17 +702,36 @@ Partial Class UOAI
 
                 Dim it As New Item
 
-                For i As UShort = 1 To _Count - 1
+                For i As UShort = 0 To _Count - 1
                     it = New Item
+
                     buff.Position = (i * 19) + 5
+
+                    '5-8
                     it._Serial = buff.readuint
+
+                    '9-10
                     it._Type.BaseValue = buff.readushort
+
+                    '11
                     it._StackID = buff.readbyte
+
+                    '12-13
+                    it._Amount = buff.readushort
+
+                    '14-15
                     it._X = buff.readushort
+
+                    '16-17
                     it._Y = buff.readushort
+
+                    '18-21
                     it._Container = buff.readuint
+
+                    '22-23
                     it._Hue = buff.readushort
-                    _ItemList.AddItem(it)
+
+                    _ItemList.Add(it)
                 Next
 
             End Sub
@@ -782,6 +801,7 @@ Partial Class UOAI
         ''' Yo programmer, I'm really happy for you and I'm gona let you finish 
         ''' but this is one of the biggest packet classes of all time, OF ALL TIME!
         '''  -Kanye West
+        ''' 757 lines...
         ''' </summary>
         Public Class MobileStats
             Inherits Packet
@@ -953,322 +973,587 @@ Partial Class UOAI
 
             End Sub
 
-            Public ReadOnly Property Serial() As Serial
+            Public Property Serial() As Serial
                 Get
                     Return _Serial
                 End Get
+                Set(ByVal Value As Serial)
+                    _Serial = Value
+                    buff.Position = 3
+                    buff.writeuint(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Name() As String
+            Public Property Name() As String
                 Get
                     Return _Name
                 End Get
+                Set(ByVal Value As String)
+                    _Name = Value
+                    buff.Position = 7
+                    buff.writeustrn(Value, 30)
+                End Set
             End Property
 
-            Public ReadOnly Property Hits() As UShort
+            Public Property Hits() As UShort
                 Get
                     Return _Hits
                 End Get
+                Set(ByVal Value As UShort)
+                    _Hits = Value
+                    buff.Position = 37
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property HitsMax() As UShort
+            Public Property HitsMax() As UShort
                 Get
                     Return _HitsMax
                 End Get
+                Set(ByVal Value As UShort)
+                    _HitsMax = Value
+                    buff.Position = 39
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Renamable() As Enums.Renamable
+            Public Property Renamable() As Enums.Renamable
                 Get
                     Return _Renamable
                 End Get
+                Set(ByVal Value As Enums.Renamable)
+                    _Renamable = Value
+                    buff.Position = 41
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DisplayMode() As Enums.DisplayMode
+            Public Property DisplayMode() As Enums.DisplayMode
                 Get
                     Return _DisplayMode
                 End Get
+                Set(ByVal Value As Enums.DisplayMode)
+                    _DisplayMode = Value
+                    buff.Position = 42
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Gender() As Enums.Gender
+            Public Property Gender() As Enums.Gender
                 Get
                     Return _Gender
                 End Get
+                Set(ByVal Value As Enums.Gender)
+                    _Gender = Value
+                    buff.Position = 43
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Strength() As UShort
+            Public Property Strength() As UShort
                 Get
                     Return _Strength
                 End Get
+                Set(ByVal Value As UShort)
+                    _Strength = Value
+                    buff.Position = 44
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Dexterity() As UShort
+            Public Property Dexterity() As UShort
                 Get
                     Return _Dexterity
                 End Get
+                Set(ByVal Value As UShort)
+                    _Dexterity = Value
+                    buff.Position = 46
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Intelligence() As UShort
+            Public Property Intelligence() As UShort
                 Get
                     Return _Intelligence
                 End Get
+                Set(ByVal Value As UShort)
+                    _Intelligence = Value
+                    buff.Position = 48
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Stamina() As UShort
+            Public Property Stamina() As UShort
                 Get
                     Return _Stamina
                 End Get
+                Set(ByVal Value As UShort)
+                    _Stamina = Value
+                    buff.Position = 50
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property StaminaMax() As UShort
+            Public Property StaminaMax() As UShort
                 Get
                     Return _StaminaMax
                 End Get
+                Set(ByVal Value As UShort)
+                    _StaminaMax = Value
+                    buff.Position = 52
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Mana() As UShort
+            Public Property Mana() As UShort
                 Get
                     Return _Mana
                 End Get
+                Set(ByVal Value As UShort)
+                    _Mana = Value
+                    buff.Position = 54
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ManaMax() As UShort
+            Public Property ManaMax() As UShort
                 Get
                     Return _ManaMax
                 End Get
+                Set(ByVal Value As UShort)
+                    _ManaMax = Value
+                    buff.Position = 56
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Gold() As UInt32
+            Public Property Gold() As UInt32
                 Get
                     Return _Gold
                 End Get
+                Set(ByVal Value As UInt32)
+                    _Gold = Value
+                    buff.Position = 58
+                    buff.writeuint(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ResistPhysical() As UShort
+            Public Property ResistPhysical() As UShort
                 Get
                     Return _ResistPhysical
                 End Get
+                Set(ByVal Value As UShort)
+                    _ResistPhysical = Value
+                    buff.Position = 62
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Weight() As UShort
+            Public Property Weight() As UShort
                 Get
                     Return _Weight
                 End Get
+                Set(ByVal Value As UShort)
+                    _Weight = Value
+                    buff.Position = 64
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property StatCap() As UShort
+            Public Property StatCap() As UShort
                 Get
                     Return _StatCap
                 End Get
+                Set(ByVal Value As UShort)
+                    _StatCap = Value
+                    buff.Position = 66
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Followers() As Byte
+            Public Property Followers() As Byte
                 Get
                     Return _Followers
                 End Get
+                Set(ByVal Value As Byte)
+                    _Followers = Value
+                    buff.Position = 68
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property FollowersMax() As Byte
+            Public Property FollowersMax() As Byte
                 Get
                     Return _FollowersMax
                 End Get
+                Set(ByVal Value As Byte)
+                    _FollowersMax = Value
+                    buff.Position = 69
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ResistFire() As UShort
+            Public Property ResistFire() As UShort
                 Get
                     Return _ResistFire
                 End Get
+                Set(ByVal Value As UShort)
+                    _ResistFire = Value
+                    buff.Position = 70
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ResistCold() As UShort
+            Public Property ResistCold() As UShort
                 Get
                     Return _ResistCold
                 End Get
+                Set(ByVal Value As UShort)
+                    _ResistCold = Value
+                    buff.Position = 72
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ResistPoison() As UShort
+            Public Property ResistPoison() As UShort
                 Get
                     Return _ResistPoison
                 End Get
+                Set(ByVal Value As UShort)
+                    _ResistPoison = Value
+                    buff.Position = 74
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ResistEnergy() As UShort
+            Public Property ResistEnergy() As UShort
                 Get
                     Return _ResistEnergy
                 End Get
+                Set(ByVal Value As UShort)
+                    _ResistEnergy = Value
+                    buff.Position = 76
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Luck() As UShort
+            Public Property Luck() As UShort
                 Get
                     Return _Luck
                 End Get
+                Set(ByVal Value As UShort)
+                    _Luck = Value
+                    buff.Position = 78
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DamageMin() As UShort
+            Public Property DamageMin() As UShort
                 Get
                     Return _DamageMin
                 End Get
+                Set(ByVal Value As UShort)
+                    _DamageMin = Value
+                    buff.Position = 80
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DamageMax() As UShort
+            Public Property DamageMax() As UShort
                 Get
                     Return _DamageMax
                 End Get
+                Set(ByVal Value As UShort)
+                    _DamageMax = Value
+                    buff.Position = 82
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property TithingPoints() As UShort
+            Public Property TithingPoints() As UShort
                 Get
                     Return _TithingPoints
                 End Get
+                Set(ByVal Value As UShort)
+                    _TithingPoints = Value
+                    buff.Position = 84
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property Race() As Byte
+            Public Property Race() As Byte
                 Get
                     Return _Race
                 End Get
+                Set(ByVal Value As Byte)
+                    _Race = Value
+                    buff.Position = 86
+                    buff.writebyte(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property WeightMax() As UShort
+            Public Property WeightMax() As UShort
                 Get
                     Return _WeightMax
                 End Get
+                Set(ByVal Value As UShort)
+                    _WeightMax = Value
+                    buff.Position = 87
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property HitChanceIncrease() As Short
+            Public Property HitChanceIncrease() As UShort
                 Get
                     Return _HitChanceIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _HitChanceIncrease = Value
+                    buff.Position = 89
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property SwingSpeedIncrease() As Short
+            Public Property SwingSpeedIncrease() As UShort
                 Get
                     Return _SwingSpeedIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _SwingSpeedIncrease = Value
+                    buff.Position = 91
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DamageChanceIncrease() As Short
+            Public Property DamageChanceIncrease() As UShort
                 Get
                     Return _DamageChanceIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _DamageChanceIncrease = Value
+                    buff.Position = 93
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property LowerReagentCost() As Short
+            Public Property LowerReagentCost() As UShort
                 Get
                     Return _LowerReagentCost
                 End Get
+                Set(ByVal Value As UShort)
+                    _LowerReagentCost = Value
+                    buff.Position = 95
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property HitPointsRegeneration() As Short
+            Public Property HitPointsRegeneration() As UShort
                 Get
                     Return _HitPointsRegeneration
                 End Get
+                Set(ByVal Value As UShort)
+                    _HitPointsRegeneration = Value
+                    buff.Position = 97
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property StaminaRegeneration() As Short
+            Public Property StaminaRegeneration() As UShort
                 Get
                     Return _StaminaRegeneration
                 End Get
+                Set(ByVal Value As UShort)
+                    _StaminaRegeneration = Value
+                    buff.Position = 99
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ManaRegeneration() As Short
+            Public Property ManaRegeneration() As UShort
                 Get
                     Return _ManaRegeneration
                 End Get
+                Set(ByVal Value As UShort)
+                    _ManaRegeneration = Value
+                    buff.Position = 101
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ReflectPhysicalDamage() As Short
+            Public Property ReflectPhysicalDamage() As UShort
                 Get
                     Return _ReflectPhysicalDamage
                 End Get
+                Set(ByVal Value As UShort)
+                    _ReflectPhysicalDamage = Value
+                    buff.Position = 103
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property EnhancePotions() As Short
+            Public Property EnhancePotions() As UShort
                 Get
                     Return _EnhancePotions
                 End Get
+                Set(ByVal Value As UShort)
+                    _EnhancePotions = Value
+                    buff.Position = 105
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DefenseChanceIncrease() As Short
+            Public Property DefenseChanceIncrease() As UShort
                 Get
                     Return _DefenseChanceIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _DefenseChanceIncrease = Value
+                    buff.Position = 107
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property SpellDamageIncrease() As Short
+            Public Property SpellDamageIncrease() As UShort
                 Get
                     Return _SpellDamageIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _SpellDamageIncrease = Value
+                    buff.Position = 109
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property FasterCastRecovery() As Short
+            Public Property FasterCastRecovery() As UShort
                 Get
                     Return _FasterCastRecovery
                 End Get
+                Set(ByVal Value As UShort)
+                    _FasterCastRecovery = Value
+                    buff.Position = 111
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property FasterCasting() As Short
+            Public Property FasterCasting() As UShort
                 Get
                     Return _FasterCasting
                 End Get
+                Set(ByVal Value As UShort)
+                    _FasterCasting = Value
+                    buff.Position = 113
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property LowerManaCost() As Short
+            Public Property LowerManaCost() As UShort
                 Get
                     Return _LowerManaCost
                 End Get
+                Set(ByVal Value As UShort)
+                    _LowerManaCost = Value
+                    buff.Position = 115
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property StrengthIncrease() As Short
+            Public Property StrengthIncrease() As UShort
                 Get
                     Return _StrengthIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _StrengthIncrease = Value
+                    buff.Position = 117
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property DexterityIncrease() As Short
+            Public Property DexterityIncrease() As UShort
                 Get
                     Return _DexterityIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _DexterityIncrease = Value
+                    buff.Position = 119
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property IntelligenceIncrease() As Short
+            Public Property IntelligenceIncrease() As UShort
                 Get
                     Return _IntelligenceIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _IntelligenceIncrease = Value
+                    buff.Position = 121
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property HitPointsIncrease() As Short
+            Public Property HitPointsIncrease() As UShort
                 Get
                     Return _HitPointsIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _HitPointsIncrease = Value
+                    buff.Position = 123
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property StaminaIncrease() As Short
+            Public Property StaminaIncrease() As UShort
                 Get
                     Return _StaminaIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _StaminaIncrease = Value
+                    buff.Position = 125
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property ManaIncrease() As Short
+            Public Property ManaIncrease() As UShort
                 Get
                     Return _ManaIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _ManaIncrease = Value
+                    buff.Position = 127
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property MaximumHitPointsIncrease() As Short
+            Public Property MaximumHitPointsIncrease() As UShort
                 Get
                     Return _MaximumHitPointsIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _MaximumHitPointsIncrease = Value
+                    buff.Position = 129
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property MaximumStaminaIncrease() As Short
+            Public Property MaximumStaminaIncrease() As UShort
                 Get
                     Return _MaximumStaminaIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _MaximumStaminaIncrease = Value
+                    buff.Position = 131
+                    buff.writeushort(Value)
+                End Set
             End Property
 
-            Public ReadOnly Property MaximumManaIncrease() As Short
+            Public Property MaximumManaIncrease() As UShort
                 Get
                     Return _MaximumManaIncrease
                 End Get
+                Set(ByVal Value As UShort)
+                    _MaximumManaIncrease = Value
+                    buff.Position = 133
+                    buff.writeushort(Value)
+                End Set
             End Property
 
 
@@ -1489,7 +1774,6 @@ Partial Class UOAI
                     _Status = .readbyte
                     _Notoriety = .readbyte
 
-
                     Dim i As Item
                     Do
                         i = New Item
@@ -1500,9 +1784,10 @@ Partial Class UOAI
                         i._Layer = .readbyte
 
                         'Check for the Hue flag in the item Type
-                        If i._Type.BaseValue > 32768 Then _Hue = .readushort
+                        If i._Type.BaseValue >= 32768 Then _Hue = .readushort
 
-                    Loop Until _size - buff.Position <= 5
+                        EquippedItems.Add(i)
+                    Loop Until _size - buff.Position <= 4
 
                 End With
 
@@ -1835,6 +2120,143 @@ Partial Class UOAI
                 Get
                     Return _Status
                 End Get
+            End Property
+
+        End Class
+
+        Public Class LoginConfirm
+            Inherits Packet
+            Private _Serial As Serial
+            Friend _BodyType As UShort
+            Friend _X As UShort
+            Friend _Y As UShort
+            Friend _Z As Byte
+            Friend _Direction As Byte
+            Friend _MapWidth As UShort
+            Friend _MapHeight As UShort
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.LoginConfirm)
+                _Data = bytes
+                _Size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 1
+                    '1-4
+                    _Serial = .readuint
+
+                    .Position += 4
+
+                    '9-10
+                    _BodyType = .readushort
+                    '11-12
+                    _X = .readushort
+                    '13-14
+                    _Y = .readushort
+
+                    buff.Position += 1
+
+                    '16
+                    _Z = .readbyte
+                    '17
+                    _Direction = .readbyte
+
+                    buff.Position += 9
+
+                    '26-27
+                    _MapWidth = .readushort
+                    '28-29
+                    _MapHeight = .readushort
+                End With
+            End Sub
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal Value As Serial)
+                    _Serial = Value
+                    buff.Position = 1
+                    buff.writeuint(Value)
+                End Set
+            End Property
+
+            Public Property BodyType() As UShort
+                Get
+                    Return _BodyType
+                End Get
+                Set(ByVal Value As UShort)
+                    _BodyType = Value
+                    buff.Position = 9
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property X() As UShort
+                Get
+                    Return _X
+                End Get
+                Set(ByVal Value As UShort)
+                    _X = Value
+                    buff.Position = 11
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+                Set(ByVal Value As UShort)
+                    _Y = Value
+                    buff.Position = 13
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+                Set(ByVal Value As Byte)
+                    _Z = Value
+                    buff.Position = 16
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property Direction() As Byte
+                Get
+                    Return _Direction
+                End Get
+                Set(ByVal Value As Byte)
+                    _Direction = Value
+                    buff.Position = 17
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property MapWidth() As UShort
+                Get
+                    Return _MapWidth
+                End Get
+                Set(ByVal Value As UShort)
+                    _MapWidth = Value
+                    buff.Position = 26
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property MapHeight() As UShort
+                Get
+                    Return _MapHeight
+                End Get
+                Set(ByVal Value As UShort)
+                    _MapHeight = Value
+                    buff.Position = 28
+                    buff.writeushort(Value)
+                End Set
             End Property
 
         End Class

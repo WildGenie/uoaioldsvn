@@ -252,6 +252,10 @@ Partial Class UOAI
 
         Private Sub EarlyPacketHandling(ByRef currentpacket As Packet)
             'whatever we need to do with the current packet BEFORE the client handled it goes here
+        End Sub
+
+        Private Sub LatePacketHandling(ByRef currentpacket As Packet)
+
             Select Case currentpacket.Type
                 Case Enums.PacketType.MobileStats
                     'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
@@ -284,19 +288,14 @@ Partial Class UOAI
                     Mobiles.Mobile(DirectCast(currentpacket, Packets.EquipItem).Container).HandleUpdatePacket(DirectCast(currentpacket, Packets.EquipItem))
 
                 Case Enums.PacketType.ContainerContents
-                    Items.AddItem(DirectCast(currentpacket, Packets.ContainerContents))
+                    Items.Add(DirectCast(currentpacket, Packets.ContainerContents))
 
                 Case Enums.PacketType.ObjecttoObject
-                    Items.AddItem(DirectCast(currentpacket, Packets.ObjectToObject))
+                    Items.Add(DirectCast(currentpacket, Packets.ObjectToObject))
 
                 Case Enums.PacketType.ShowItem
-                    Items.AddItem(DirectCast(currentpacket, Packets.ShowItem))
+                    Items.Add(DirectCast(currentpacket, Packets.ShowItem))
             End Select
-
-        End Sub
-
-        Private Sub LatePacketHandling(ByRef currentpacket As Packet)
-            'whatever we need to do with the current packet AFTER the client handled it goes here
         End Sub
 
         ''' <summary>Remove an item, mobile, etc... from the collections</summary>

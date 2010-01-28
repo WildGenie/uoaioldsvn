@@ -29,13 +29,14 @@ Partial Class Form1
         Me.Button4 = New System.Windows.Forms.Button
         Me.TabControl1 = New System.Windows.Forms.TabControl
         Me.TabPage1 = New System.Windows.Forms.TabPage
+        Me.Button7 = New System.Windows.Forms.Button
+        Me.TextBox1 = New System.Windows.Forms.TextBox
         Me.Label2 = New System.Windows.Forms.Label
         Me.Button6 = New System.Windows.Forms.Button
         Me.Label1 = New System.Windows.Forms.Label
         Me.TabPage2 = New System.Windows.Forms.TabPage
         Me.Button5 = New System.Windows.Forms.Button
-        Me.TextBox1 = New System.Windows.Forms.TextBox
-        Me.Button7 = New System.Windows.Forms.Button
+        Me.CheckBox1 = New System.Windows.Forms.CheckBox
         Me.TabControl1.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -114,6 +115,22 @@ Partial Class Form1
         Me.TabPage1.Text = "TabPage1"
         Me.TabPage1.UseVisualStyleBackColor = True
         '
+        'Button7
+        '
+        Me.Button7.Location = New System.Drawing.Point(258, 131)
+        Me.Button7.Name = "Button7"
+        Me.Button7.Size = New System.Drawing.Size(83, 31)
+        Me.Button7.TabIndex = 9
+        Me.Button7.Text = "Button7"
+        Me.Button7.UseVisualStyleBackColor = True
+        '
+        'TextBox1
+        '
+        Me.TextBox1.Location = New System.Drawing.Point(259, 101)
+        Me.TextBox1.Name = "TextBox1"
+        Me.TextBox1.Size = New System.Drawing.Size(83, 20)
+        Me.TextBox1.TabIndex = 8
+        '
         'Label2
         '
         Me.Label2.AutoSize = True
@@ -161,27 +178,22 @@ Partial Class Form1
         Me.Button5.Text = "Test BufferHandler"
         Me.Button5.UseVisualStyleBackColor = True
         '
-        'TextBox1
+        'CheckBox1
         '
-        Me.TextBox1.Location = New System.Drawing.Point(259, 101)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(83, 20)
-        Me.TextBox1.TabIndex = 8
-        '
-        'Button7
-        '
-        Me.Button7.Location = New System.Drawing.Point(258, 131)
-        Me.Button7.Name = "Button7"
-        Me.Button7.Size = New System.Drawing.Size(83, 31)
-        Me.Button7.TabIndex = 9
-        Me.Button7.Text = "Button7"
-        Me.Button7.UseVisualStyleBackColor = True
+        Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Location = New System.Drawing.Point(41, 360)
+        Me.CheckBox1.Name = "CheckBox1"
+        Me.CheckBox1.Size = New System.Drawing.Size(151, 17)
+        Me.CheckBox1.TabIndex = 7
+        Me.CheckBox1.Text = "Dump Packets to Text File"
+        Me.CheckBox1.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(504, 407)
+        Me.Controls.Add(Me.CheckBox1)
         Me.Controls.Add(Me.TabControl1)
         Me.Controls.Add(Me.Button4)
         Me.Name = "Form1"
@@ -191,6 +203,7 @@ Partial Class Form1
         Me.TabPage1.PerformLayout()
         Me.TabPage2.ResumeLayout(False)
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
     Friend WithEvents Button1 As System.Windows.Forms.Button
@@ -207,5 +220,6 @@ Partial Class Form1
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents Button7 As System.Windows.Forms.Button
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
+    Friend WithEvents CheckBox1 As System.Windows.Forms.CheckBox
 
 End Class
