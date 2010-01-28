@@ -68,8 +68,7 @@ Partial Class UOAI
 
                 If [Imports].CreateProcess(ClientFullpath, "", psa, tsa, False, [Imports].CreationFlags.CREATE_SUSPENDED Or [Imports].CreationFlags.CREATE_NEW_CONSOLE, _
                  IntPtr.Zero, workingpath, si, pi) Then
-                    'TODO:get this to work.
-                    'apply multiclient patch
+
                     UOClientDll.MultiClientPatch(CUInt(pi.dwProcessId))
 
                     'resume client

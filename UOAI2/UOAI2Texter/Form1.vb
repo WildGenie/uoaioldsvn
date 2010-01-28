@@ -98,11 +98,13 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
-        packetlog.WriteLine("'Recieved Packet #" & packetnumber)
-        packetlog.WriteLine("'" & BitConverter.ToString(packet.Data))
-        packetlog.WriteLine("")
-        packetnumber += 1
-        UOAI_Cl.HandlePacket()
+        If CheckBox1.Checked = True Then
+            packetlog.WriteLine("'Recieved Packet #" & packetnumber)
+            packetlog.WriteLine("'" & BitConverter.ToString(packet.Data))
+            packetlog.WriteLine("")
+            packetnumber += 1
+            UOAI_Cl.HandlePacket()
+        End If
 
         Exit Sub
         Select Case packet.Type
@@ -114,12 +116,14 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onPacketSend(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketSend
-        packetlog.WriteLine("'Sent Packet #" & packetnumber)
-        packetlog.Write("'" & BitConverter.ToString(packet.Data))
-        packetlog.WriteLine("")
-        packetlog.WriteLine("")
-        packetnumber += 1
-        UOAI_Cl.HandlePacket()
+        If CheckBox1.Checked = True Then
+            packetlog.WriteLine("'Sent Packet #" & packetnumber)
+            packetlog.Write("'" & BitConverter.ToString(packet.Data))
+            packetlog.WriteLine("")
+            packetlog.WriteLine("")
+            packetnumber += 1
+            UOAI_Cl.HandlePacket()
+        End If
 
         Exit Sub
         Select Case packet.Type
@@ -131,5 +135,9 @@ Public Class Form1
 
     Private Sub Button7_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button7.Click
         UOAI_Cl.Macros.Say(TextBox1.Text)
+    End Sub
+
+    Private Sub CheckBox1_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBox1.CheckedChanged
+
     End Sub
 End Class

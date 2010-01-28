@@ -122,7 +122,6 @@ Partial Class UOAI
 
             Dim i As UInt32 = 0
 
-            'TODO: I have no idea if this is right. could cause some crazy problems.
             While (BitConverter.GetBytes((InlineAssignHelper(characters(i), Chr(ReadUShort(address + i)))))(0) <> 0) AndAlso (i < 256)
                 i += 1
             End While
@@ -135,7 +134,6 @@ Partial Class UOAI
 
             Dim i As UInt32 = 0
 
-            'TODO: I have no idea if this is right. could cause some crazy problems.
             While (BitConverter.GetBytes((InlineAssignHelper(characters(i), Chr(ReadUShort(address + i)))))(0) <> 0) AndAlso (i < 256)
                 i += 1
             End While

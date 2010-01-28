@@ -6,7 +6,7 @@
         Public Shared ReadOnly MinusOne As New Serial(Convert.ToUInt32(4294967295))
         Public Shared ReadOnly Zero As New Serial(Convert.ToUInt32(0))
 
-        Private ReadOnly m_IntValue As UInt32
+        Private ReadOnly m_IntValue As New UInt32
 
         Public Sub New(ByVal val As UInt32)
             m_IntValue = val
@@ -25,7 +25,7 @@
         End Property
 
         Public Overloads Overrides Function GetHashCode() As Integer
-            'Console.WriteLine(m_IntValue.GetHashCode.ToString)
+            'Debug.WriteLine(m_IntValue.GetHashCode.ToString)
             Return CInt(m_IntValue.GetHashCode)
         End Function
 
@@ -138,6 +138,7 @@
                 Return (Value >= &H40000000 AndAlso Value <= &H7FFFFFFF)
             End Get
         End Property
+
     End Class
 
     Public Class ItemType

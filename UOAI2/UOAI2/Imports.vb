@@ -31,8 +31,7 @@ Partial Class UOAI
         Shared Function FindWindowEx(ByVal hwndParent As UInt32, ByVal hwndChildAfter As UInt32, ByVal lpszClass As String, ByVal lpszWindow As String) As UInt32
         End Function
 
-        'TODO: ensure this works. Used to be: Friend Const HWND_MESSAGE As UInt32 = &HFFFFFFFD
-        Friend Const HWND_MESSAGE As UInt32 = 4294967293 'FFFFFFFD
+        Friend Const HWND_MESSAGE As UInt32 = 4294967293
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
         Shared Function RegisterWindowMessage(ByVal lpString As String) As UInt32
