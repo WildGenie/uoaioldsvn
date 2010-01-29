@@ -53,3 +53,16 @@ C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.dll
 C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.xml
 C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2\obj\Debug\UOAI2.pdb
 C:\Users\Eroc\Desktop\Projects\UOAI SVN\UOAI2\UOAI2\bin\Debug\UOClientDll.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\Info\Notes.txt
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOClientDll.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.dll.config
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Debug\UOAI2.tlb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.Resources.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\obj\Debug\UOAI2.pdb

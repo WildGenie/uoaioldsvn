@@ -1,4 +1,6 @@
-﻿Partial Class UOAI
+﻿#Const DebugMobileList = False
+
+Partial Class UOAI
 
     'Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
@@ -25,8 +27,11 @@
 
             _MobileHashBySerial.Add(Mobile.Serial, Mobile)
             'TODO: Make an AddHash sub for post-packet handling to add this to the memory offset hash.
-            '_MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile)
-            Debug.WriteLine("Added Mobile: " & Mobile.Serial.ToString)
+            '_MobileHashByOffset.Add(Mobile.MemoryOffset, Mobile
+
+#If DebugMobileList Then
+            Console.WriteLine("-Added Mobile: " & Mobile.Serial.ToString)
+#End If
 
         End Sub
 
@@ -55,6 +60,12 @@
             NewMobile._Hue = Packet.Hue
             NewMobile._Notoriety = Packet.Notoriety
             NewMobile._Status = Packet.Status
+
+#If DebugMobileList Then
+            Console.WriteLine("-Adding Mobile as Equipped Mobile:" & NewMobile.Serial.ToString)
+#End If
+
+            AddMobile(NewMobile)
 
             'Loop through the items and add their serials to the proper layers for later reference
             For Each i As Item In Packet.EquippedItems
@@ -135,11 +146,16 @@
 
                 'Adds the item to the world item list for later reference.
                 'The container is set to the mobile serial.
-                Debug.WriteLine("Adding Item as Mobile Equipment: Mobile:" & NewMobile.Serial.ToString & " Item:" & i.Serial.ToString & " Layer:" & i.Layer)
+#If DebugMobileList Then
+                Console.WriteLine("-AddMobile(ByVal Packet As Packets.EquippedMobile)")
+                Console.WriteLine(" Adding Item as Mobile Equipment: ")
+                Console.WriteLine(" Mobile:" & NewMobile.Serial.ToString)
+                Console.WriteLine(" Item:" & i.Serial.ToString)
+                Console.WriteLine(" Layer:" & i.Layer)
+#End If
                 _Client.Items.Add(i)
             Next
 
-            AddMobile(NewMobile)
         End Sub
 
         ''' <param name="Packet">The packet as a <see cref="UOAI.Packets.NakedMobile"/>.</param>
@@ -165,8 +181,9 @@
             NewMobile._Hue = Packet.Hue
             NewMobile._Notoriety = Packet.Notoriety
             NewMobile._Status = Packet.Status
-
-            Debug.WriteLine("Adding Naked Mobile:" & NewMobile.Serial.ToString)
+#If DebugMobileList Then
+            Console.WriteLine("-Adding Mobile as Naked Mobile:" & NewMobile.Serial.ToString)
+#End If
             AddMobile(NewMobile)
         End Sub
 
@@ -177,7 +194,7 @@
         'Friend Sub AddPlayer(byval 
 
         ''' <summary>
-        ''' Removes the specified mobile formt he MobileList.
+        ''' Removes the specified mobile from the MobileList.
         ''' </summary>
         ''' <param name="Serial">The serial of the mobile to be removed.</param>
         Public Function RemoveMobile(ByVal Serial As Serial)
@@ -190,10 +207,18 @@
                     Throw New ApplicationException("The mobile does not exist in the hash!")
                 End If
             Catch ex As Exception
-                Debug.WriteLine("Remove Mobile by Serial Failed: " & Serial.ToString)
+
+#If DebugMobileList Then
+                Console.WriteLine("-Remove Mobile by Serial Failed: " & Serial.ToString)
+                Console.WriteLine(" Failure Reason: " & ex.Message)
+#End If
+
                 Return False
             End Try
-            Debug.WriteLine("Removed Mobile by Serial: " & Serial.ToString)
+
+#If DebugMobileList Then
+            Console.WriteLine("-Removed Mobile by Serial: " & Serial.ToString)
+#End If
             Return True
         End Function
 
@@ -203,17 +228,24 @@
                 _MobileHashBySerial.Remove(DirectCast(_MobileHashBySerial(Offset), Mobile).Serial)
                 _MobileHashByOffset.Remove(Offset)
             Catch ex As Exception
-                Debug.WriteLine("Remove Mobile by Offset Failed: " & Offset)
+#If DebugMobileList Then
+                Console.WriteLine("-Remove Mobile by Offset Failed: " & Offset)
+                Console.WriteLine(" Failure Reason: " & ex.Message)
+#End If
                 Return False
             End Try
-            Debug.WriteLine("Removed Mobile by Offset: " & Offset)
+#If DebugMobileList Then
+            Console.WriteLine("-Removed Mobile by Offset: " & Offset)
+#End If
             Return True
         End Function
 
         Friend Sub RemoveMobile(ByVal DeathPacket As Packets.DeathAnimation)
             DirectCast(_MobileHashBySerial(DeathPacket.Serial), Mobile).HandleDeathPacket(DeathPacket)
             RemoveMobile(DeathPacket.Serial)
-            Debug.WriteLine("Removed Mobile by Death Packet: " & DeathPacket.Serial.ToString)
+#If DebugMobileList Then
+            Console.WriteLine("-Removed Mobile by Death Packet: " & DeathPacket.Serial.ToString)
+#End If
         End Sub
 
         ''' <summary>

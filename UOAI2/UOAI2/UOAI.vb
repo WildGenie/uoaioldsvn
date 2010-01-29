@@ -4,7 +4,6 @@ Public Class UOAI
 
 #Region "UOAI Variables"
     Private _ClientList As New ClientList
-
     Shared UOClientDllPath As String = My.Application.Info.DirectoryPath & "\UOClientDll.dll"
 #End Region
 
@@ -26,8 +25,6 @@ Public Class UOAI
     Public Shared ClientExe As String
 
     Public Shared StrLst As StringList
-
-
 
 #End Region
 
@@ -112,7 +109,7 @@ Public Class UOAI
         If originkey IsNot Nothing Then
             Dim instcdpath As String = DirectCast(originkey.GetValue("InstCDPath"), String)
             If instcdpath IsNot Nothing Then
-                ClientPath = instcdpath & "\"
+                Clientpath = instcdpath & "\"
                 ClientExe = "client.exe"
                 originkey.Close()
                 Exit Sub
@@ -121,7 +118,7 @@ Public Class UOAI
         End If
 
         'use default values
-        ClientPath = "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\"
+        Clientpath = "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\"
         ClientExe = "client.exe"
 
         Exit Sub

@@ -33,7 +33,7 @@
 
         TextBox3.Text &= vbTab & "Friend Sub New(ByVal bytes() As byte)"
         TextBox3.Text &= vbNewLine
-        TextBox3.Text &= vbTab & vbTab & "MyBase.New(Enums.PacketType." & TextBox2.Text
+        TextBox3.Text &= vbTab & vbTab & "MyBase.New(Enums.PacketType." & TextBox2.Text & ")"
         TextBox3.Text &= vbNewLine
         TextBox3.Text &= vbTab & vbTab & "_Data = bytes"
         TextBox3.Text &= vbNewLine

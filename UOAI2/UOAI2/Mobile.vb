@@ -1,4 +1,6 @@
-﻿Partial Class UOAI
+﻿#Const DebugMobiles = False
+
+Partial Class UOAI
 
     Public Class Mobile
         Inherits Item
@@ -871,27 +873,37 @@
 
             End Select
 
-            Debug.WriteLine("Updated Mobile Status: " & Packet.Serial.ToString)
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Status: " & Packet.Serial.ToString)
+#End If
+
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.HPHealth)
             _Hits = Packet.Hits
             _HitsMax = Packet.HitsMax
-            Debug.WriteLine("Updated Mobile Hitpoints: " & Packet.Serial.ToString)
+
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Hitpoints: " & Packet.Serial.ToString)
+#End If
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Health)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.ManaHealth)
             _Mana = Packet.Mana
             _ManaMax = Packet.ManaMax
-            Debug.WriteLine("Updated Mobile Mana: " & Packet.Serial.ToString)
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Mana: " & Packet.Serial.ToString)
+#End If
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Mana)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.FatHealth)
             _Stamina = Packet.Stam
             _StaminaMax = Packet.StamMax
-            Debug.WriteLine("Updated Mobile Stamina: " & Packet.Serial.ToString)
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Stamina: " & Packet.Serial.ToString)
+#End If
             RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Stamina)
         End Sub
 
@@ -906,7 +918,14 @@
             NewItem._Layer = Packet.Layer
             NewItem._Hue = Packet.Hue
 
-            Debug.WriteLine("Adding Item as Mobile Equipment: Mobile:" & Me.Serial.ToString & " Item:" & NewItem.Serial.ToString & " Layer:" & NewItem.Layer)
+#If DebugMobiles Then
+            Console.WriteLine("-HandleUpdatePacket(ByVal Packet As Packets.EquipItem)")
+            Console.WriteLine(" Adding Item as Mobile Equipment:")
+            Console.WriteLine(" Mobile:" & Me.Serial.ToString)
+            Console.WriteLine(" Item:" & NewItem.Serial.ToString)
+            Console.WriteLine(" Layer:" & NewItem.Layer)
+#End If
+
             'Add the item to the itemlist.
             _Client.Items.Add(NewItem)
 
@@ -1033,12 +1052,21 @@
 
                     'Adds the item to the world item list for later reference.
                     'The container is set to the Mobile Serial
-                    Debug.WriteLine("Adding Item as Mobile Equipment: Mobile:" & Me.Serial.ToString & " Item:" & Packet.EquippedItems(i).Serial.ToString & " Layer:" & Packet.EquippedItems(i).Layer)
+#If DebugMobiles Then
+                    Console.WriteLine("-HandleUpdatePacket(ByVal Packet As Packets.EquippedMobile)")
+                    Console.WriteLine(" Adding Item as Mobile Equipment: ")
+                    Console.WriteLine(" Mobile:" & Me.Serial.ToString)
+                    Console.WriteLine(" Item:" & Packet.EquippedItems(i).Serial.ToString)
+                    Console.WriteLine(" Layer:" & Packet.EquippedItems(i).Layer)
+#End If
                     _Client.Items.Add(Packet.EquippedItems(i))
                 Next
             End If
 
-            Debug.WriteLine("Updated Mobile Equipped: " & Packet.Serial.ToString)
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Equipped: " & Packet.Serial.ToString)
+#End If
+
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.NakedMobile)
@@ -1050,7 +1078,9 @@
             _Hue = Packet.Hue
             _Notoriety = Packet.Notoriety
             _Status = Packet.Status
-            Debug.WriteLine("Updated Mobile Naked: " & Packet.Serial.ToString)
+#If DebugMobiles Then
+            Console.WriteLine("-Updated Mobile Naked: " & Packet.Serial.ToString)
+#End If
         End Sub
 
         Friend Sub HandleDeathPacket(ByVal packet As Packets.DeathAnimation)
