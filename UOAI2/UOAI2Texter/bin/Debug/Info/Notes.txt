@@ -1,0 +1,140 @@
+﻿
+
+					/||||||||-------------------|||||||||\
+				   (|||||||||	 UOAI2 Notes	||||||||||)
+					\||||||||-------------------|||||||||/
+
+
+Top Priorities:
+1:	Complete UOAI2 communication with injected dll
+
+2:	Finish the UOAI.Item class and make a binary tree class for storing and
+	accessing UOAI.ItemList.
+	
+3:	Add packet classes for other types of packets.
+	
+Completed Recently:
+23/01/2010 ::: Eric
+	-	I added a StrLst for getting cliloc strings and stuff. It is set to the default OS system
+		language where available, if it doesnt know what to set it to, it sets it to english,
+		since english is the widest use language in the world.
+		
+	-	Added the mobile class.
+	
+	-	Added some packet handlers.
+	
+	-	the code for the itemlist isnt quite complete. Although here is how it will work
+	
+		UOAI.Clients.Items will the the highest item list, containing all items.
+		
+		when a new item arrives and is handled by the client its information is read by
+		the injected dll like so:
+		
+		Private Sub CreateNewItem(ByVal address As UInteger)
+		dim j as new item(serial from the client)
+		'When you create the new item it also instantiates the items "item.contents" itemlist
+		'it creates the new item list like so: _contents = new ItemList(Serial of the item that this goes it)
+		
+		'then you add the items information form the client
+		j.type = ...
+		j.direction = ...
+		etc..
+		
+		'then you add the item to the Clients.Items itemlist like so
+		Items.Add(j.serial,j)
+		End Sub
+		
+		then the itemlist add looks something like this:
+		
+        Friend Sub AddItem(ByVal Item As Item)
+            'Check if this is instance of itemlist is a result of a search
+            If _SearchReturn = True Then 'dont add search results to the giant hash!
+                _ItemHashBySerial.Add(Item.Serial, Item)
+                _ItemHashByOffset.Add(Item.MemoryOffset, Item)
+            Else 'add it to the giant hash for later recursive removal.
+
+                'if the items container is this container, then add it to the hash
+                If Item.Container = _Serial Then
+                    _ItemHashBySerial.Add(Item.Serial, Item)
+                    _ItemHashByOffset.Add(Item.MemoryOffset, Item)
+
+                    'Add the hash to the GIANTSerialHash, for later reverse lookup.
+                    _MyClient.GIANTSerialHash.Add(Item.Serial, _ParentItem)
+
+                    'Add it to the client's Allitem list, for access to as a container.
+                    _MyClient._AllItems.AddItem(Item)
+                Else
+                    'If this item's container is NOT this container,
+                    'then look up the container by Serial in the client's master item list
+                    'and add the item to that items contents.
+                    _MyClient._AllItems.bySerial(Item.Container).Contents.AddItem(Item)
+                End If
+            End If
+
+        End Sub
+        
+        
+22/01/2010 ::: Eric
+	-	I changed the event handler model to use a "ClientSocket" class to handle packets
+		Its pretty much the same as before but there is not loop, I made this change because
+		I noticed that the core that had the client running on it was getting its cpu eaten
+		up by the loop. So, it turns out that I was right, the loop AND the timer eats CPU 
+		like a fat kid eats cake. So now, when a packet is recieved it calls the sub:
+		
+		Private Sub _EventSocket_Receive(ByVal buffer() As Byte) Handles _EventSocket.Receive
+		
+		Which then handles the packet by one iteration of the same stuff inside the old 
+		EventHandler sub. This may not be the best way to deal with it, but I dont see any obvious
+		draw-backs. Though I will have to do some stuff "disconnect" from the client injected
+		dll when the test app is shut down, that way it wont keep trying to have the host app do shit.
+		
+	-	I am having trouble getting past the "Entering Britania..." screen when connecting to
+		UOGamers. After i exit the app, it connects and then i get a message from the server (custom
+		gump with a message) saying that I am using an unrecognized client and disconnects me
+		after 5 seconds. Also none of the walls in my house or anything load up, i just have plot
+		on the ground and a bunch of shit floating above it. I will try to fix this... failed.
+		
+	-	Is there some sort of message that I am supposed to send to the injected dll to tell it
+		to stop redirecting packets? I dont know...
+		
+	-	Also try to be carefull when defining subs, I dont know about COM or C#, but the visiblity
+		of the Sub to the user is determined like so:
+		
+		Private Sub	- Can only be accessed from within that class
+		Friend Sub	- Can be accessed by anything inside of the UOAI2 Dll
+		Public Sub	- Can be accessed by the end user (the test app)
+		
+		You don't want people to get confused and start to call things like Client.HandlePacket or
+		Client.RemoveObject(0) and make UOAI do some wierd shit.
+		
+	-	Also, I think i will be working on Packets.vb for a while, so you just work on communication
+		and DO NOT COMMIT PACKETS.VB!! Because it might override mine, though it shouldn't, because
+		as long as you are not making changes to it the timestamp on mine should be the latest.
+		
+	-	You just need to work on the communication and setting up events. And eventually the UOAI.ItemList
+		class. I will work on the packets class, since we have the onPacketRecieve/Send events I will need
+		to incorporate all of the packets, this should keep me busy for the weekend. I also moved the
+		bufferhandler class to the packets.vb file i can change it there without interfereing with your work.
+		I am very happy to announce that we have reached the point where we can work on individual sections
+		of code simultaneously.
+		
+	-	Fixed the buffer handler not reading Unicode strings properly. it now reads and write as expected.
+		I had to subtract 2 from the position and turn netoworkorder to false. You know why? its your code...
+		
+		
+							
+22/01/2010 ::: Wim
+	-	I excluded the interfaces.vb file, we don't need it.. and it was generating errors.
+		The file is still there it's just removed form the project listing.
+		
+	-	I exluded the UOClientDll.dll project, we need to use the VC6 compiled one the VS2008
+		compiled version crashes whenever the hooks are called (packet-sent/receive). Probably
+		the code around the inline assembly messes up some assumptions i make in the inline
+		assembly part.
+		
+	-	I finished the basic layout of the event-part... i think however we should switch from
+		a threaded to a timer-based one. As you can see it doesn't shut down correctly otherwise.
+		
+	-	The onPacketReceive event is now working, though you only get the UnicodePacket right now...
+		and some bugs in either the packet-parsing of the unicode text thing; or in the converted bufferhandler
+		cause the unicode packet to have only the .Name set correctly. .Text fails.

@@ -6,7 +6,12 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="T:UOAI2.UOAI.Enums.LoginState">
+<member name="E:UOAI2.UOAI.Client.onTargetResponse">
+	<summary>
+ Called whenever the client chooses a target.
+ </summary>
+	<param name="TargetInfo">The TargetInfo object containting the information on the target response.</param>
+</member><member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
 	<summary>Enumeration of Entity types.</summary>
@@ -18,8 +23,6 @@ UOAI2
 	<summary>Enumeration of element types.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.Gender">
 	<summary>Enumeration of mobile gender.</summary>
-</member><member name="T:UOAI2.UOAI.Enums.TargetKind">
-	<summary>Enumeration of target kind.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
 	<summary>Enumeration of mobile status.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.Facets">
@@ -163,7 +166,7 @@ UOAI2
 	<param name="Packet">The packet as a <see cref="T:UOAI2.UOAI.Packets.NakedMobile"/>.</param>
 </member><member name="M:UOAI2.UOAI.MobileList.RemoveMobile(UOAI2.UOAI.Serial)">
 	<summary>
- Removes the specified mobile formt he MobileList.
+ Removes the specified mobile from the MobileList.
  </summary>
 	<param name="Serial">The serial of the mobile to be removed.</param>
 </member><member name="M:UOAI2.UOAI.MobileList.RemoveMobile(System.UInt32)">

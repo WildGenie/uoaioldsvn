@@ -59,7 +59,7 @@ Public Class Form1
     End Sub
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
-
+        UOAI_Cl.SendTargetRequest(CUInt(5568956), UOAI.Enums.TargetRequestType.ItemOrMobile)
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
@@ -69,7 +69,6 @@ Public Class Form1
         For i As Byte = 0 To b.Length - 1
             bt(46 + i) = b(i)
         Next
-
 
         Dim j As New UOAI.Packets.UnicodeTextPacket(bt)
         'check to see if parsing + reading works
@@ -137,7 +136,52 @@ Public Class Form1
         UOAI_Cl.Macros.Say(TextBox1.Text)
     End Sub
 
-    Private Sub CheckBox1_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CheckBox1.CheckedChanged
 
+
+    Private Sub UOAI_Cl_onTargetResponse(ByVal TargetInfo As UOAI2.UOAI.TargetInfo) Handles UOAI_Cl.onTargetResponse
+        Select Case TargetInfo.UID
+            Case 5568956 'Used in the test example
+                Select Case TargetInfo.Type
+                    Case UOAI.Enums.TargetType.Item
+                        'its an item, so write out the serial
+                        Console.WriteLine("Targeted Item, Serial:" & TargetInfo.Target.ToString)
+                    Case UOAI.Enums.TargetType.Mobile
+                        'its a mobile so write the mobile's name out
+                        Console.WriteLine("Targeted Mobile Named:" & UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).Name)
+                    Case UOAI.Enums.TargetType.Ground
+                        'Print the coordinates to the console output
+                        Console.WriteLine("Targeted Ground or Static Tile at location: X:" & TargetInfo.X & " Y:" & TargetInfo.Y & " Z:" & TargetInfo.Z)
+                    Case UOAI.Enums.TargetType.Canceled
+                        'Do nothing, or display a message or w/e
+                        Console.WriteLine("Target Canceled")
+                End Select
+            Case Else
+
+#Const DebugTargeting = False
+
+#If DebugTargeting Then
+                Console.WriteLine("Packet: " & BitConverter.ToString(TargetInfo.TargetPacket.Data))
+#End If
+
+                Console.WriteLine("Unknown Target Response UID:" & TargetInfo.UID)
+
+                Select Case TargetInfo.Type
+                    Case UOAI.Enums.TargetType.Item
+                        'its an item, so write out the serial
+                        Console.WriteLine("Targeted Item, Serial:" & TargetInfo.Target.ToString)
+                    Case UOAI.Enums.TargetType.Mobile
+                        'its a mobile so write the mobile's name out
+                        Console.WriteLine("Targeted Mobile Named:" & UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).Name)
+                    Case UOAI.Enums.TargetType.Ground
+                        'Print the coordinates to the console output
+                        Console.WriteLine("Targeted Ground or Static Tile at location: X:" & TargetInfo.X & " Y:" & TargetInfo.Y & " Z:" & TargetInfo.Z)
+                    Case UOAI.Enums.TargetType.Canceled
+                        'Do nothing, or display a message or w/e
+                        Console.WriteLine("Target Canceled")
+                End Select
+
+
+        End Select
     End Sub
+
 End Class

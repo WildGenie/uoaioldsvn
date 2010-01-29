@@ -1,6 +1,10 @@
 ﻿Imports System.IO
 Imports System.Text
 
+#Const DebugMobiles = False
+#Const DebugItems = False
+#Const DebugTargeting = False
+
 Partial Class UOAI
 
     ''' <summary>The base packet class, inherited by all classes in UOAI.Packets</summary>
@@ -54,16 +58,16 @@ Partial Class UOAI
                 _Data = bytes
                 _size = bytes.Length
 
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 _Type = Enums.PacketType.SpeechUnicode
 
                 buff.Position = 1
 
-                buff.networkorder = False
+                buff.networkorder = True
                 '1-2
                 _size = buff.readushort
-                buff.networkorder = True
+                buff.networkorder = False
 
                 '3
                 _mode = buff.readbyte
@@ -179,11 +183,11 @@ Partial Class UOAI
                 _Type = bytes(0)
 
                 buff.Position = 1
-                buff.networkorder = False
+                buff.networkorder = True
 
                 '1-2
                 _size = buff.readushort()
-                buff.networkorder = True
+                buff.networkorder = False
 
                 '3-6
                 _Serial = buff.readuint
@@ -337,7 +341,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.OpenContainer)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 buff.Position = 1
 
@@ -400,7 +404,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.ObjecttoObject)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 _size = &H14
 
@@ -423,10 +427,14 @@ Partial Class UOAI
                 '12-13
                 _Y = buff.readushort
 
-                '14-17
+                '14
+                'Grid Index: Since 6.0.1.7
+                buff.Position += 1
+
+                '15-18
                 _Container = buff.readuint
 
-                '18-19
+                '19-20
                 _Hue = buff.readushort
 
             End Sub
@@ -539,7 +547,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.ObjecttoObject)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 _size = 2
 
@@ -578,7 +586,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.EquipItem)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 buff.Position = 1
                 '1-4
@@ -689,13 +697,13 @@ Partial Class UOAI
                 _Data = bytes
                 _size = bytes.Length
 
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 buff.Position = 1
-                buff.networkorder = False
+                buff.networkorder = True
                 '1-2
                 _size = buff.readushort
-                buff.networkorder = True
+                buff.networkorder = False
 
                 '3-4
                 _Count = buff.readushort
@@ -725,12 +733,21 @@ Partial Class UOAI
                     '16-17
                     it._Y = buff.readushort
 
-                    '18-21
+                    '18
+                    'Grid Index, since 6.0.1.7
+                    buff.Position += 1
+
+                    '19-22
                     it._Container = buff.readuint
 
-                    '22-23
+                    '23-24
                     it._Hue = buff.readushort
 
+#If DebugItems Then
+                    Console.WriteLine("Adding item to Container Contents Packet ItemList.")
+                    Console.WriteLine("Serial: " & it.Serial.ToString)
+                    Console.WriteLine("Container Serial: " & it.Container.ToString)
+#End If
                     _ItemList.Add(it)
                 Next
 
@@ -758,7 +775,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.RenameMOB)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 buff.Position = 1
                 '1-4
@@ -870,7 +887,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.MobileStats)
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
                 _size = bytes.Length
                 _Data = bytes
 
@@ -980,7 +997,7 @@ Partial Class UOAI
                 Set(ByVal Value As Serial)
                     _Serial = Value
                     buff.Position = 3
-                    buff.writeuint(Value)
+                    buff.writeuint(Value.Value)
                 End Set
             End Property
 
@@ -1568,7 +1585,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.HPHealth)
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
                 _size = bytes.Length
                 _Data = bytes
 
@@ -1629,7 +1646,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.FatHealth)
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
                 _size = bytes.Length
                 _Data = bytes
 
@@ -1690,7 +1707,7 @@ Partial Class UOAI
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.ManaHealth)
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
                 _size = bytes.Length
                 _Data = bytes
 
@@ -1760,7 +1777,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.EquippedMOB)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 3
@@ -1785,6 +1802,12 @@ Partial Class UOAI
 
                         'Check for the Hue flag in the item Type
                         If i._Type.BaseValue >= 32768 Then _Hue = .readushort
+
+#If DebugMobile Then
+                        Console.WriteLine("-Adding item to Equipped Mobile Packet EquippedItems ItemList.")
+                        Console.WriteLine(" Serial: " & i.Serial.ToString)
+                        Console.WriteLine(" Container/Mobile Serial: " & i.Container.ToString)
+#End If
 
                         EquippedItems.Add(i)
                     Loop Until _size - buff.Position <= 4
@@ -1878,7 +1901,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.NakedMOB)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 3
@@ -1961,7 +1984,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.DeathAnimation)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     buff.Position = 1
@@ -1996,7 +2019,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.Destroy)
                 _size = bytes.Length
                 _Data = bytes
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 1
@@ -2031,7 +2054,7 @@ Partial Class UOAI
                 MyBase.New(Enums.PacketType.ShowItem)
                 _Data = bytes
                 _size = bytes.Length
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 3
@@ -2138,8 +2161,8 @@ Partial Class UOAI
             Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.LoginConfirm)
                 _Data = bytes
-                _Size = bytes.Length
-                buff = New BufferHandler(bytes)
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 1
@@ -2178,7 +2201,7 @@ Partial Class UOAI
                 Set(ByVal Value As Serial)
                     _Serial = Value
                     buff.Position = 1
-                    buff.writeuint(Value)
+                    buff.writeuint(Value.Value)
                 End Set
             End Property
 
@@ -2255,6 +2278,150 @@ Partial Class UOAI
                 Set(ByVal Value As UShort)
                     _MapHeight = Value
                     buff.Position = 28
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+        End Class
+
+        Public Class Target
+            Inherits Packet
+
+            Friend _TargetType As Byte = 0 'Object target
+            Friend _Serial As Serial
+            Friend _Flag As Byte
+            Friend _Target As Serial
+            Friend _X As UShort
+            Friend _Y As UShort
+            Friend _Z As UShort
+            Friend _Artwork As UShort
+
+            Friend Sub New()
+                MyBase.New(Enums.PacketType.Target)
+                Dim bytes(19) As Byte
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+                buff.Position = 0
+                'Write the packet type information
+                buff.writebyte(CByte(108))
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.Target)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+
+#If DebugTargeting Then
+                Console.WriteLine("Recieved Target Packet: " & BitConverter.ToString(bytes))
+#End If
+
+                With buff
+                    .Position = 1
+                    '1-1
+                    _TargetType = .readbyte
+                    '2-5
+                    _Serial = New Serial(.readuint)
+                    '6-6
+                    _Flag = .readbyte
+                    '7-10
+                    _Target = New Serial(.readuint)
+                    '11-12
+                    _X = .readushort
+                    '13-14
+                    _Y = .readushort
+                    '15-16
+                    _Z = .readushort
+                    '17-18
+                    _Artwork = .readushort
+                End With
+            End Sub
+
+            Public Property TargetType() As Byte
+                Get
+                    Return _TargetType
+                End Get
+                Set(ByVal Value As Byte)
+                    _TargetType = Value
+                    buff.Position = 1
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal Value As Serial)
+                    _Serial = Value
+                    buff.Position = 2
+                    buff.writeuint(Value.Value)
+                End Set
+            End Property
+
+            Public Property Flag() As Byte
+                Get
+                    Return _Flag
+                End Get
+                Set(ByVal Value As Byte)
+                    _Flag = Value
+                    buff.Position = 6
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property Target() As Serial
+                Get
+                    Return _Target
+                End Get
+                Set(ByVal Value As Serial)
+                    _Target = Value
+                    buff.Position = 7
+                    buff.writeuint(Value.Value)
+                End Set
+            End Property
+
+            Public Property X() As UShort
+                Get
+                    Return _X
+                End Get
+                Set(ByVal Value As UShort)
+                    _X = Value
+                    buff.Position = 11
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+                Set(ByVal Value As UShort)
+                    _Y = Value
+                    buff.Position = 13
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Z() As UShort
+                Get
+                    Return _Z
+                End Get
+                Set(ByVal Value As UShort)
+                    _Z = Value
+                    buff.Position = 15
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property Artwork() As UShort
+                Get
+                    Return _Artwork
+                End Get
+                Set(ByVal Value As UShort)
+                    _Artwork = Value
+                    buff.Position = 17
                     buff.writeushort(Value)
                 End Set
             End Property

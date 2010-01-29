@@ -6,7 +6,56 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
+<member name="E:UOAI2.UOAI.Client.onTargetResponse">
+	<summary>
+ Called whenever the client chooses a target.
+ </summary>
+	<param name="TargetInfo">The TargetInfo object containting the information on the target response.</param>
+</member><member name="T:UOAI2.UOAI.Enums.LoginState">
+	<summary>Enumeration of Login state.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.EntityType">
+	<summary>Enumeration of Entity types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Spell">
+	<summary>Enumeration of Spells.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Macros">
+	<summary>Enumeration of macro types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Element">
+	<summary>Enumeration of element types.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Gender">
+	<summary>Enumeration of mobile gender.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.MobileStatus">
+	<summary>Enumeration of mobile status.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.Facets">
+	<summary>Enumeration of the different facets.</summary>
+</member><member name="T:UOAI2.UOAI.Enums">
+	<summary>A simple list of enumerations used primarily internally.</summary>
+</member><member name="M:UOAI2.UOAI.Point3D.#ctor(System.Int32,System.Int32,System.Int32)">
+	<summary>
+ Constructs a Point given its coordinates.
+ </summary>
+	<param name="x">X-coordinate</param>
+	<param name="y">Y-coordinate</param>
+	<param name="z">Z-coordinate</param>
+</member><member name="P:UOAI2.UOAI.Point3D.X">
+	<summary>
+ X coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Y">
+	<summary>
+ Y coordinate
+ </summary>
+</member><member name="P:UOAI2.UOAI.Point3D.Z">
+	<summary>
+ Z coordinate
+ </summary>
+</member><member name="M:UOAI2.UOAI.Point3D.ToString">
+	<summary>
+ String representation of this location.
+ </summary>
+	<returns>String representation of this location.</returns>
+</member><member name="T:UOAI2.UOAI.Point3D">
+	<summary>Represents an in-game 3D location.</summary>
+</member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.AllAccess">
 	<summary>Specifies all possible access flags for the process object.</summary>
 </member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.CreateThread">
 	<summary>Enables usage of the process handle in the CreateRemoteThread function to create a thread in the process.</summary>
@@ -26,74 +75,852 @@ UOAI2
 	<summary>Enables usage of the process handle in the WriteProcessMemory function to write to the virtual memory of the process.</summary>
 </member><member name="F:UOAI2.UOAI.Imports.ProcessAccess.Synchronize">
 	<summary>Enables usage of the process handle in any of the wait functions to wait for the process to terminate.</summary>
-</member><member name="T:UOAI2.UOAI.Enums">
-	<summary>A simple list of enumerations used primarily internally.</summary>
+</member><member name="T:UOAI2.UOAI.Imports">
+	<summary>A class to encapsulate imported functions from User32.dll and Kernel32.dll</summary>
+</member><member name="M:UOAI2.UOAI.Item.#ctor">
+	<summary>
+ When using this new, never ever ever try to access the contents!
+ </summary>
+	<remarks></remarks>
+</member><member name="F:UOAI2.UOAI.Item.MemoryOffset">
+	<summary>Where the actual memory offset of the item is stored</summary>
+</member><member name="F:UOAI2.UOAI.Item._Serial">
+	<summary>Item serial as UOAI.ItemSerial, private.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Serial">
+	<summary>The serial of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Type">
+	<summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
+</member><member name="P:UOAI2.UOAI.Item.StackID">
+	<summary>The number to add the the artwork number to get the artwork number of the item if it is a stack. 
+ Usualy this is 0x01.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Amount">
+	<summary>The number of objects in a stack.</summary>
+</member><member name="P:UOAI2.UOAI.Item.X">
+	<summary>The location of the item on the X axis. If the item is inside of a container, 
+ this represents the number of pixels within the container from the left side at which 
+ the item will be placed.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Y">
+	<summary>The location of the item on the Y axis. If the item is inside of a container, 
+ this represents the number of pixels from the top of the container that the item will 
+ be placed</summary>
+</member><member name="P:UOAI2.UOAI.Item.Z">
+	<summary>The location of the item on the Z axis.  If the item is inside of a container this
+ specifies the "height" of it, like if its on top of other objects.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Container">
+	<summary>The serial of the container of the item.</summary>
+</member><member name="P:UOAI2.UOAI.Item.Hue">
+	<summary>The item's hue.</summary>
+</member><member name="P:UOAI2.UOAI.Item.TypeName">
+	<summary>
+ Returns a string containing the ASCII name of the item artwork name.
+ </summary>
+</member><member name="M:UOAI2.UOAI.ItemList.Add(UOAI2.UOAI.Item)">
+	<summary>
+ Adds the specified item to the Item List.
+ </summary>
+	<param name="Item">The item to add.</param>
+	<remarks></remarks>
+</member><member name="M:UOAI2.UOAI.ItemList.RemoveItem(UOAI2.UOAI.Serial)">
+	<summary>
+ Attempts to remove an item from the item list by its Serial. Returns true if it found the item, returns false if it didn't.
+ </summary>
+	<param name="ItemSerial">The serial of the item to be removed.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Item(UOAI2.UOAI.Serial)">
+	<summary>
+ Returns the specified item, either by index or <see cref="T:UOAI2.UOAI.Serial"/>
+	</summary>
+	<param name="Serial">The serial of the item to be returned.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Item(System.Int32)">
+	<param name="OffSet">The offset of the item in the client's memory.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.byType(UOAI2.UOAI.ItemType)">
+	<summary>
+ Returns an itemlist containing the items of the specified type.
+ </summary>
+	<param name="Type">The type of item you want to search for.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Serial)">
+	<summary>
+ Checks to see if the specified item exists in the item list.
+ </summary>
+	<param name="Serial">The serial of the item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(System.Int32)">
+	<param name="Offset">The offset item you want to check the existance of.</param>
+</member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
+	<param name="Item">The item you want to check the existance of.</param>
+</member><member name="M:UOAI2.UOAI.ItemList.Clear">
+	<summary>
+ Returns the number of items in the list.
+ </summary>
+</member><member name="T:UOAI2.UOAI.ItemList">
+	<summary>Contains a list of UOAI.Item's</summary>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Mobile)">
+	<summary>
+ Adds the specified mobile to the mobile list.
+ </summary>
+	<param name="Mobile"></param>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Packets.EquippedMobile)">
+	<summary>
+ Adds the a new mobile to the <see cref="T:UOAI2.UOAI.MobileList"/> based on a supplied packet.
+ </summary>
+	<param name="Packet">The packet as a <see cref="T:UOAI2.UOAI.Packets.EquippedMobile"/>.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.AddMobile(UOAI2.UOAI.Packets.NakedMobile)">
+	<param name="Packet">The packet as a <see cref="T:UOAI2.UOAI.Packets.NakedMobile"/>.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.RemoveMobile(UOAI2.UOAI.Serial)">
+	<summary>
+ Removes the specified mobile from the MobileList.
+ </summary>
+	<param name="Serial">The serial of the mobile to be removed.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.RemoveMobile(System.UInt32)">
+	<param name="Offset">The memory offset of the mobile to be removed.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.Exists(UOAI2.UOAI.Serial)">
+	<summary>
+ Checks to see if the specified mobile exists in the MobileList.
+ </summary>
+	<param name="Serial">The serial of the mobile to check for.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.Exists(System.UInt32)">
+	<param name="Offset">The memory offset of the mobile to check for.</param>
+</member><member name="M:UOAI2.UOAI.MobileList.byName(System.String)">
+	<summary>
+ Returns a MobileList containing all of the mobiles with the specified name.
+ </summary>
+	<param name="Name">The name you want to search for.</param>
+</member><member name="P:UOAI2.UOAI.MobileList.Mobile(UOAI2.UOAI.Serial)">
+	<summary>
+ Returns mobile specified by serial.
+ </summary>
+	<param name="Serial">The serial of the mobile.</param>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:UOAI2.UOAI.MobileList.Mobile(System.Int32)">
+	<summary>
+ Returns mobile specified by offset
+ </summary>
+	<param name="Offset">The offset of the mobile object in the client's memory.</param>
+</member><member name="P:UOAI2.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOAI2.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOAI2.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
 </member><member name="P:UOAI2.UOAI.Clients">
 	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
-</member><member name="P:UOAI2.UOAI.ClientPath">
+</member><member name="F:UOAI2.UOAI.Clientpath">
 	<summary>Gets or sets the path of the client executable, usualy something like 
  "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
  working directory for the clients launched using UOAI.</summary>
-	<returns>The path to the client executable.</returns>
-</member><member name="P:UOAI2.UOAI.ClientExe">
+</member><member name="F:UOAI2.UOAI.ClientExe">
 	<summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
-	<returns>The name of the client executable.</returns>
-</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+</member><member name="E:UOAI2.UOAI.Mobile.onDeath">
 	<summary>
- Called when the client process closes.
+ Called when the hitpoint value of a mobile reaches zero (0).
  </summary>
-	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that called this.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that has died.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onUpdate">
+	<summary>
+ This is called immediately before the client handles an update to a mobile.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onEquipmentUpdate">
+	<summary>
+ This is called immediately after a packet is recieved to equip an item.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+	<param name="EquipmentLayers">The <see cref="T:UOAI2.UOAI.Enums.Layers">layers</see> that were changed.</param>
+</member><member name="E:UOAI2.UOAI.Mobile.onStatusChange">
+	<summary>
+ This is called immediately after the client handles an update to a mobile.
+ </summary>
+	<param name="Client">The <see cref="T:UOAI2.UOAI.Client"/> that the mobile update was handled by.</param>
+	<param name="Mobile">The <see cref="T:UOAI2.UOAI.Mobile"/> that was updated.</param>
+</member><member name="P:UOAI2.UOAI.Mobile.Layers">
+	<summary>
+ Returns the item on the specified layer.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Serial">
+	<summary>
+ The character's serial.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Name">
+	<summary>
+ The character's name.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Hits">
+	<summary>
+ The character's current amount of hit points.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.HitsMax">
+	<summary>
+ The character's maximum amount of hit points.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Renamable">
+	<summary>
+ Specifies whether or not the player can rename this mobile. Generaly only the player's pets are renamable.
+ This is a good way to tell if a mobile is a follower of the player. Although, It will be false for NPC followers like escorts.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DisplayMode">
+	<summary>
+ Specifies what of information is displayed by the client.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Gender">
+	<summary>
+ The gender of the mobile.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Strength">
+	<summary>
+ The character's Strength.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Dexterity">
+	<summary>
+ The character's Dexterity.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Intelligence">
+	<summary>
+ The character's Intelligence.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Stamina">
+	<summary>
+ The character's current Stamina.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.StaminaMax">
+	<summary>
+ The character's maximum Stamina.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Mana">
+	<summary>
+ The character's current Mana.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ManaMax">
+	<summary>
+ The character's maximum Mana.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Gold">
+	<summary>
+ How much gold the character is currently carrying.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistPhysical">
+	<summary>
+ The character's physical resistance value (old clients: AC).
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Weight">
+	<summary>
+ The character's current weight value.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.StatCap">
+	<summary>
+ The character's total allowable sum of Strength, Intelligence, and Dexterity.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Followers">
+	<summary>
+ The number of "Follower Slots" that are currently being used.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.FollowersMax">
+	<summary>
+ The maximum number of "Follower Slots" the character has available.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistFire">
+	<summary>
+ The character's resistance to fire.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistCold">
+	<summary>
+ The character's resistance to cold.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistPoison">
+	<summary>
+ The character's resistance to poison.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.ResistEnergy">
+	<summary>
+ The character's resistance to energy.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.Luck">
+	<summary>
+ The character's Luck value.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DamangeMin">
+	<summary>
+ The minimum amount of damage the character can deal.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.DamageMax">
+	<summary>
+ The maximum amount of damage the character can deal.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Mobile.TithingPoints">
+	<summary>
+ The character's current amount of Tithing points.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Mobile.HandleUpdatePacket(UOAI2.UOAI.Packets.MobileStats)">
+	<summary>
+ Updates the class given a mobile related packet.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Enums.Renamable">
+	<summary>
+ Whether or not a mobile can be renamed by the player.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Enums.DisplayMode">
+	<summary>
+ What data is displayed about the mobile.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.GetBytesFromUIntArray(System.UInt32[])">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="M:UOAI2.UOAI.Client.Macro(UOAI2.UOAI.Enums.Macros,System.Int32,System.String)">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Say(System.String)">
+	<summary>
+ Says the specified message.
+ </summary>
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Emote(System.String)">
+	<summary>
+ Emotes the specified message.
+ </summary>
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Whisper(System.String)">
+	<summary>
+ Whispers the specified message.
+ </summary>
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Yell(System.String)">
+	<summary>
+ Yells the specified message.
+ </summary>
+	<param name="message">The message.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Walk(UOAI2.UOAI.Enums.Direction)">
+	<summary>
+ Walks to the specified direction.
+ </summary>
+	<param name="direction">The direction.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.ToggleWarMode">
+	<summary>
+ Toggles the war/peace mode.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Paste">
+	<summary>
+ Pastes.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Open(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Opens the specified element.
+ </summary>
+	<param name="element">The element to open.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Close(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Closes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Minimize(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Minimizes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Maximize(UOAI2.UOAI.Enums.Element)">
+	<summary>
+ Maximizes the specified element.
+ </summary>
+	<param name="element">The element to Close.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.OpenDoor">
+	<summary>
+ Opens the door
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.UseSkill(UOAI2.UOAI.Enums.Skills)">
+	<summary>
+ Uses a skill
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.LastSkill">
+	<summary>
+ Uses the last skill
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.CastSpell(UOAI2.UOAI.Enums.Spell)">
+	<summary>
+ Casts the specified spell
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.LastSpell">
+	<summary>
+ Casts the last spell
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.LastObject">
+	<summary>
+ Sends the last object
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Bow">
+	<summary>
+ Bows
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Salute">
+	<summary>
+ Salutes
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.QuitGame">
+	<summary>
+ Quits the game.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.AllNames">
+	<summary>
+ Display all the names.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.LastTarget">
+	<summary>
+ Sends again the last target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.TargetSelf">
+	<summary>
+ Send yourself as target
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.ArmOrDisarm">
+	<summary>
+ Arms or disarms
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.WaitForTarget">
+	<summary>
+ Waits for target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.TargetNext">
+	<summary>
+ Targets the next (attackant?).
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.AttackLast">
+	<summary>
+ Attacks the last target.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.Delay(System.Int32)">
+	<summary>
+ Waits the specified seconds before send the next macro command.
+ </summary>
+	<param name="seconds">The seconds to wait.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.CircleTrans">
+	<summary>
+ Entables or disable the circle of transparency.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.CloseAllGumps">
+	<summary>
+ Closes all the gump.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.AlwaysRun">
+	<summary>
+ Enables or disables the Always run option.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.SaveDesktop">
+	<summary>
+ Saves the desktop (ie your preferences and interface).
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.KillGumpOpen">
+	<summary>
+ Kills the open gump.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.UsePrimaryAbility">
+	<summary>
+ Uses the weapon primary ability.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.UseSecondaryAbility">
+	<summary>
+ Uses the weapon secondary ability.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.EquipLastWeapon">
+	<summary>
+ Equips the last weapon.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.SetUpdateRange(System.Int32)">
+	<summary>
+ Sets the update range.
+ </summary>
+	<param name="range">The range.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.ModifyUpdateRange(System.Int32)">
+	<summary>
+ Modifies the update range.
+ </summary>
+	<param name="range">The range.</param>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.IncreaseUpdateRange">
+	<summary>
+ Increases the update range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.DecreaseUpdateRange">
+	<summary>
+ Decreases the update range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.MaxUpdateRange">
+	<summary>
+ Sets the update range at maximum.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.MinUpdateRange">
+	<summary>
+ Sets the update range at minimum.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.DefaultUpdateRange">
+	<summary>
+ Sets the update range at default value.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.UpdateRangeInfo">
+	<summary>
+ Updates the range info.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.EnableRangeColor">
+	<summary>
+ Enables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.DisableRangeColor">
+	<summary>
+ Disables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.ToggleRangeColor">
+	<summary>
+ Enables or disables the color of the range.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.UOMacros.InvokeVirtue(UOAI2.UOAI.Enums.Virtues)">
+	<summary>
+ Invokes the specified virtue.
+ </summary>
+	<param name="virtue">The virtue to invoke.</param>
+</member><member name="T:UOAI2.UOAI.Client.UOMacros">
+	<summary>
+ Standard UO macros
+ </summary>
+ Hide this class from the user, there is no reason from him/her to see it.
+
 </member><member name="P:UOAI2.UOAI.Client.PID">
 	<summary>
  Gets the windows process ID of the client. This is used as the unique identifier for each client running.
  </summary>
 	<value>The windows Process ID of the client.</value>
-</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
-	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
+</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
+	<summary>
+ A method used to get the title of the client window as a string.
+ </summary>
+	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="P:UOAI2.UOAI.Client.Items">
+	<summary>
+ Returns the client's itemlist.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Client.Mobiles">
+	<summary>
+ Returns a list of the client's mobiles.
+ </summary>
+</member><member name="M:UOAI2.UOAI.Client.RemoveObject(System.UInt32)">
+	<summary>Remove an item, mobile, etc... from the collections</summary>
+	<param name="address">The 32-bit address in the client's memory of the object as <see cref="T:System.UInt32"/></param>
+</member><member name="E:UOAI2.UOAI.Client.onClientExit">
+	<summary>
+ Called when the client process closes.
+ </summary>
+	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+</member><member name="E:UOAI2.UOAI.Client.onLogin">
+	<summary>
+ Called when the client recieves a login confirm packets from the game server, and the player character is created.
+ </summary>
+	<remarks></remarks>
+</member><member name="E:UOAI2.UOAI.Client.onPacketReceive">
+	<summary>
+ Called when a Packet arrives on this client.
+ </summary>
+	<param name="Client">Client on which the packet was received</param>
+	<param name="packet">The received packet</param>
+</member><member name="E:UOAI2.UOAI.Client.onPacketSend">
+	<summary>
+ Called when a Packet is sent formt he client to the server.
+ </summary>
+	<param name="Client">Client from which the packet was sent.</param>
+	<param name="packet">The sent packet.</param>
+</member><member name="E:UOAI2.UOAI.Client.onKeyUp">
+	<summary>
+ Called when the user of the client releases a pressed key.
+ </summary>
+	<param name="Client">The client on which the key was released</param>
+ ''' <param name="VirtualKeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+</member><member name="E:UOAI2.UOAI.Client.onKeyDown">
+	<summary>
+ Called when the user of the client holds down a key.
+ </summary>
+	<param name="Client">The client on which the key was pressed</param>
+ ''' <param name="VirtualKeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+</member><member name="E:UOAI2.UOAI.Client.onConnectionLoss">
+	<summary>
+ Called when the client loses its network connection to the server.
+ </summary>
+	<param name="Client">The client that lost its connection.</param>
+</member><member name="M:UOAI2.UOAI.Client.PatchEncryption">
+	<summary>Disables the client encryption.</summary>
+	<remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
+</member><member name="M:UOAI2.UOAI.Client.UpdatePacket(UOAI2.UOAI.Packet@)">
+	<summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
+	<param name="newpacket">The packet object as a <see cref="T:UOAI2.UOAI.Packet"/></param>
+</member><member name="M:UOAI2.UOAI.Client.DropPacket">
+	<summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
 </member><member name="M:UOAI2.UOAI.Client.Close">
 	<summary>
  Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
  </summary>
-</member><member name="P:UOAI2.UOAI.Client.WindowCaption">
-	<summary>
-		<para>A method used to get the title of the client window as a string.</para>
-	</summary>
-	<returns>The client window title, generally something like "Ultima Online"</returns>
+</member><member name="M:UOAI2.UOAI.Client.CallEvent_onClientExit">
+	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
 </member><member name="T:UOAI2.UOAI.Client">
 	<summary>Represents an Ultima Online client.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.InitializeClientPaths">
+</member><member name="P:UOAI2.UOAI.Packet.Data">
+	<summary>Returns the raw packet data as a byte array.</summary>
+</member><member name="T:UOAI2.UOAI.Packet">
+	<summary>The base packet class, inherited by all classes in UOAI.Packets</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Mode">
+	<summary>Gets or Sets the speech type as <see cref="T:UOAI2.UOAI.Enums.SpeechTypes"/>.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Hue">
+	<summary>Gets or Sets the hue of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Font">
+	<summary>Gets or Sets the font of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Language">
+	<summary>Gets or Sets the language key of the packet. This only effects how it is interpreted, it does NOT change the actual language.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeSpeechPacket.Text">
+	<summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
+</member><member name="T:UOAI2.UOAI.Packets.UnicodeSpeechPacket">
+	<summary>Clients send this packet when talking.</summary>
+	<remarks>Packet 0xAD</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Text">
+	<summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Name">
+	<summary>Gets or Sets the name of the speaker. Maximum of 30 characters.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Mode">
+	<summary>Gets or Sets the speech type as <see cref="T:UOAI2.UOAI.Enums.SpeechTypes"/>.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Serial">
+	<summary>Gets or sets the serial of the person or object speaking. 0xFFFFFFFF is used for system.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Body">
+	<summary>Gets or Sets the body value of the character that is talking. 0xFFFF is used for system.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Hue">
+	<summary>Gets or Sets the hue of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Font">
+	<summary>Gets or Sets the font of the text.</summary>
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Language">
+	<summary>Gets or Sets the language key of the packet. This only effects how it is interpreted, it does NOT change the actual language.</summary>
+</member><member name="T:UOAI2.UOAI.Packets.UnicodeTextPacket">
+	<summary>This is sent from the server to tell the client that someone is talking.</summary>
+	<remarks>Packet 0xAE</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.OpenContainer.Serial">
+	<summary>
+ The serial of the container being opened.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.OpenContainer.Model">
+	<summary>
+ The model of the container being opened.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.OpenContainer">
+	<summary>
+ This is sent by the server to open a container or game board (which is also a container).
+ </summary>
+	<remarks>Packet 0x24</remarks>
+</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.Serial">
+	<summary>
+ The serial of the item to add.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.ObjectToObject.ItemType">
+	<summary>
+ The artwork number of the item.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.ObjectToObject">
+	<summary>
+ This is sent by the server to add a single item to a container. (not to display its contents)
+ </summary>
+	<remarks>Packet 0x25</remarks>
+</member><member name="T:UOAI2.UOAI.Packets.GetItemFailed">
+	<summary>
+ This is sent to deny the player's request to get an item.
+ </summary>
+	<remarks></remarks>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Serial">
+	<summary>
+ The serial of the item to equip.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.ItemType">
+	<summary>
+ The item's artwork number.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Layer">
+	<summary>
+ The item's layer
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Container">
+	<summary>
+ The serial of the character on which the item will be equipped.
+ </summary>
+</member><member name="P:UOAI2.UOAI.Packets.EquipItem.Hue">
+	<summary>
+ The item's hue.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.EquipItem">
+	<summary>
+ This is sent by the server to equip a single item on a character.
+ </summary>
+	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.Packets.ContainerContents">
+	<summary>
+ This is sent to display the contents of a container.
+ </summary>
+	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.Packets.RenameMOB">
+	<summary>
+ Sent by the client to rename another mobile.
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.MobileStats">
+	<summary>
+ Yo programmer, I'm really happy for you and I'm gona let you finish 
+ but this is one of the biggest packet classes of all time, OF ALL TIME!
+  -Kanye West
+ 757 lines...
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets">
+	<summary>A namespace encapsulating the packet types classes.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Serial">
+	<summary>Gets or sets the serial of the item.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Type">
+	<summary>Gets or sets the artwork number of that item. This is what determines what it looks like in game.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.StackID">
+	<summary>Gets or sets the number to add the the artwork number to get the artwork number of the item if it is a stack. 
+ Usualy this is 0x01.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Amount">
+	<summary>Gets or sets number of objects in a stack.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.X">
+	<summary>Gets or sets the location of the item on the X axis. If the item is inside of a container, 
+ this represents the number of pixels within the container from the left side at which 
+ the item will be placed.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Y">
+	<summary>Gets or sets the location of the item on the Y axis. If the item is inside of a container, 
+ this represents the number of pixels from the top of the container that the item will 
+ be placed</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Container">
+	<summary>Gets or sets the serial of the container of the item.</summary>
+</member><member name="P:UOAI2.UOAI.EditableItem.Hue">
+	<summary>Gets or sets the item's hue.</summary>
+</member><member name="T:UOAI2.UOAI.EditableItem">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.CannotPickup">
+	<summary>Displays "You cannot pick that up."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.TooFar">
+	<summary>Displays "That is too far away."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.OutOfSight">
+	<summary>Displays "That is out of sight."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.DoesntBelongToYou">
+	<summary>Displays "That item does not belong to you. You will have to steal it."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.AlreadyHoldingItem">
+	<summary>Displays "You are already holding an item."</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.Cmd_DestroyTheItem">
+	<summary>Tells the client to delete the item from its cache.</summary>
+</member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.NoMessage">
+	<summary>Displays no message, just doesn't let you pick it up.</summary>
+</member><member name="T:UOAI2.UOAI.Enums.GetItemFailedReason">
+	<summary>
+ Reason enumeration for "Get Item Failed" packet. (0x27)
+ </summary>
+	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.Enums.PacketType">
+	<summary>
+ Packet type enumeration.
+ </summary>
+	<remarks></remarks>
+</member><member name="T:UOAI2.UOAI.BufferHandler">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="M:UOAI2.UOAI.StringList.#ctor(System.String)">
+	<summary>
+ Creates a new instance of the string list and populates it with the specified language.
+ <example>Dim StrLst As New StringList("enu")
+ MsgBox(StrLst.</example>
+	</summary>
+	<param name="language">Languages: enu,chs,cht,deu,esp,fra,jpn,kor</param>
+</member><member name="T:UOAI2.UOAI.StringList">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="T:UOAI2.UOAI.StringEntry">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="F:UOAI2.UOAI.IPCConstants.customcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.allocmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.freemessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.newstackmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.pushmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdcallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.ccallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.thiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.stdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memcpymessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.memsetzeromessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.getcallibrationinfomessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.clientunlockmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.safestdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setpacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.removepacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.querypacketfiltermessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.skipuoaistdthiscallmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.geteventportmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.patchencryptionmessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.hookitemdestructormessage">
+	<summary></summary>
+</member><member name="F:UOAI2.UOAI.IPCConstants.setupeventtimermessage">
+	<summary></summary>
+</member><member name="T:UOAI2.UOAI.IPCConstants">
+	<summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="T:UOAI2.UOAI.RStack">
+ Hide this class from the user, there is no reason from him/her to see it.
+
+</member><member name="M:UOAI2.UOAI.ClientList.InitializeClientPaths">
 	<summary>Gets the working directory and location of client.exe from the registry.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient">
+</member><member name="M:UOAI2.UOAI.ClientList.LaunchClient">
 	<summary>Launches a new Client, returns true if successfull, false if not.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.LaunchClient2">
-	<summary>DEBUG FUNCTION: Just trying to get the multi-client patch to work.</summary>
-</member><member name="M:UOAI2.UOAI.UOClientList.byPID(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.byPID(System.Int32)">
 	<summary>Find a UOAI.Client object by its associated Process ID.</summary>
 	<param name="ProcessID">The windows Process ID of the client you want to find.</param>
 	<returns>Returns a UOAI.Client, if it finds the correct one it returns that one.
   Although if it doesn't find one matching the PID it will raise the "onError" event
   and return the first client in the list.</returns>
-</member><member name="M:UOAI2.UOAI.UOClientList.Add(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.Add(System.Int32)">
 	<summary>Adds clients to the Clients arraylist, based on PID</summary>
 	<param name="PID">The process ID of the client you want to add.</param>
-</member><member name="M:UOAI2.UOAI.UOClientList.Remove(System.Int32)">
+</member><member name="M:UOAI2.UOAI.ClientList.Remove(System.Int32)">
 	<summary>Removed a client from the clients arraylist, based on PID.</summary>
 	<param name="PID">The process ID of the client you want to remove.</param>
-</member><member name="P:UOAI2.UOAI.UOClientList.Count">
+</member><member name="P:UOAI2.UOAI.ClientList.Count">
 	<summary>Forces update of client list then returns a count of the clients.</summary>
 	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.UOClientList.Client(System.Int32)">
+</member><member name="P:UOAI2.UOAI.ClientList.Client">
 	<summary>Returns the UOAI.Client at the specified index.</summary>
-	<param name="Index">The index of the client in the list.</param>
-</member><member name="M:UOAI2.UOAI.UOClientList.ForceUpdateClientList">
+</member><member name="M:UOAI2.UOAI.ClientList.ForceUpdateClientList">
 	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
 	<remarks></remarks>
-</member><member name="M:UOAI2.UOAI.UOClientList.ClientProcessExit(System.Object,System.EventArgs)">
+</member><member name="M:UOAI2.UOAI.ClientList.ClientProcessExit(System.Object,System.EventArgs)">
 	<summary>Handles the "Process.Exited" for client processes.</summary>
 	<param name="sender">The System.Diagnostics.Process that is being handled.</param>
 	<param name="e">Nothing usefull.</param>
-</member><member name="T:UOAI2.UOAI.UOClientList">
-	<summary>A list of Ultime Online clients.</summary>
+</member><member name="T:UOAI2.UOAI.ClientList">
+	<summary>A list of Ultima Online clients.</summary>
 </member>
 </members>
 </doc>

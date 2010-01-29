@@ -114,7 +114,9 @@
     <Compile Include="Point3D.vb" />
     <Compile Include="ProcessStream.vb" />
     <Compile Include="Serial.vb" />
+    <Compile Include="Settings.vb" />
     <Compile Include="StringList.vb" />
+    <Compile Include="Targeting.vb" />
     <Compile Include="UOAI.vb" />
     <Compile Include="UOClientDll.vb" />
   </ItemGroup>

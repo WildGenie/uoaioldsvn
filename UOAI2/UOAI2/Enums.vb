@@ -239,12 +239,6 @@
             Neutral = &H2
         End Enum
 
-        ''' <summary>Enumeration of target kind.</summary>
-        Public Enum TargetKind
-            ITEM = 0
-            GROUND = 1
-        End Enum
-
         ''' <summary>Enumeration of mobile status.</summary>
         Public Enum MobileStatus
             Normal = &H0

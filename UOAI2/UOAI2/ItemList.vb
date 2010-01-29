@@ -1,6 +1,8 @@
 ﻿Imports System.Collections
 Imports System.Threading
 
+#Const DebugItemList = False
+
 Partial Class UOAI
 
     ''' <summary>Contains a list of UOAI.Item's</summary>
@@ -52,6 +54,15 @@ Partial Class UOAI
                 ElseIf _MyClient.Mobiles.Exists(Item.Container) Then 'Check to see if the item's container is a mobile.
                     'If it is, then add the item to the _AllItems hash and bypass the recursive container checks.
                     'There is no need to add it to a container. The removal process does the same thing.
+                    If _MyClient._AllItems.ContainsKey(Item.Serial) Then
+#If DebugItemList Then
+                    Console.WriteLine("-Item being added as mobile equipment to the _AllItem's List Failed, The item is already in the list.")
+                    Console.WriteLine(" Item Serial: " & Item.Serial.ToString)
+                    Console.WriteLine(" Mobile Serial: " & Item.Container.ToString)
+#End If
+                        Exit Sub
+                    End If
+
                     _MyClient._AllItems.Add(Item.Serial, Item)
                 ElseIf Item.Container = _Serial Then
                     'if the items container is this container, then add it to the hash
@@ -65,14 +76,28 @@ Partial Class UOAI
                     'If this item's container is NOT this container,
                     'then look up the container by Serial in the client's master item list
                     'and add the item to that items contents.
+#If DebugItemList Then
+                If _MyClient._AllItems.ContainsKey(Item.Serial) = False Then
+                    Console.WriteLine("-Item Add is about to fail because the item's container is not in the all item's list.")
+                    Console.WriteLine(" Item Serial: " & Item.Serial.ToString)
+                    Console.WriteLine(" Item Container Serial: " & Item.Container.ToString)
+                End If
+#End If
                     _MyClient._AllItems(Item.Container).Contents.AddItem(Item)
 
                 End If
             Catch ex As Exception
-                Debug.WriteLine("Failed to Added Item: " & Item.Serial.ToString & " " & ex.Message)
+#If DebugItemList Then
+                Console.WriteLine("-Failed to Add Item: " & Item.Serial.ToString)
+                Console.WriteLine(" Reason: " & ex.Message)
+#End If
             End Try
+            Reset()
 
-            Debug.WriteLine("Successfully Added Item: " & Item.Serial.ToString)
+#If DebugItemList Then
+            Console.WriteLine("-Successfully Added Item: " & Item.Serial.ToString)
+#End If
+
         End Sub
 
         Friend Sub Add(ByVal Packet As Packets.ContainerContents)
@@ -91,7 +116,9 @@ Partial Class UOAI
                 j._Container = i._Container
                 j._Hue = i._Hue
 
-                Debug.WriteLine("Adding Item by ContainerContents: Container: " & j._Container.ToString & " Serial:" & i.Serial.ToString)
+#If DebugItemList Then
+                Console.WriteLine("-Adding Item by ContainerContents: Container: " & j._Container.ToString & " Serial:" & i.Serial.ToString)
+#End If
 
                 Add(j)
             Next
@@ -112,7 +139,9 @@ Partial Class UOAI
             j._Container = Packet._Container
             j._Hue = Packet._Hue
 
-            Debug.WriteLine("Adding Item by ObjectToObject: " & j.Serial.ToString)
+#If DebugItemList Then
+            Console.WriteLine("-Adding Item by ObjectToObject: " & j.Serial.ToString)
+#End If
 
             Add(j)
         End Sub
@@ -133,7 +162,9 @@ Partial Class UOAI
             j._Z = Packet.Z
             j._Hue = Packet.Hue
 
-            Debug.WriteLine("Adding Item by ShowItem: " & j.Serial.ToString)
+#If DebugItemList Then
+            Console.WriteLine("-Adding Item by ShowItem: " & j.Serial.ToString)
+#End If
 
             Add(j)
 
@@ -181,11 +212,18 @@ Partial Class UOAI
                 End If
 
             Catch ex As Exception
-                Debug.WriteLine("Item deletion failed due to: " & ex.Message)
+#If DebugItemList Then
+                Console.WriteLine("-Item deletion failed due to: " & ex.Message)
+#End If
                 Return False
             End Try
 
-            Debug.WriteLine("Item deleted successfuly: " & ItemSerial.ToString)
+            Reset()
+
+#If DebugItemList Then
+            Console.WriteLine("-Item deleted successfuly: " & ItemSerial.ToString)
+#End If
+
             Return True
         End Function
 
@@ -223,6 +261,11 @@ Partial Class UOAI
                     'to see if its type maches the one specified.
                     If Me.Item(s).Type = Type Then
                         'Then add that to the itemlist to return
+#If DebugItemList Then
+                        Console.WriteLine("-Adding item to byType search result.")
+                        Console.WriteLine(" Serial: " & s.ToString)
+                        Console.WriteLine(" Type: " & Type.ToString)
+#End If
                         k.Add(Me.Item(s))
                     End If
                 Next
@@ -276,11 +319,13 @@ Partial Class UOAI
         ''' </summary>
 
         Public Sub Clear() Implements System.Collections.Generic.ICollection(Of Item).Clear
-
+            _ItemHashBySerial.Clear()
+            _ItemHashByOffset.Clear()
+            _ItemHashByType.Clear()
         End Sub
 
         Public Function Contains(ByVal item As Item) As Boolean Implements System.Collections.Generic.ICollection(Of Item).Contains
-
+            Return _ItemHashBySerial.ContainsValue(item)
         End Function
 
         Public Sub CopyTo(ByVal array() As Item, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of Item).CopyTo
@@ -300,15 +345,15 @@ Partial Class UOAI
         End Property
 
         Public Function Remove(ByVal item As Item) As Boolean Implements System.Collections.Generic.ICollection(Of Item).Remove
-
+            Return RemoveItem(item.Serial)
         End Function
 
         Public Function GetEnumerator() As System.Collections.Generic.IEnumerator(Of Item) Implements System.Collections.Generic.IEnumerable(Of Item).GetEnumerator
-            Return DirectCast(_ItemHashBySerial.Values.GetEnumerator, IEnumerator(Of Item))
+            Return _ItemHashBySerial.Values.OfType(Of Item).GetEnumerator
         End Function
 
         Public Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
-            Return _ItemHashBySerial.Values.GetEnumerator
+            Return _ItemHashBySerial.Values.OfType(Of Item).GetEnumerator
         End Function
     End Class
 

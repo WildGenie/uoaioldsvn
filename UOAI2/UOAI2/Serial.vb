@@ -25,7 +25,7 @@
         End Property
 
         Public Overloads Overrides Function GetHashCode() As Integer
-            'Debug.WriteLine(m_IntValue.GetHashCode.ToString)
+            'Console.Writeline(m_IntValue.GetHashCode.ToString)
             Return CInt(m_IntValue.GetHashCode)
         End Function
 

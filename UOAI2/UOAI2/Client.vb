@@ -205,6 +205,9 @@ Partial Class UOAI
                 Case Enums.PacketType.ShowItem
                     Return New Packets.ShowItem(packetbuffer)
 
+                Case Enums.PacketType.Target
+                    Return New Packets.Target(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -295,6 +298,12 @@ Partial Class UOAI
 
                 Case Enums.PacketType.ShowItem
                     Items.Add(DirectCast(currentpacket, Packets.ShowItem))
+
+                Case Enums.PacketType.Target
+                    If _WaitingForTarget = True Then
+                        Dim jimbo As New TargetInfo(Me, DirectCast(currentpacket, Packets.Target))
+                        RaiseEvent onTargetResponse(jimbo)
+                    End If
             End Select
         End Sub
 
