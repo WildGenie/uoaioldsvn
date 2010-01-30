@@ -82,6 +82,7 @@
     <Compile Include="ClientSocket.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ContextMenu.vb" />
     <Compile Include="Enums.vb" />
     <Compile Include="Imports.vb" />
     <Compile Include="Item.vb">

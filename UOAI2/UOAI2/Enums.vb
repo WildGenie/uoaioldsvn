@@ -401,8 +401,7 @@
             Roof = &H10000000
             Door = &H20000000
             StairBack = &H40000000
-            'TODO: WIM LOOK AT THIS!
-            'StairRight = &H80000000
+            StairRight = 4294967295
         End Enum
 
         Public Enum Skills

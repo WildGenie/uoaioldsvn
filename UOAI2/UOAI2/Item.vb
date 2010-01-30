@@ -135,6 +135,43 @@
 
 #End Region
 
+#Region "Functions/Subs"
+        Public Sub DoubleClick()
+            'Make the packet
+            Dim dc As New Packets.Doubleclick
+
+            'Assign the serial
+            dc.Serial = Me.Serial
+
+            'Send the packet to the server.
+            _contents._MyClient.Send(dc, Enums.PacketDestination.SERVER)
+        End Sub
+
+        Public Sub SingleClick()
+            'Make the packet
+            Dim sc As New Packets.Singleclick
+
+            'Assign the serial
+            sc.Serial = Me.Serial
+
+            'Send the packet to the server.
+            _contents._MyClient.Send(sc, Enums.PacketDestination.SERVER)
+        End Sub
+
+        Public Sub ShowText(ByVal Text As String)
+            Dim k As New Packets.Text
+            k.Name = "System"
+            k.Serial = Serial
+            k.BodyType = Type.BaseValue
+            k.SpeechType = Enums.SpeechTypes.Regular
+            k.TextHue = &HFFFF
+            k.TextFont = Enums.Fonts.Default
+            k.Text = Text
+
+            _contents._MyClient.Send(k, Enums.PacketDestination.CLIENT)
+        End Sub
+#End Region
+
     End Class
 
 End Class

@@ -396,6 +396,13 @@ Partial Class UOAI
             End Get
         End Property
 
+        Public ReadOnly Property IsMounted() As Boolean
+            Get
+                If Me.Layers._Mount.Value <> 0 Then Return True
+                Return False
+            End Get
+        End Property
+
         'Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Class LayersClass
