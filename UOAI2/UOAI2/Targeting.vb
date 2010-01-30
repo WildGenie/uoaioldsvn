@@ -7,7 +7,7 @@ Partial Class UOAI
 
         Private _WaitingForTarget As Boolean = False
 
-        Public Sub SendTargetRequest(ByVal UID As UInt32, ByVal Type As Enums.TargetRequestType)
+        Public Sub TargetPrompt(ByVal UID As UInt32, ByVal Type As Enums.TargetRequestType)
             Dim TarPack As New Packets.Target
 
             TarPack.Serial = New Serial(UID)

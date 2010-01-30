@@ -208,6 +208,15 @@ Partial Class UOAI
                 Case Enums.PacketType.Target
                     Return New Packets.Target(packetbuffer)
 
+                Case Enums.PacketType.DoubleClick
+                    Return New Packets.Doubleclick(packetbuffer)
+
+                Case Enums.PacketType.SingleClick
+                    Return New Packets.Singleclick(packetbuffer)
+
+                Case Enums.PacketType.Text
+                    Return New Packets.Text(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -374,23 +383,45 @@ Partial Class UOAI
 #End Region
 
 #Region "Public Functions and Subs"
-        Public Sub sysmsg(ByVal message As String)
-            sysmsg(0, 0, message)
+        Public Sub SysMsg(ByVal Text As String)
+            Dim k As New Packets.UnicodeTextPacket
+            k.Name = "System"
+            k.Serial = WorldSerial
+            k.Body = &HFFFF
+            k.Mode = Enums.SpeechTypes.System
+            k.Hue = &HFFFF
+            k.Font = Enums.Fonts.Default
+            k.Text = Text
+
+            Send(k, Enums.PacketDestination.CLIENT)
         End Sub
-        Public Sub sysmsg(ByVal font As Enums.Fonts, ByVal message As String)
-            sysmsg(font, 0, message)
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts)
+
         End Sub
-        Public Sub sysmsg(ByVal font As Enums.Fonts, ByVal color As UInteger, ByVal message As String)
-            Dim textpointer As UInteger
-            'allocate buffer on the client for the text message
-            textpointer = InjectedDll.allocate(message.Length + 1)
-            'write the text message to this remote buffer on the client
-            PStream.WriteStr(textpointer, message)
-            'make the sysmessage call
-            InjectedDll.stdcall(_CallibrationInfo.pTextOut, New UInteger() {textpointer, font, color})
-            'clean up the text buffer
-            InjectedDll.free(textpointer)
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort)
+            Dim k As New Packets.Text
+            k.Name = "System"
+            k.Serial = New Serial(CUInt(0))
+            k.BodyType = &HFFFF
+            k.SpeechType = Enums.SpeechTypes.System
+            k.TextHue = &HFFFF
+            k.TextFont = Enums.Fonts.Default
+            k.Text = Text
+
+            Send(k, Enums.PacketDestination.CLIENT)
         End Sub
+
+        ''' <summary>
+        ''' Pings the specified address and returns the latency as a UShort.
+        ''' </summary>
+        ''' <param name="ServerAddress">The address of the server to ping.</param>
+        Public Function Latency(ByVal ServerAddress As String) As UShort
+            Dim pinger As New System.Net.NetworkInformation.Ping
+            Dim reply As System.Net.NetworkInformation.PingReply = pinger.Send(ServerAddress)
+            Return reply.RoundtripTime
+        End Function
 
         Public Sub Send(ByVal tosend As Packet, ByVal destination As Enums.PacketDestination)
             Dim networkobject As UInteger

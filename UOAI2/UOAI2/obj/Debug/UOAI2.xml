@@ -6,12 +6,7 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="E:UOAI2.UOAI.Client.onTargetResponse">
-	<summary>
- Called whenever the client chooses a target.
- </summary>
-	<param name="TargetInfo">The TargetInfo object containting the information on the target response.</param>
-</member><member name="T:UOAI2.UOAI.Enums.LoginState">
+<member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
 	<summary>Enumeration of Entity types.</summary>
@@ -648,6 +643,11 @@ UOAI2
  Called when the client loses its network connection to the server.
  </summary>
 	<param name="Client">The client that lost its connection.</param>
+</member><member name="M:UOAI2.UOAI.Client.Latency(System.String)">
+	<summary>
+ Pings the specified address and returns the latency as a UShort.
+ </summary>
+	<param name="ServerAddress">The address of the server to ping.</param>
 </member><member name="M:UOAI2.UOAI.Client.PatchEncryption">
 	<summary>Disables the client encryption.</summary>
 	<remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
@@ -771,6 +771,10 @@ UOAI2
  but this is one of the biggest packet classes of all time, OF ALL TIME!
   -Kanye West
  757 lines...
+ </summary>
+</member><member name="T:UOAI2.UOAI.Packets.HPHealth">
+	<summary>
+ This is sent by the server to tell the client to update a Mobile's health and max health.
  </summary>
 </member><member name="T:UOAI2.UOAI.Packets">
 	<summary>A namespace encapsulating the packet types classes.</summary>
@@ -921,6 +925,11 @@ UOAI2
 	<param name="e">Nothing usefull.</param>
 </member><member name="T:UOAI2.UOAI.ClientList">
 	<summary>A list of Ultima Online clients.</summary>
+</member><member name="E:UOAI2.UOAI.Client.onTargetResponse">
+	<summary>
+ Called whenever the client chooses a target.
+ </summary>
+	<param name="TargetInfo">The TargetInfo object containting the information on the target response.</param>
 </member>
 </members>
 </doc>

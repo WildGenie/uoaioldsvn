@@ -16,7 +16,7 @@ Partial Class UOAI
         Private _ParentItem As Item
         Private _Serial As New Serial(0)
         Private _SearchReturn As Boolean = False
-        Private _MyClient As Client
+        Friend _MyClient As Client
 
         'Items should use this one!
         Friend Sub New(ByVal ParentItem As Item, ByVal Client As Client)
