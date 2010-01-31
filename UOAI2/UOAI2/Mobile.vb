@@ -6,10 +6,11 @@ Partial Class UOAI
         Inherits Item
         Friend _Layers As LayersClass
 
-        Friend Sub New(ByVal Client As Client)
-            MyBase.New(Client)
+        Friend Sub New(ByVal Client As Client, ByVal Serial As Serial)
+            MyBase.New(Client, Serial)
             _Layers = New LayersClass(Client)
             _Client = Client
+            _Serial = Serial
             _IsMobile = True
             _Container = WorldSerial
         End Sub
@@ -34,6 +35,7 @@ Partial Class UOAI
         Friend _Gold As UInt32 = 0
         Friend _ResistPhysical As UShort = 0
         Friend _Weight As UShort = 0
+        Friend _PoisonLevel As Byte = 0
 
         'Included in Mobile Stat Packet if SF 0x03
         Friend _StatCap As UShort = 1
@@ -122,6 +124,15 @@ Partial Class UOAI
         Public ReadOnly Property Layers() As LayersClass
             Get
                 Return _Layers
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' The level of poison that the mobile is aflicted with, 0 = no poison.
+        ''' </summary>
+        Public ReadOnly Property PoisonLevel() As Byte
+            Get
+                Return _PoisonLevel
             End Get
         End Property
 
@@ -916,12 +927,11 @@ Partial Class UOAI
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.EquipItem)
             'Create a new item on the client that this mobile belongs to.
-            Dim NewItem As New Item(_Client)
+            Dim NewItem As New Item(_Client, Packet.Serial)
 
             'Assign the item's properties based on the packet info
-            NewItem._Serial = Packet.Serial
             NewItem._Type = Packet.ItemType
-            NewItem._Container = Packet.Container
+            NewItem._Container = WorldSerial
             NewItem._Layer = Packet.Layer
             NewItem._Hue = Packet.Hue
 
@@ -943,7 +953,7 @@ Partial Class UOAI
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.EquippedMobile)
-            Me._Type.BaseValue = Packet.BodyType
+            Me._Type = Packet.BodyType
             Me._X = Packet.X
             Me._Y = Packet.Y
             Me._Z = Packet.Z
@@ -1059,6 +1069,9 @@ Partial Class UOAI
 
                     'Adds the item to the world item list for later reference.
                     'The container is set to the Mobile Serial
+
+
+                    If _Client._AllItems.ContainsKey(Packet.EquippedItems(i)._Serial) = False Then
 #If DebugMobiles Then
                     Console.WriteLine("-HandleUpdatePacket(ByVal Packet As Packets.EquippedMobile)")
                     Console.WriteLine(" Adding Item as Mobile Equipment: ")
@@ -1066,7 +1079,13 @@ Partial Class UOAI
                     Console.WriteLine(" Item:" & Packet.EquippedItems(i).Serial.ToString)
                     Console.WriteLine(" Layer:" & Packet.EquippedItems(i).Layer)
 #End If
-                    _Client.Items.Add(Packet.EquippedItems(i))
+                        'Instantiate the contents veriable of the time.
+                        Packet.EquippedItems(i)._contents = New ItemList(DirectCast(Packet.EquippedItems(i), Item), _Client)
+
+                        _Client.Items.Add(Packet.EquippedItems(i))
+
+                    End If
+
                 Next
             End If
 
@@ -1077,7 +1096,7 @@ Partial Class UOAI
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.NakedMobile)
-            _Type.BaseValue = Packet.BodyType
+            _Type = Packet.BodyType
             _X = Packet.X
             _Y = Packet.Y
             _Z = Packet.Z
@@ -1088,6 +1107,15 @@ Partial Class UOAI
 #If DebugMobiles Then
             Console.WriteLine("-Updated Mobile Naked: " & Packet.Serial.ToString)
 #End If
+        End Sub
+
+        Friend Sub HandleUpdatePacket(ByVal Packet As Packets.HealthBarStatusUpdate)
+            If Packet.Color = 1 And Packet.Flag <> _PoisonLevel Then
+                _PoisonLevel = Packet.Flag
+                RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Poison)
+            ElseIf Packet.Color = 0 And _PoisonLevel <> 0 Then
+                RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.Poison)
+            End If
         End Sub
 
         Friend Sub HandleDeathPacket(ByVal packet As Packets.DeathAnimation)
@@ -1128,6 +1156,7 @@ Partial Class UOAI
             FullUpdate
             Move
             EquipItem
+            Poison
         End Enum
 
     End Class

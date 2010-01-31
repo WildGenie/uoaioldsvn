@@ -46,7 +46,14 @@ Partial Class UOAI
 
     End Class
 
+#If DEBUG Then
     Public Class TargetInfo
+#Else
+    'Hide this class from the user, there is no reason from him/her to see it.
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
+    Public Class TargetInfo
+#End If
+
         Friend _Target As New Serial(CUInt(0))
         Friend _Type As Enums.TargetType = Enums.TargetType.Canceled
         Friend _X As UShort = 0

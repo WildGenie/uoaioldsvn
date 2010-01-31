@@ -7,11 +7,20 @@ Imports System.IO
 
 
 Partial Class UOAI
+
+#Region "Calibration Info"
+
+#If DEBUG Then
+    'CallibrationInfo structure to hold info read from the injected dll
+    <StructLayout(LayoutKind.Sequential, Size:=640)> _
+    Public Structure CallibrationInfo
+#Else
     'CallibrationInfo structure to hold info read from the injected dll
     'Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     <StructLayout(LayoutKind.Sequential, Size:=640)> _
     Public Structure CallibrationInfo
+#End If
         Public pSendHook As UInt32
         'address of the send-hook function in the injected dll
         Public pHandlePacketHook As UInt32
@@ -292,10 +301,20 @@ Partial Class UOAI
         Public oGumpElementClick As UInt32
     End Structure
 
+#End Region
+
+#Region "IPC Constants"
+
+#If DEBUG Then
+    ''' <summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
+    Friend Class IPCConstants
+#Else
     ''' <summary>IPCConstants = windows messages send to the injected dll to perform synchronized actions</summary>
     ''' Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Friend Class IPCConstants
+#End If
+
         ''' <summary></summary>
         Friend Shared customcallmessage As UInteger = 0
 
@@ -411,12 +430,21 @@ Partial Class UOAI
         End Sub
     End Class
 
+#End Region
+
+#Region "RStack"
     'To perform synchronized calls, a stack datastructure is set up in injected dll (remotely)
     'and all parameters are pushed onto that through the message based IPC.
     'This RStack class hides the details of that.
+
+#If DEBUG Then
+    Public Class RStack
+#Else
     ''' Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class RStack
+#End If
+
         Private m_Stack As UInteger
         Private m_Client As Client
 
@@ -435,10 +463,19 @@ Partial Class UOAI
         End Property
     End Class
 
-    'Wraps up functionality of UOClientDll
+#End Region
+
+#Region "UOClientDll - Wraps up functionality of UOClientDll"
+
+#If DEBUG Then
+    Friend Class UOClientDll
+#Else
     'Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Friend Class UOClientDll
+#End If
+
+
         'private members
         Private m_ClientProcess As ProcessStream
         Private m_tid As UInt32
@@ -701,4 +738,5 @@ Partial Class UOAI
         End Function
     End Class
 
+#End Region
 End Class

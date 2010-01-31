@@ -16,7 +16,6 @@ Partial Class UOAI
         End Sub
 
         Friend Sub New()
-            _IsSearchResult = True
         End Sub
 
         ''' <summary>
@@ -49,10 +48,9 @@ Partial Class UOAI
             End If
 
             'Create a new empty mobile on the current client.
-            Dim NewMobile As New Mobile(_Client)
+            Dim NewMobile As New Mobile(_Client, Packet.Serial)
 
-            NewMobile._Serial = Packet.Serial
-            NewMobile._Type.BaseValue = Packet.BodyType
+            NewMobile._Type = Packet.BodyType
             NewMobile._X = Packet.X
             NewMobile._Y = Packet.Y
             NewMobile._Z = Packet.Z
@@ -65,96 +63,11 @@ Partial Class UOAI
             Console.WriteLine("-Adding Mobile as Equipped Mobile:" & NewMobile.Serial.ToString)
 #End If
 
+            'Make the mobile
             AddMobile(NewMobile)
 
-            'Loop through the items and add their serials to the proper layers for later reference
-            For Each i As Item In Packet.EquippedItems
-                Select Case i._Layer
-                    Case Enums.Layers.Arms
-                        NewMobile._Layers.SetLayer(Enums.Layers.Arms, i.Serial)
-
-                    Case Enums.Layers.Back
-                        NewMobile._Layers.SetLayer(Enums.Layers.Back, i.Serial)
-
-                    Case Enums.Layers.BackPack
-                        NewMobile._Layers.SetLayer(Enums.Layers.BackPack, i.Serial)
-
-                    Case Enums.Layers.Bank
-                        NewMobile._Layers.SetLayer(Enums.Layers.Bank, i.Serial)
-
-                    Case Enums.Layers.Bracelet
-                        NewMobile._Layers.SetLayer(Enums.Layers.Bracelet, i.Serial)
-
-                    Case Enums.Layers.Ears
-                        NewMobile._Layers.SetLayer(Enums.Layers.Ears, i.Serial)
-
-                    Case Enums.Layers.FacialHair
-                        NewMobile._Layers.SetLayer(Enums.Layers.FacialHair, i.Serial)
-
-                    Case Enums.Layers.Gloves
-                        NewMobile._Layers.SetLayer(Enums.Layers.Gloves, i.Serial)
-
-                    Case Enums.Layers.Hair
-                        NewMobile._Layers.SetLayer(Enums.Layers.Hair, i.Serial)
-
-                    Case Enums.Layers.Head
-                        NewMobile._Layers.SetLayer(Enums.Layers.Head, i.Serial)
-
-                    Case Enums.Layers.InnerLegs
-                        NewMobile._Layers.SetLayer(Enums.Layers.InnerLegs, i.Serial)
-
-                    Case Enums.Layers.InnerTorso
-                        NewMobile._Layers.SetLayer(Enums.Layers.InnerTorso, i.Serial)
-
-                    Case Enums.Layers.LeftHand
-                        NewMobile._Layers.SetLayer(Enums.Layers.LeftHand, i.Serial)
-
-                    Case Enums.Layers.MiddleTorso
-                        NewMobile._Layers.SetLayer(Enums.Layers.MiddleTorso, i.Serial)
-
-                    Case Enums.Layers.Mount
-                        NewMobile._Layers.SetLayer(Enums.Layers.Mount, i.Serial)
-
-                    Case Enums.Layers.Neck
-                        NewMobile._Layers.SetLayer(Enums.Layers.Neck, i.Serial)
-
-                    Case Enums.Layers.OuterLegs
-                        NewMobile._Layers.SetLayer(Enums.Layers.OuterLegs, i.Serial)
-
-                    Case Enums.Layers.OuterTorso
-                        NewMobile._Layers.SetLayer(Enums.Layers.OuterTorso, i.Serial)
-
-                    Case Enums.Layers.Pants
-                        NewMobile._Layers.SetLayer(Enums.Layers.Pants, i.Serial)
-
-                    Case Enums.Layers.RightHand
-                        NewMobile._Layers.SetLayer(Enums.Layers.RightHand, i.Serial)
-
-                    Case Enums.Layers.Ring
-                        NewMobile._Layers.SetLayer(Enums.Layers.Ring, i.Serial)
-
-                    Case Enums.Layers.Shirt
-                        NewMobile._Layers.SetLayer(Enums.Layers.Shirt, i.Serial)
-
-                    Case Enums.Layers.Shoes
-                        NewMobile._Layers.SetLayer(Enums.Layers.Shoes, i.Serial)
-
-                    Case Enums.Layers.None
-                        NewMobile._Layers.SetLayer(Enums.Layers.None, i.Serial)
-
-                End Select
-
-                'Adds the item to the world item list for later reference.
-                'The container is set to the mobile serial.
-#If DebugMobileList Then
-                Console.WriteLine("-AddMobile(ByVal Packet As Packets.EquippedMobile)")
-                Console.WriteLine(" Adding Item as Mobile Equipment: ")
-                Console.WriteLine(" Mobile:" & NewMobile.Serial.ToString)
-                Console.WriteLine(" Item:" & i.Serial.ToString)
-                Console.WriteLine(" Layer:" & i.Layer)
-#End If
-                _Client.Items.Add(i)
-            Next
+            'Have the mobile dress itself.
+            NewMobile.HandleUpdatePacket(Packet)
 
         End Sub
 
@@ -169,11 +82,9 @@ Partial Class UOAI
             End If
 
             'Create a new empty mobile on the current client.
-            Dim NewMobile As New Mobile(_Client)
+            Dim NewMobile As New Mobile(_Client, Packet.Serial)
 
-            'Fill in the mobile's data.
-            NewMobile._Serial = Packet.Serial
-            NewMobile._Type.BaseValue = Packet.BodyType
+            NewMobile._Type = Packet.BodyType
             NewMobile._X = Packet.X
             NewMobile._Y = Packet.Y
             NewMobile._Z = Packet.Z
