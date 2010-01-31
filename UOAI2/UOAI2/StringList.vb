@@ -4,9 +4,16 @@
 
 Partial Class UOAI
 
+#If DEBUG Then
+    ''' <summary>
+    ''' A list of the clients strings from the cliloc files.
+    ''' </summary>
+    Public Class StringList
+#Else
     ''' Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class StringList
+#End If
         Private m_Table As Hashtable
         Private m_Entries As StringEntry()
         Private m_Language As String
@@ -73,9 +80,13 @@ Partial Class UOAI
         End Sub
     End Class
 
+#If DEBUG Then
+    Public Class StringEntry
+#Else
     ''' Hide this class from the user, there is no reason from him/her to see it.
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class StringEntry
+#End If
         Private m_Number As Integer
         Private m_Text As String
 

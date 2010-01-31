@@ -3,8 +3,15 @@ Imports System.IO, System.Runtime.InteropServices
 
 Partial Class UOAI
 
+#If DEBUG Then
     ''' <summary>A list of Ultima Online clients.</summary>
     Public Class ClientList
+#Else
+    ''' <summary>A list of Ultima Online clients.</summary>
+    <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
+    Public Class ClientList
+#End If
+
 
 #Region "Statements"
 
@@ -189,6 +196,6 @@ Partial Class UOAI
         End Sub
 #End Region
 
-
     End Class
+
 End Class

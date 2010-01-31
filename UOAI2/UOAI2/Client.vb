@@ -1,7 +1,7 @@
 ﻿Imports System.Net.Sockets, System.Net, System.Threading
 
 Partial Class UOAI
-    'The Serial for the world, its where you store the mobiles, and items that mobiles people are wearing.
+    'The Serial for the world, its where you store the mobiles, and items that mobiles are wearing.
     'And items that are on the ground, basicaly anything thats not in some sort of container.
     Friend Shared ReadOnly WorldSerial As New Serial(Convert.ToUInt32(4294967295))
 
@@ -21,7 +21,7 @@ Partial Class UOAI
         Private m_CurrentPacket As Packet
         Private m_EventTimer As System.Threading.Timer
         Private m_ShutdownEventTimer As Boolean
-        Private _Items As ItemList
+        Private _Items As Item
         Friend _AllItems As New Hashtable
         Private _MobileList As New MobileList(Me)
         Private _Macros As New UOMacros(Me)
@@ -57,7 +57,7 @@ Partial Class UOAI
         ''' </summary>
         Public ReadOnly Property Items() As ItemList
             Get
-                Return _Items
+                Return _Items.Contents
             End Get
         End Property
 
@@ -143,7 +143,8 @@ Partial Class UOAI
             End If
 
             'b. setup item list; mobile list and gumplist
-            _Items = New ItemList(WorldSerial, Me)
+            _Items = New Item(Me, WorldSerial)
+            _AllItems.Add(WorldSerial, _Items)
 
             'c. timer
             m_ShutdownEventTimer = False
@@ -217,6 +218,12 @@ Partial Class UOAI
                 Case Enums.PacketType.Text
                     Return New Packets.Text(packetbuffer)
 
+                Case Enums.PacketType.LoginConfirm
+                    Return New Packets.LoginConfirm(packetbuffer)
+
+                Case Enums.PacketType.HealthBarStatusUpdate
+                    Return New Packets.HealthBarStatusUpdate(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -264,6 +271,11 @@ Partial Class UOAI
 
         Private Sub EarlyPacketHandling(ByRef currentpacket As Packet)
             'whatever we need to do with the current packet BEFORE the client handled it goes here
+            Select Case currentpacket.Type
+                Case Enums.PacketType.SpeechUnicode
+                    Dim k As Packets.UnicodeSpeechPacket = DirectCast(currentpacket, Packets.UnicodeSpeechPacket)
+                    RaiseEvent onClientSpeech(Me, k.Text, k.Font, k.Hue, k.Language, k.SpeechType)
+            End Select
         End Sub
 
         Private Sub LatePacketHandling(ByRef currentpacket As Packet)
@@ -313,187 +325,29 @@ Partial Class UOAI
                         Dim jimbo As New TargetInfo(Me, DirectCast(currentpacket, Packets.Target))
                         RaiseEvent onTargetResponse(jimbo)
                     End If
+
+                Case Enums.PacketType.LoginConfirm
+                    'Make a new playerclass
+                    Dim pl As New PlayerClass(Me, DirectCast(currentpacket, Packets.LoginConfirm).Serial)
+
+                    'Apply the packet's info to the new playerclass
+                    pl._Type = DirectCast(currentpacket, Packets.LoginConfirm).BodyType
+                    pl._X = DirectCast(currentpacket, Packets.LoginConfirm).X
+                    pl._Y = DirectCast(currentpacket, Packets.LoginConfirm).Y
+                    pl._Z = DirectCast(currentpacket, Packets.LoginConfirm).Z
+                    pl._Direction = DirectCast(currentpacket, Packets.LoginConfirm).Direction
+
+                    'Assign it to player
+                    _Player = pl
+
+                    'Cast the player as a mobile and add it to the mobile list.
+                    Mobiles.AddMobile(DirectCast(_Player, Mobile))
+                Case Enums.PacketType.HealthBarStatusUpdate
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HealthBarStatusUpdate).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HealthBarStatusUpdate))
+
             End Select
         End Sub
 
-        ''' <summary>Remove an item, mobile, etc... from the collections</summary>
-        ''' <param name="address">The 32-bit address in the client's memory of the object as <see cref="UInteger"/></param>
-        Private Sub RemoveObject(ByVal address As UInteger)
-            'remove item, mobile, ... from the collections
-
-        End Sub
-
-        Private Sub RemoveObject(ByVal Serial As Serial)
-            'RemoveObject(Me.Items.Item(Serial).MemoryOffset)
-            If Me.Items.Exists(Serial) Then
-                Me.Items.RemoveItem(Serial)
-            Else
-                Mobiles.RemoveMobile(Serial)
-            End If
-        End Sub
-
-#End Region
-
-#Region "Events"
-        ''' <summary>
-        ''' Called when the client process closes.
-        ''' </summary>
-        ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-        Public Event onClientExit(ByRef Client As Client)
-
-        ''' <summary>
-        ''' Called when the client recieves a login confirm packets from the game server, and the player character is created.
-        ''' </summary>
-        ''' <remarks></remarks>
-        Public Event onLogin()
-
-        ''' <summary>
-        ''' Called when a Packet arrives on this client.
-        ''' </summary>
-        ''' <param name="Client">Client on which the packet was received</param>
-        ''' <param name="packet">The received packet</param>
-        Public Event onPacketReceive(ByRef Client As Client, ByRef packet As Packet)
-
-        ''' <summary>
-        ''' Called when a Packet is sent formt he client to the server.
-        ''' </summary>
-        ''' <param name="Client">Client from which the packet was sent.</param>
-        ''' <param name="packet">The sent packet.</param>
-        Public Event onPacketSend(ByRef Client As Client, ByRef packet As Packet)
-
-        ''' <summary>
-        ''' Called when the user of the client releases a pressed key.
-        ''' </summary>
-        ''' <param name="Client">The client on which the key was released</param>
-        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
-        Public Event onKeyUp(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
-
-        ''' <summary>
-        ''' Called when the user of the client holds down a key.
-        ''' </summary>
-        ''' <param name="Client">The client on which the key was pressed</param>
-        ''' ''' <param name="VirtualKeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
-        Public Event onKeyDown(ByRef Client As Client, ByVal VirtualKeyCode As UInteger)
-
-        ''' <summary>
-        ''' Called when the client loses its network connection to the server.
-        ''' </summary>
-        ''' <param name="Client">The client that lost its connection.</param>
-        Public Event onConnectionLoss(ByRef Client As Client)
-#End Region
-
-#Region "Public Functions and Subs"
-        Public Sub SysMsg(ByVal Text As String)
-            Dim k As New Packets.UnicodeTextPacket
-            k.Name = "System"
-            k.Serial = WorldSerial
-            k.Body = &HFFFF
-            k.Mode = Enums.SpeechTypes.System
-            k.Hue = &HFFFF
-            k.Font = Enums.Fonts.Default
-            k.Text = Text
-
-            Send(k, Enums.PacketDestination.CLIENT)
-        End Sub
-
-        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts)
-
-        End Sub
-
-        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort)
-            Dim k As New Packets.Text
-            k.Name = "System"
-            k.Serial = New Serial(CUInt(0))
-            k.BodyType = &HFFFF
-            k.SpeechType = Enums.SpeechTypes.System
-            k.TextHue = &HFFFF
-            k.TextFont = Enums.Fonts.Default
-            k.Text = Text
-
-            Send(k, Enums.PacketDestination.CLIENT)
-        End Sub
-
-        ''' <summary>
-        ''' Pings the specified address and returns the latency as a UShort.
-        ''' </summary>
-        ''' <param name="ServerAddress">The address of the server to ping.</param>
-        Public Function Latency(ByVal ServerAddress As String) As UShort
-            Dim pinger As New System.Net.NetworkInformation.Ping
-            Dim reply As System.Net.NetworkInformation.PingReply = pinger.Send(ServerAddress)
-            Return reply.RoundtripTime
-        End Function
-
-        Public Sub Send(ByVal tosend As Packet, ByVal destination As Enums.PacketDestination)
-            Dim networkobject As UInteger
-            Dim remotebuffer As UInteger
-
-            'read the network address of the client's c++ object that handles network traffic
-            networkobject = PStream.ReadUInt(_CallibrationInfo.pSockObject)
-
-            'allocate a buffer to hold the packet
-            remotebuffer = InjectedDll.allocate(tosend.Size)
-
-            'write the packet
-            PStream.Write(remotebuffer, tosend.Data)
-
-            'send the packet
-            Select Case destination
-                Case Enums.PacketDestination.CLIENT
-                    InjectedDll.stdthiscall(_CallibrationInfo.pOriginalHandlePacket, networkobject, New UInteger() {remotebuffer})
-                    Exit Select
-                Case Enums.PacketDestination.SERVER
-                    InjectedDll.skipuoai_stdthiscall(_CallibrationInfo.pLoginCrypt, networkobject, New UInteger() {remotebuffer})
-                    Exit Select
-            End Select
-
-            'clean up packet buffer on the client
-            InjectedDll.free(remotebuffer)
-        End Sub
-
-        ''' <summary>Disables the client encryption.</summary>
-        ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
-        Public Sub PatchEncryption()
-            InjectedDll.PatchEncryption()
-        End Sub
-
-        ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
-        ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
-        Public Sub UpdatePacket(ByRef newpacket As Packet)
-            'force an update of the packet
-            Dim updatemessage As BufferHandler
-            Dim pBuffer() As Byte
-
-            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
-                If (newpacket.Size > m_CurrentPacket.Size) Then
-                    Throw New Exception("Update a packet requires the size of the new packet to be smaller or equal to the old packet!")
-                Else
-                    pBuffer = newpacket.Data 'we do this once, to make sure the dynamic Data properties don't have to do serialization more than once
-                    updatemessage = New BufferHandler(8 + pBuffer.Length)
-                    updatemessage.writeuint(1)
-                    updatemessage.writeint(pBuffer.Length)
-                    updatemessage.Write(pBuffer, 0, pBuffer.Length)
-                    m_EventSocket.Send(updatemessage.buffer)
-                    m_CurrentPacket = newpacket
-                End If
-            End If
-        End Sub
-
-        ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
-        Public Sub DropPacket()
-            'current packet is never handled by the client
-            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
-                m_EventSocket.Send(droppacketmessage)
-                m_EventHandled = True
-                m_EventLocked = True
-            End If
-        End Sub
-
-        ''' <summary>
-        ''' Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
-        ''' </summary>
-        Public Sub Close()
-            Process.GetProcessById(PID).Kill()
-        End Sub
 
         'handles all IPC packets, including sent/received packets on the client
         Private Function HandlePackets() As Boolean
@@ -601,6 +455,200 @@ Partial Class UOAI
             End Select
 
         End Function
+
+        ''' <summary>Remove an item, mobile, etc... from the collections</summary>
+        ''' <param name="address">The 32-bit address in the client's memory of the object as <see cref="UInteger"/></param>
+        Private Sub RemoveObject(ByVal address As UInteger)
+            'remove item, mobile, ... from the collections
+
+        End Sub
+
+        Private Sub RemoveObject(ByVal Serial As Serial)
+            'RemoveObject(Me.Items.Item(Serial).MemoryOffset)
+            If Me.Items.Exists(Serial) Then
+                Me.Items.RemoveItem(Serial)
+            Else
+                Mobiles.RemoveMobile(Serial)
+            End If
+        End Sub
+
+#End Region
+
+#Region "Events"
+        ''' <summary>
+        ''' Called when the client process closes.
+        ''' </summary>
+        ''' <param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
+        Public Event onClientExit(ByRef Client As Client)
+
+        ''' <summary>
+        ''' Called when the client recieves a login confirm packets from the game server, and the player character is created.
+        ''' </summary>
+        ''' <remarks></remarks>
+        Public Event onLogin()
+
+        ''' <summary>
+        ''' Called when a Packet arrives on this client.
+        ''' </summary>
+        ''' <param name="Client">Client on which the packet was received</param>
+        ''' <param name="packet">The received packet</param>
+        Public Event onPacketReceive(ByRef Client As Client, ByRef packet As Packet)
+
+        ''' <summary>
+        ''' Called when a Packet is sent formt he client to the server.
+        ''' </summary>
+        ''' <param name="Client">Client from which the packet was sent.</param>
+        ''' <param name="packet">The sent packet.</param>
+        Public Event onPacketSend(ByRef Client As Client, ByRef packet As Packet)
+
+        ''' <summary>
+        ''' Called when the user of the client releases a pressed key.
+        ''' </summary>
+        ''' <param name="Client">The client on which the key was released</param>
+        ''' <param name="KeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+        Public Event onKeyUp(ByRef Client As Client, ByVal KeyCode As System.Windows.Forms.Keys)
+
+        ''' <summary>
+        ''' Called when the user of the client holds down a key.
+        ''' </summary>
+        ''' <param name="Client">The client on which the key was pressed</param>
+        ''' <param name="KeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+        Public Event onKeyDown(ByRef Client As Client, ByVal KeyCode As System.Windows.Forms.Keys)
+
+        ''' <summary>
+        ''' Called when the client loses its network connection to the server.
+        ''' </summary>
+        ''' <param name="Client">The client that lost its connection.</param>
+        Public Event onConnectionLoss(ByRef Client As Client)
+
+        ''' <summary>
+        ''' Called when the client sends a speech packet to the server.
+        ''' </summary>
+        ''' <param name="client">The client sending the packet.</param>
+        ''' <param name="Text">The text in the packet.</param>
+        ''' <param name="Font">The font as <see cref="UOAI.Enums.Fonts"/></param>
+        ''' <param name="Hue">The hue of the text.</param>
+        ''' <param name="Language">The language code that applies to the text.</param>
+        ''' <param name="SpeechType">The speech type as <see cref="UOAI.Enums.SpeechTypes"/></param>
+        Public Event onClientSpeech(ByVal client As Client, ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As Enums.SpeechTypes)
+
+#End Region
+
+#Region "Public Functions and Subs"
+        ''' <summary>
+        ''' Displays a message in game, on the bottom left corner of the screen.
+        ''' </summary>
+        ''' <param name="Text">The text you want to display.</param>
+        Public Sub SysMsg(ByVal Text As String)
+            SysMsg(Text, Enums.Fonts.Default, CUShort(52))
+        End Sub
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts)
+            SysMsg(Text, Font, CUShort(52))
+        End Sub
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Hue As UShort)
+            SysMsg(Text, Enums.Fonts.Default, Hue)
+        End Sub
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort)
+            Dim k As New Packets.Text(Text)
+            k.Name = "System"
+            k.Serial = New Serial(CUInt(4294967295))
+            k.BodyType = CUShort(&HFFFF)
+            k.SpeechType = Enums.SpeechTypes.System
+            k.TextHue = Hue
+            k.TextFont = Font
+
+#Const DebugSysMsg = False
+#If DebugSysMsg Then
+            Console.WriteLine("Sending SysMsg Packet to Client: " & BitConverter.ToString(k.Data))
+#End If
+
+            Send(k, Enums.PacketDestination.CLIENT)
+        End Sub
+
+        ''' <summary>
+        ''' Pings the specified address and returns the latency as a UShort.
+        ''' </summary>
+        ''' <param name="ServerAddress">The address of the server to ping.</param>
+        Public Function Latency(ByVal ServerAddress As String) As UShort
+            Dim pinger As New System.Net.NetworkInformation.Ping
+            Dim reply As System.Net.NetworkInformation.PingReply = pinger.Send(ServerAddress)
+            Return reply.RoundtripTime
+        End Function
+
+        Public Sub Send(ByVal tosend As Packet, ByVal destination As Enums.PacketDestination)
+            Dim networkobject As UInteger
+            Dim remotebuffer As UInteger
+
+            'read the network address of the client's c++ object that handles network traffic
+            networkobject = PStream.ReadUInt(_CallibrationInfo.pSockObject)
+
+            'allocate a buffer to hold the packet
+            remotebuffer = InjectedDll.allocate(tosend.Size)
+
+            'write the packet
+            PStream.Write(remotebuffer, tosend.Data)
+
+            'send the packet
+            Select Case destination
+                Case Enums.PacketDestination.CLIENT
+                    InjectedDll.stdthiscall(_CallibrationInfo.pOriginalHandlePacket, networkobject, New UInteger() {remotebuffer})
+                    Exit Select
+                Case Enums.PacketDestination.SERVER
+                    InjectedDll.skipuoai_stdthiscall(_CallibrationInfo.pLoginCrypt, networkobject, New UInteger() {remotebuffer})
+                    Exit Select
+            End Select
+
+            'clean up packet buffer on the client
+            InjectedDll.free(remotebuffer)
+        End Sub
+
+        ''' <summary>Disables the client encryption.</summary>
+        ''' <remarks>For free servers, you should patch encryption. Encryption is required on OSI servers.</remarks>
+        Public Sub PatchEncryption()
+            InjectedDll.PatchEncryption()
+        End Sub
+
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
+        ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
+        Public Sub UpdatePacket(ByRef newpacket As Packet)
+            'force an update of the packet
+            Dim updatemessage As BufferHandler
+            Dim pBuffer() As Byte
+
+            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
+                If (newpacket.Size > m_CurrentPacket.Size) Then
+                    Throw New Exception("Update a packet requires the size of the new packet to be smaller or equal to the old packet!")
+                Else
+                    pBuffer = newpacket.Data 'we do this once, to make sure the dynamic Data properties don't have to do serialization more than once
+                    updatemessage = New BufferHandler(8 + pBuffer.Length)
+                    updatemessage.writeuint(1)
+                    updatemessage.writeint(pBuffer.Length)
+                    updatemessage.Write(pBuffer, 0, pBuffer.Length)
+                    m_EventSocket.Send(updatemessage.buffer)
+                    m_CurrentPacket = newpacket
+                End If
+            End If
+        End Sub
+
+        ''' <summary>Used from within the onRecievePacket/onPacketSend events to tell UOAI to delete the packet so the client never gets it.</summary>
+        Public Sub DropPacket()
+            'current packet is never handled by the client
+            If ((Not m_EventHandled) And (Not m_EventLocked)) Then
+                m_EventSocket.Send(droppacketmessage)
+                m_EventHandled = True
+                m_EventLocked = True
+            End If
+        End Sub
+
+        ''' <summary>
+        ''' Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+        ''' </summary>
+        Public Sub Close()
+            Process.GetProcessById(PID).Kill()
+        End Sub
 
 #End Region
 

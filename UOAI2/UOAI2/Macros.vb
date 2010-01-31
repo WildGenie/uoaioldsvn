@@ -2,9 +2,13 @@
 
     Partial Class Client
 
+#If DEBUG Then
+        Private Function GetBytesFromUIntArray(ByVal toconvert() As UInteger) As Byte()
+#Else
         ''' Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Private Function GetBytesFromUIntArray(ByVal toconvert() As UInteger) As Byte()
+#End If
             Dim intbytes(toconvert.Length * 4 - 1) As Byte
             Dim buffer(3) As Byte
 
@@ -19,9 +23,14 @@
             Return intbytes
         End Function
 
+#If DEBUG Then
+        Private Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
+#Else
         ''' Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Private Sub Macro(ByVal MacroType As Enums.Macros, ByVal IntParameter As Int32, ByVal StrParameter As String)
+#End If
+
             Dim StringParameterAddress As UInteger
             Dim MacroTableAddress As UInteger
             Dim MacroTable(9) As UInteger
@@ -53,12 +62,20 @@
             InjectedDll.free(MacroTableAddress)
         End Sub
 
+#If DEBUG Then
+        ''' <summary>
+        ''' Standard UO macros
+        ''' </summary>
+        Public Class UOMacros
+#Else
         ''' <summary>
         ''' Standard UO macros
         ''' </summary>
         ''' Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Public Class UOMacros
+#End If
+
             Private m_Client As Client
 
             Friend Sub New(ByVal onclient As Client)

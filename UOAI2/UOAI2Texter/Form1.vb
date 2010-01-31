@@ -78,6 +78,15 @@ Public Class Form1
         UOAI_Cl.PatchEncryption()
     End Sub
 
+    Private Sub UOAI_Cl_onClientSpeech(ByVal client As UOAI2.UOAI.Client, ByVal Text As String, ByVal Font As UOAI2.UOAI.Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As UOAI2.UOAI.Enums.SpeechTypes) Handles UOAI_Cl.onClientSpeech
+        UOAI_Cl.DropPacket()
+    End Sub
+
+    Private Sub UOAI_Cl_onKeyDown(ByRef Client As UOAI2.UOAI.Client, ByVal VirtualKeyCode As UInteger) Handles UOAI_Cl.onKeyDown
+        Console.WriteLine("KeyDown: " & VirtualKeyCode)
+
+    End Sub
+
     Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
         If CheckBox1.Checked = True Then
             packetlog.WriteLine("'Recieved Packet #" & packetnumber)

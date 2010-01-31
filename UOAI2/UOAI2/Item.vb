@@ -3,8 +3,9 @@
     Public Class Item
 
 #Region "Constructor"
-        Friend Sub New(ByVal Client As Client) 'New(byval offset as int32)
-            _contents = New ItemList(Me, Client)
+        Friend Sub New(ByVal client As Client, ByVal Serial As Serial)
+            Me._Serial = Serial
+            _contents = New ItemList(Me, client)
         End Sub
 
         ''' <summary>
@@ -18,11 +19,9 @@
 #Region "Variables"
 
         ''' <summary>Where the actual memory offset of the item is stored</summary>
-        Friend MemoryOffset As Int32
-
-        ''' <summary>Item serial as UOAI.ItemSerial, private.</summary>
+        Friend MemoryOffset As UInt32
         Friend _Serial As New Serial(0)
-        Friend _Type As New ItemType(Convert.ToUInt16(0))
+        Friend _Type As UShort
         Friend _Layer As Enums.Layers
         Friend _StackID As Byte = 0
         Friend _Amount As UShort = 1
@@ -47,7 +46,7 @@
         End Property
 
         ''' <summary>The artwork number of that item. This is what determines what it looks like in game.</summary>
-        Public ReadOnly Property Type() As ItemType
+        Public ReadOnly Property Type() As UShort
             Get
                 Return _Type
             End Get
@@ -109,15 +108,15 @@
         End Property
 
         ''' <summary>
-        ''' Returns a string containing the ASCII name of the item artwork name.
+        ''' Returns a string containing the ASCII name of the item artwork name. Returns "Blank" if no typename can be found.
         ''' </summary>
         Public ReadOnly Property TypeName() As String
             Get
-                If StrLst.Table(1036383 + _Type.BaseValue) Is Nothing Then
+                If StrLst.Table(1036383 + _Type) Is Nothing Then
                     Return "Blank"
                 End If
 
-                Return StrLst.Table(1036383 + _Type.BaseValue)
+                Return StrLst.Table(1036383 + _Type)
             End Get
         End Property
 
@@ -159,17 +158,17 @@
         End Sub
 
         Public Sub ShowText(ByVal Text As String)
-            Dim k As New Packets.Text
+            Dim k As New Packets.Text(Text)
             k.Name = "System"
             k.Serial = Serial
-            k.BodyType = Type.BaseValue
+            k.BodyType = Type
             k.SpeechType = Enums.SpeechTypes.Regular
             k.TextHue = &HFFFF
             k.TextFont = Enums.Fonts.Default
-            k.Text = Text
 
             _contents._MyClient.Send(k, Enums.PacketDestination.CLIENT)
         End Sub
+
 #End Region
 
     End Class
