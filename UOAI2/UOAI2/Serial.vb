@@ -6,16 +6,19 @@
         Public Shared ReadOnly MinusOne As New Serial(Convert.ToUInt32(4294967295))
         Public Shared ReadOnly Zero As New Serial(Convert.ToUInt32(0))
 
-        Private ReadOnly m_IntValue As New UInt32
+        Private m_IntValue As New UInt32
 
         Public Sub New(ByVal val As UInt32)
             m_IntValue = val
         End Sub
 
-        Public ReadOnly Property Value() As UInt32
+        Public Property Value() As UInt32
             Get
                 Return m_IntValue
             End Get
+            Set(ByVal value As UInt32)
+                m_IntValue = value
+            End Set
         End Property
 
         Public ReadOnly Property IsValid() As Boolean

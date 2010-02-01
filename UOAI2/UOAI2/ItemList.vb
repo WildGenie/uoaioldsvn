@@ -126,15 +126,11 @@ Partial Class UOAI
 
                 DirectCast(_MyClient._AllItems(Item.Container), UOAI.Item).Contents.Add(Item)
 
-#If DebugItemList Then
-                Console.WriteLine("-Successfully Added Item: " & Item.Serial.ToString)
-#End If
-
             End If
 
 #If DebugItemList = False Then
             Catch ex As Exception
-                Console.WriteLine("Failed to Add Item due to: " & ex.Message)
+                Console.WriteLine("-Failed to Add Item due to: " & ex.Message)
                 Exit Sub
             End Try
 #End If
@@ -201,6 +197,14 @@ Partial Class UOAI
             j._Direction = Packet.Direction
             j._Z = Packet.Z
             j._Hue = Packet.Hue
+
+#Const DEBUGShowItem = False
+#If DEBUGShowItem = True Then
+            Console.WriteLine("-Adding Item by Show Item.")
+            Console.WriteLine(" Packet: " & BitConverter.ToString(Packet.Data))
+            Console.WriteLine(" Serial: " & j.Serial.ToString)
+            Console.WriteLine(" Serial#: " & j.Serial.Value)
+#End If
 
 #If DebugItemList Then
             Console.WriteLine("-Adding Item by ShowItem: " & j.Serial.ToString)
@@ -272,9 +276,9 @@ Partial Class UOAI
         Public ReadOnly Property Item(ByVal Serial As UOAI.Serial) As UOAI.Item
             Get
                 If _Serial = WorldSerial Then
-                    Return _MyClient._AllItems(Serial)
+                    Return DirectCast(_MyClient._AllItems(Serial), Item)
                 Else
-                    Return _ItemHashBySerial(Serial)
+                    Return DirectCast(_ItemHashBySerial(Serial), Item)
                 End If
             End Get
         End Property

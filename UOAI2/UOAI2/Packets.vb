@@ -43,6 +43,7 @@ Partial Class UOAI
     ''' <summary>A namespace encapsulating the packet types classes.</summary>
     Public Class Packets
 
+#Region "Text"
         ''' <summary>Clients send this packet when talking.</summary>
         ''' <remarks>Packet 0xAD</remarks>
         Public Class UnicodeSpeechPacket
@@ -367,6 +368,176 @@ Partial Class UOAI
 
         End Class
 
+        Public Class Text
+            Inherits Packet
+            Friend _Serial As Serial
+            Friend _BodyType As UShort
+            Friend _SpeechType As Enums.SpeechTypes
+            Friend _TextHue As UShort = 0
+            Friend _TextFont As Enums.Fonts = Enums.Fonts.Default
+            Friend _Name As String = ""
+            Friend _Text As String = ""
+
+            Friend Sub New(ByVal Text As String)
+                MyBase.New(Enums.PacketType.Text)
+
+                Dim txtbytes() As Byte = System.Text.Encoding.ASCII.GetBytes(Text)
+                Dim bytes(43 + txtbytes.Length) As Byte
+                bytes(0) = 28
+
+                For i As Integer = 0 To txtbytes.Length - 1
+                    bytes(44 + i) = txtbytes(i)
+                Next
+
+                buff = New BufferHandler(bytes)
+
+                buff.Position = 1
+                buff.networkorder = False
+                buff.writeushort(buff.buffer.Length)
+                buff.networkorder = True
+
+                Name = "System"
+                Serial = New Serial(CUInt(4294967295))
+                BodyType = CUShort(&HFFFF)
+                TextFont = Enums.Fonts.Default
+
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.Text)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 3
+                    '3-6
+                    _Serial = .readuint
+                    '7-8
+                    _BodyType = .readushort
+                    '9-9
+                    _SpeechType = .readbyte
+                    '10-11
+                    _TextHue = .readushort
+                    '12-13
+                    _TextFont = .readushort
+                    '14-43
+                    _Name = .readstr
+
+                    .Position = 44
+                    '44-46
+                    _Text = .readstr
+                End With
+
+#Const DebugText = False
+
+#If DebugText Then
+                Console.WriteLine("-Text 0x1C: ")
+                Console.WriteLine(" Serial: " & Serial.ToString)
+                Console.WriteLine(" Name: " & Name)
+                Console.WriteLine(" Body Type: " & BodyType)
+                Console.WriteLine(" SpeechType: " & SpeechType)
+                Console.WriteLine(" Hue: " & TextHue)
+                Console.WriteLine(" Font: " & TextFont)
+                Console.WriteLine(" Text: " & Text)
+                Console.WriteLine("")
+#End If
+
+            End Sub
+
+            Public Overrides ReadOnly Property Size() As UShort
+                Get
+                    Return Data.Length
+                End Get
+            End Property
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal Value As Serial)
+                    _Serial = Value
+                    buff.Position = 3
+                    buff.writeuint(Value)
+                End Set
+            End Property
+
+            Public Property BodyType() As UShort
+                Get
+                    Return _BodyType
+                End Get
+                Set(ByVal Value As UShort)
+                    _BodyType = Value
+                    buff.Position = 7
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property SpeechType() As Enums.SpeechTypes
+                Get
+                    Return _SpeechType
+                End Get
+                Set(ByVal Value As Enums.SpeechTypes)
+                    _SpeechType = Value
+                    buff.Position = 9
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property TextHue() As UShort
+                Get
+                    Return _TextHue
+                End Get
+                Set(ByVal Value As UShort)
+                    _TextHue = Value
+                    buff.Position = 10
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property TextFont() As Enums.Fonts
+                Get
+                    Return _TextFont
+                End Get
+                Set(ByVal Value As Enums.Fonts)
+                    _TextFont = Value
+                    buff.Position = 12
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Name() As String
+                Get
+                    Return _Name
+                End Get
+                Set(ByVal Value As String)
+                    _Name = Value
+                    buff.Position = 13
+                    buff.writestrn(Value, 30)
+                End Set
+            End Property
+
+            Public Property Text() As String
+                Get
+                    Return _Text
+                End Get
+                Set(ByVal Value As String)
+                    _Text = Value
+                    buff.Position = 44
+                    buff.writestr(Value)
+                End Set
+            End Property
+
+            Public Overrides ReadOnly Property Data() As Byte()
+                Get
+                    Return buff.buffer
+                End Get
+            End Property
+
+        End Class
+#End Region
+
+#Region "Items"
         ''' <summary>
         ''' This is sent by the server to open a container or game board (which is also a container).
         ''' </summary>
@@ -802,6 +973,133 @@ Partial Class UOAI
             End Property
 
         End Class
+
+        Public Class ShowItem
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _ItemType As UShort = 0
+            Private _Amount As UShort = 1
+            Private _StackID As Byte = 0
+            Private _X As UShort = 0
+            Private _Y As UShort = 0
+            Private _Direction As Byte = 0
+            Private _Z As Byte = 0
+            Private _Hue As UShort = 0
+            Private _Status As Byte = 0
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.ShowItem)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+                    _ItemType = .readushort
+
+                    If _Serial.Value >= 2147483648 Then
+                        _Serial.Value -= 2147483648
+                        _Amount = .readushort 'Check Serial for flag 0x80000000
+                    End If
+                    If _ItemType >= 32768 Then 'Check Item Type for flag 0x8000
+                        _ItemType -= 32768
+                        _StackID = .readbyte
+                    End If
+
+                    _X = .readushort
+                    _Y = .readushort
+
+                    If _X >= 32768 Then
+                        _X -= 32768
+                        _Direction = .readbyte 'Check _X for flag 0x8000
+                    End If
+
+                    _Z = .readbyte
+
+                    Select Case _Y
+                        Case Is > 49152 'Flag 0x8000 and 0x4000
+                            _Y -= 49152
+                            _Hue = .readushort
+                            _Status = .readbyte
+                        Case Is > 32768 'Flag 0x8000
+                            _Y -= 32768
+                            _Hue = .readushort
+                        Case Is > 16384 'Flag 0x4000
+                            _Y -= 16384
+                            _Status = .readbyte
+                    End Select
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property ItemType() As UShort
+                Get
+                    Return _ItemType
+                End Get
+            End Property
+
+            Public ReadOnly Property Amount() As UShort
+                Get
+                    Return _Amount
+                End Get
+            End Property
+
+            Public ReadOnly Property StackID() As UShort
+                Get
+                    Return _StackID
+                End Get
+            End Property
+
+            Public ReadOnly Property X() As UShort
+                Get
+                    Return _X
+                End Get
+            End Property
+
+            Public ReadOnly Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction() As Enums.Direction
+                Get
+                    Return _Direction
+                End Get
+            End Property
+
+            Public ReadOnly Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+            End Property
+
+            Public ReadOnly Property Status() As Byte
+                Get
+                    Return _Status
+                End Get
+            End Property
+
+        End Class
+
+#End Region
+
+#Region "Mobiles"
 
         ''' <summary>
         ''' Sent by the client to rename another mobile.
@@ -1846,7 +2144,10 @@ Partial Class UOAI
                         i._Layer = .readbyte
 
                         'Check for the Hue flag in the item Type
-                        If i._Type >= 32768 Then _Hue = .readushort
+                        If i._Type >= 32768 Then
+                            i._Type -= 32768
+                            _Hue = .readushort
+                        End If
 
 #If DebugMobile Then
                         Console.WriteLine("-Adding item to Equipped Mobile Packet EquippedItems ItemList.")
@@ -2055,143 +2356,6 @@ Partial Class UOAI
 
         End Class
 
-        Public Class Destroy
-            Inherits Packet
-
-            Private _serial As Serial
-
-            Friend Sub New(ByVal bytes() As Byte)
-                MyBase.New(Enums.PacketType.Destroy)
-                _size = bytes.Length
-                _Data = bytes
-                buff = New BufferHandler(bytes, True)
-
-                With buff
-                    .Position = 1
-                    _serial = .readuint
-                End With
-
-            End Sub
-
-            Public ReadOnly Property Serial() As Serial
-                Get
-                    Return _serial
-                End Get
-            End Property
-
-        End Class
-
-        Public Class ShowItem
-            Inherits Packet
-
-            Private _Serial As Serial
-            Private _ItemType As UShort = 0
-            Private _Amount As UShort = 1
-            Private _StackID As Byte = 0
-            Private _X As UShort = 0
-            Private _Y As UShort = 0
-            Private _Direction As Byte = 0
-            Private _Z As Byte = 0
-            Private _Hue As UShort = 0
-            Private _Status As Byte = 0
-
-            Friend Sub New(ByVal bytes() As Byte)
-                MyBase.New(Enums.PacketType.ShowItem)
-                _Data = bytes
-                _size = bytes.Length
-                buff = New BufferHandler(bytes, True)
-
-                With buff
-                    .Position = 3
-                    _Serial = .readuint
-                    _ItemType = .readushort
-
-                    If _Serial.Value >= 2147483648 Then _Amount = .readushort 'Check Serial for flag 0x80000000
-                    If _ItemType >= 32768 Then _StackID = .readbyte 'Check Item Type for flag 0x8000
-
-                    _X = .readushort
-                    _Y = .readushort
-
-                    If _X >= 32768 Then _Direction = .readbyte 'Check _X for flag 0x8000
-
-                    _Z = .readbyte
-
-                    Select Case _Y
-                        Case Is > 49152 'Flag 0x8000 and 0x4000
-                            _Hue = .readushort
-                            _Status = .readbyte
-                        Case Is > 32768 'Flag 0x8000
-                            _Hue = .readushort
-                        Case Is > 16384 'Flag 0x4000
-                            _Status = .readbyte
-                    End Select
-
-                End With
-
-            End Sub
-
-            Public ReadOnly Property Serial() As Serial
-                Get
-                    Return _Serial
-                End Get
-            End Property
-
-            Public ReadOnly Property ItemType() As UShort
-                Get
-                    Return _ItemType
-                End Get
-            End Property
-
-            Public ReadOnly Property Amount() As UShort
-                Get
-                    Return _Amount
-                End Get
-            End Property
-
-            Public ReadOnly Property StackID() As UShort
-                Get
-                    Return _StackID
-                End Get
-            End Property
-
-            Public ReadOnly Property X() As UShort
-                Get
-                    Return _X
-                End Get
-            End Property
-
-            Public ReadOnly Property Y() As UShort
-                Get
-                    Return _Y
-                End Get
-            End Property
-
-            Public ReadOnly Property Direction() As Enums.Direction
-                Get
-                    Return _Direction
-                End Get
-            End Property
-
-            Public ReadOnly Property Z() As Byte
-                Get
-                    Return _Z
-                End Get
-            End Property
-
-            Public ReadOnly Property Hue() As UShort
-                Get
-                    Return _Hue
-                End Get
-            End Property
-
-            Public ReadOnly Property Status() As Byte
-                Get
-                    Return _Status
-                End Get
-            End Property
-
-        End Class
-
         Public Class LoginConfirm
             Inherits Packet
             Private _Serial As Serial
@@ -2328,6 +2492,81 @@ Partial Class UOAI
             End Property
 
         End Class
+
+        Public Class HealthBarStatusUpdate
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _StatusColor As UShort = 0
+            Private _StatusFlag As Byte = 0
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.HealthBarStatusUpdate)
+                buff = New BufferHandler(bytes)
+
+                With buff
+                    .Position = 3
+                    _Serial = .readuint
+
+                    .Position += 2
+
+                    _StatusColor = .readushort
+                    _StatusFlag = .readbyte
+                End With
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Color() As UShort
+                Get
+                    Return _StatusColor
+                End Get
+            End Property
+
+            Public ReadOnly Property Flag() As Byte
+                Get
+                    Return _StatusFlag
+                End Get
+            End Property
+
+        End Class
+
+#End Region
+
+#Region "Items/Mobiles"
+
+        Public Class Destroy
+            Inherits Packet
+
+            Private _serial As Serial
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.Destroy)
+                _size = bytes.Length
+                _Data = bytes
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+                    _serial = .readuint
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _serial
+                End Get
+            End Property
+
+        End Class
+#End Region
+
+#Region "Interface - Targeting, Single/Double Click, etc..."
 
         Public Class Target
             Inherits Packet
@@ -2569,174 +2808,9 @@ Partial Class UOAI
 
         End Class
 
-        Public Class Text
-            Inherits Packet
-            Friend _Serial As Serial
-            Friend _BodyType As UShort
-            Friend _SpeechType As Enums.SpeechTypes
-            Friend _TextHue As UShort = 0
-            Friend _TextFont As Enums.Fonts = Enums.Fonts.Default
-            Friend _Name As String = ""
-            Friend _Text As String = ""
+#End Region
 
-            Friend Sub New(ByVal Text As String)
-                MyBase.New(Enums.PacketType.Text)
-
-                Dim txtbytes() As Byte = System.Text.Encoding.ASCII.GetBytes(Text)
-                Dim bytes(43 + txtbytes.Length) As Byte
-                bytes(0) = 28
-
-                For i As Integer = 0 To txtbytes.Length - 1
-                    bytes(44 + i) = txtbytes(i)
-                Next
-
-                buff = New BufferHandler(bytes)
-
-                buff.Position = 1
-                buff.networkorder = False
-                buff.writeushort(buff.buffer.Length)
-                buff.networkorder = True
-
-                Name = "System"
-                Serial = New Serial(CUInt(4294967295))
-                BodyType = CUShort(&HFFFF)
-                TextFont = Enums.Fonts.Default
-
-            End Sub
-
-            Friend Sub New(ByVal bytes() As Byte)
-                MyBase.New(Enums.PacketType.Text)
-                _Data = bytes
-                _size = bytes.Length
-                buff = New BufferHandler(bytes)
-
-                With buff
-                    .Position = 3
-                    '3-6
-                    _Serial = .readuint
-                    '7-8
-                    _BodyType = .readushort
-                    '9-9
-                    _SpeechType = .readbyte
-                    '10-11
-                    _TextHue = .readushort
-                    '12-13
-                    _TextFont = .readushort
-                    '14-43
-                    _Name = .readstr
-
-                    .Position = 44
-                    '44-46
-                    _Text = .readstr
-                End With
-
-#Const DebugText = False
-
-#If DebugText Then
-                Console.WriteLine("-Text 0x1C: ")
-                Console.WriteLine(" Serial: " & Serial.ToString)
-                Console.WriteLine(" Name: " & Name)
-                Console.WriteLine(" Body Type: " & BodyType)
-                Console.WriteLine(" SpeechType: " & SpeechType)
-                Console.WriteLine(" Hue: " & TextHue)
-                Console.WriteLine(" Font: " & TextFont)
-                Console.WriteLine(" Text: " & Text)
-                Console.WriteLine("")
-#End If
-
-            End Sub
-
-            Public Overrides ReadOnly Property Size() As UShort
-                Get
-                    Return Data.Length
-                End Get
-            End Property
-
-            Public Property Serial() As Serial
-                Get
-                    Return _Serial
-                End Get
-                Set(ByVal Value As Serial)
-                    _Serial = Value
-                    buff.Position = 3
-                    buff.writeuint(Value)
-                End Set
-            End Property
-
-            Public Property BodyType() As UShort
-                Get
-                    Return _BodyType
-                End Get
-                Set(ByVal Value As UShort)
-                    _BodyType = Value
-                    buff.Position = 7
-                    buff.writeushort(Value)
-                End Set
-            End Property
-
-            Public Property SpeechType() As Enums.SpeechTypes
-                Get
-                    Return _SpeechType
-                End Get
-                Set(ByVal Value As Enums.SpeechTypes)
-                    _SpeechType = Value
-                    buff.Position = 9
-                    buff.writebyte(Value)
-                End Set
-            End Property
-
-            Public Property TextHue() As UShort
-                Get
-                    Return _TextHue
-                End Get
-                Set(ByVal Value As UShort)
-                    _TextHue = Value
-                    buff.Position = 10
-                    buff.writeushort(Value)
-                End Set
-            End Property
-
-            Public Property TextFont() As Enums.Fonts
-                Get
-                    Return _TextFont
-                End Get
-                Set(ByVal Value As Enums.Fonts)
-                    _TextFont = Value
-                    buff.Position = 12
-                    buff.writeushort(Value)
-                End Set
-            End Property
-
-            Public Property Name() As String
-                Get
-                    Return _Name
-                End Get
-                Set(ByVal Value As String)
-                    _Name = Value
-                    buff.Position = 13
-                    buff.writestrn(Value, 30)
-                End Set
-            End Property
-
-            Public Property Text() As String
-                Get
-                    Return _Text
-                End Get
-                Set(ByVal Value As String)
-                    _Text = Value
-                    buff.Position = 44
-                    buff.writestr(Value)
-                End Set
-            End Property
-
-            Public Overrides ReadOnly Property Data() As Byte()
-                Get
-                    Return buff.buffer
-                End Get
-            End Property
-
-        End Class
-
+#Region "Base Classes"
         Public Class GenericCommand
             Inherits Packet
 
@@ -2757,40 +2831,159 @@ Partial Class UOAI
 
         End Class
 
+#End Region
+
+#Region "Context Menu Stuff"
         Public Class ContextMenuRequest
             Inherits GenericCommand
+
+            Private _Serial As Serial
 
             Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.BF_Sub_Commands.ContextMenuRequest)
                 _Data = bytes
-                _size = bytes.Length
 
                 buff = New BufferHandler(bytes, True)
 
+                buff.Position = 3
+                _Serial = buff.readuint
 
             End Sub
 
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
         End Class
 
-        Public Class HealthBarStatusUpdate
-            Inherits Packet
+        Public Class ContextMenuResponse
+            Inherits GenericCommand
 
             Private _Serial As Serial
-            Private _StatusColor As UShort = 0
-            Private _StatusFlag As Byte = 0
+            Private _Index As UShort = 0
 
             Friend Sub New(ByVal bytes() As Byte)
-                MyBase.New(Enums.PacketType.HealthBarStatusUpdate)
-                buff = New BufferHandler(bytes)
+                MyBase.New(Enums.BF_Sub_Commands.ContextMenuResponse)
+                buff = New BufferHandler(bytes, True)
+
+                buff.Position = 3
+                _Serial = buff.readuint
+
+                If buff.Position <> buff.buffer.Length - 1 Then
+                    _Index = buff.readushort
+                End If
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Index() As UShort
+                Get
+                    Return _Index
+                End Get
+            End Property
+
+        End Class
+
+        ''' <summary>Displays a context menu for the 2D client.</summary>
+        Public Class DisplayContextMenu
+            Inherits GenericCommand
+
+            Private _Serial As Serial
+            Private _NumberOfOptions As Byte
+            Private _ContextMenu As New ContextMenu
+            Private _Number As UShort = 0
+            Private _Flags As UShort = 0
+            Private _Hue As UShort = 0
+
+            Friend Sub New(ByVal Menu As ContextMenu, ByVal Serial As Serial)
+                MyBase.New(Enums.BF_Sub_Commands.DisplayContextMenu)
+                _Serial = Serial
+
+                'Calculate the number of bytes needed.
+                Dim k As UInteger = 12
+
+                For Each j As ContextMenu.ContextMenuOption In Menu
+                    If j.Hue <> 0 Then
+                        k += 6
+                    Else
+                        k += 8
+                    End If
+                Next
+
+                'Make the byte array.
+                Dim bytes(k) As Byte
+
+                buff = New BufferHandler(bytes, True)
 
                 With buff
-                    .Position = 3
+                    .Position = 0
+                    .writebyte(191)
+
+                    .networkorder = False
+                    .writeushort(k + 1)
+                    .networkorder = True
+
+                    .writeushort(1)
+                    .writeuint(_Serial.Value)
+                    .writebyte(Menu.Count)
+
+                    For Each cmo As ContextMenu.ContextMenuOption In Menu
+                        _Flags = 0
+
+                        .writeushort(cmo.Index)
+
+                        If cmo.Enabled = False Then _Flags += 1
+                        If cmo.Hue <> 0 Then _Flags += 32
+
+                        .writeushort(CUShort(cmo.CliLocNumber - 3000000))
+
+                        .writeushort(_Flags)
+
+                        If cmo.Hue <> 0 Then .writeushort(cmo.Hue)
+                    Next
+
+                End With
+
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.BF_Sub_Commands.DisplayContextMenu)
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 7
                     _Serial = .readuint
 
-                    .Position += 2
+                    buff.networkorder = False
+                    _NumberOfOptions = .readbyte
+                    buff.networkorder = True
 
-                    _StatusColor = .readushort
-                    _StatusFlag = .readbyte
+                    For i As Integer = 0 To _NumberOfOptions - 1
+                        .Position += 2
+                        _Number = .readushort
+                        _Flags = .readushort
+
+                        Select Case _Flags
+                            Case 33 'Diabled + Colored
+                                _Hue = .readushort
+                                _ContextMenu.Add(CUInt(3000000 + _Number), _Hue, False)
+                            Case 32 'Enabled + Colored
+                                _Hue = .readushort
+                                _ContextMenu.Add(CUInt(3000000 + _Number), _Hue)
+                            Case 1 'Disabled
+                                _ContextMenu.Add(CUInt(3000000 + _Number), False)
+                            Case 0 'Enabled
+                                _ContextMenu.Add(CUInt(3000000 + _Number))
+                        End Select
+                    Next
+
                 End With
             End Sub
 
@@ -2800,19 +2993,14 @@ Partial Class UOAI
                 End Get
             End Property
 
-            Public ReadOnly Property Color() As UShort
+            Public ReadOnly Property Menu() As ContextMenu
                 Get
-                    Return _StatusColor
-                End Get
-            End Property
-
-            Public ReadOnly Property Flag() As Byte
-                Get
-                    Return _StatusFlag
+                    Return _ContextMenu
                 End Get
             End Property
 
         End Class
+#End Region
 
     End Class
 
@@ -2861,7 +3049,7 @@ Partial Class UOAI
             UnknownEmpty = &HF
             DisplayEquipmentInfo = &H10
             ContextMenuRequest = &H13
-            DisplayerContextMenu = &H14
+            DisplayContextMenu = &H14
             ContextMenuResponse = &H15
             DisplayHelpTopics = &H17
             EnableMapDiffs = &H18
@@ -3133,6 +3321,7 @@ Partial Class UOAI
             Mahjong = &HDA
             CharacterTransferLog = &HDB
         End Enum
+
     End Class
 
 #Region "BufferHandler"

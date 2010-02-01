@@ -1412,7 +1412,6 @@
 'Sent Packet #285
 'BF-09-00-00-1E-40-C9-A7-87
 
-
 #Region "And still, more packets for items on the ground"
 
 'Recieved Packet #286
