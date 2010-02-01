@@ -163,8 +163,13 @@
             k.Serial = Serial
             k.BodyType = Type
             k.SpeechType = Enums.SpeechTypes.Regular
-            k.TextHue = &HFFFF
+            k.TextHue = CUShort(52)
             k.TextFont = Enums.Fonts.Default
+
+#Const DebugSysMsg = False
+#If DebugSysMsg Then
+            Console.WriteLine("Sending SysMsg Packet to Client: " & BitConverter.ToString(k.Data))
+#End If
 
             _contents._MyClient.Send(k, Enums.PacketDestination.CLIENT)
         End Sub

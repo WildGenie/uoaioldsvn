@@ -60,6 +60,8 @@ Public Class Form1
 
     Private Sub Button4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button4.Click
         UOAI_Cl.TargetPrompt(CUInt(5568956), UOAI.Enums.TargetRequestType.ItemOrMobile)
+        Dim j As New UOAI.ContextMenu
+
     End Sub
 
     Private Sub Button5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button5.Click
@@ -76,15 +78,6 @@ Public Class Form1
 
     Private Sub Button6_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button6.Click
         UOAI_Cl.PatchEncryption()
-    End Sub
-
-    Private Sub UOAI_Cl_onClientSpeech(ByVal client As UOAI2.UOAI.Client, ByVal Text As String, ByVal Font As UOAI2.UOAI.Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As UOAI2.UOAI.Enums.SpeechTypes) Handles UOAI_Cl.onClientSpeech
-        UOAI_Cl.DropPacket()
-    End Sub
-
-    Private Sub UOAI_Cl_onKeyDown(ByRef Client As UOAI2.UOAI.Client, ByVal VirtualKeyCode As UInteger) Handles UOAI_Cl.onKeyDown
-        Console.WriteLine("KeyDown: " & VirtualKeyCode)
-
     End Sub
 
     Private Sub UOAI_Cl_onPacketReceive(ByRef Client As UOAI2.UOAI.Client, ByRef packet As UOAI2.UOAI.Packet) Handles UOAI_Cl.onPacketReceive
@@ -134,11 +127,20 @@ Public Class Form1
                     Case UOAI.Enums.TargetType.Item
                         'its an item, so write out the serial
                         Console.WriteLine("Targeted Item, Serial:" & TargetInfo.Target.ToString)
-                        UOAI_Cl.Items(TargetInfo.Target).ShowText("This is a test!")
+                        If UOAI_Cl.Items.Exists(TargetInfo.Target) Then
+                            Console.WriteLine("Item Exists In Database: " & TargetInfo.Target.ToString)
+                            UOAI_Cl.Items.Item(TargetInfo.Target).ShowText("TEST!!")
+                        Else
 
+                            Console.WriteLine("Serial Does Not Exist: " & TargetInfo.Target.Value)
+
+                        End If
+                        '
                     Case UOAI.Enums.TargetType.Mobile
                         'its a mobile so write the mobile's name out
                         Console.WriteLine("Targeted Mobile Named:" & UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).Name)
+                        UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).ShowText("TEST!!")
+
                     Case UOAI.Enums.TargetType.Ground
                         'Print the coordinates to the console output
                         Console.WriteLine("Targeted Ground or Static Tile at location: X:" & TargetInfo.X & " Y:" & TargetInfo.Y & " Z:" & TargetInfo.Z)

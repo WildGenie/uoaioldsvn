@@ -275,6 +275,14 @@ Partial Class UOAI
                 Case Enums.PacketType.SpeechUnicode
                     Dim k As Packets.UnicodeSpeechPacket = DirectCast(currentpacket, Packets.UnicodeSpeechPacket)
                     RaiseEvent onClientSpeech(Me, k.Text, k.Font, k.Hue, k.Language, k.SpeechType)
+
+                Case Enums.PacketType.GenericCommand
+                    Select Case currentpacket.Data(1)
+                        Case Enums.BF_Sub_Commands.ContextMenuRequest
+                            Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                        Case Enums.BF_Sub_Commands.ContextMenuResponse
+                            Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                    End Select
             End Select
         End Sub
 
@@ -347,7 +355,6 @@ Partial Class UOAI
 
             End Select
         End Sub
-
 
         'handles all IPC packets, including sent/received packets on the client
         Private Function HandlePackets() As Boolean

@@ -621,13 +621,13 @@ UOAI2
  Called when the user of the client releases a pressed key.
  </summary>
 	<param name="Client">The client on which the key was released</param>
- ''' <param name="VirtualKeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+	<param name="KeyCode">Virtual Key Code of the released key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
 </member><member name="E:UOAI2.UOAI.Client.onKeyDown">
 	<summary>
  Called when the user of the client holds down a key.
  </summary>
 	<param name="Client">The client on which the key was pressed</param>
- ''' <param name="VirtualKeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
+	<param name="KeyCode">Virtual Key Code of the pressed key (a list of key codes can be founrd at http://msdn.microsoft.com/en-us/library/ms927178.aspx) </param>
 </member><member name="E:UOAI2.UOAI.Client.onConnectionLoss">
 	<summary>
  Called when the client loses its network connection to the server.
@@ -669,6 +669,50 @@ UOAI2
 	<summary>Causes the UOClient object to raise the onClientExit event.</summary>
 </member><member name="T:UOAI2.UOAI.Client">
 	<summary>Represents an Ultima Online client.</summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.ContextMenuOption.Index">
+	<summary>The index of the option in the menu.</summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.ContextMenuOption.CliLocNumber">
+	<summary>A cliloc number from 3006505 to 3006077.</summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.ContextMenuOption.CliLocString">
+	<summary>Returns a the CliLoc string that corresponds to the CliLoc number.</summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.ContextMenuOption.Hue">
+	<summary>
+ The hue of the text. Default is zero.
+ </summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.ContextMenuOption.Enabled">
+	<summary>
+ Whether or not the option will be displayed as "greyed out".
+ </summary>
+</member><member name="M:UOAI2.UOAI.ContextMenu.ContextMenuOption.Remove">
+	<summary>Removes the option from the menu.</summary>
+</member><member name="M:UOAI2.UOAI.ContextMenu.Add(System.UInt32)">
+	<summary>
+ Adds a new option to the end of the context menu, using the supplied CliLoc number.
+ </summary>
+	<param name="CliLocNumber">A cliloc number from 3006505 to 3006077</param>
+</member><member name="M:UOAI2.UOAI.ContextMenu.Add(System.UInt32,System.UInt32)">
+	<summary>
+ Adds a new option at the specified index with the supplied CliLocNumber.
+ </summary>
+	<param name="CliLocNumber">A cliloc number from 3006505 to 3006077</param>
+	<param name="Index">The index to insert the new option at.</param>
+</member><member name="M:UOAI2.UOAI.ContextMenu.Clear">
+	<summary>
+ Removes all of the options.
+ </summary>
+</member><member name="P:UOAI2.UOAI.ContextMenu.Count">
+	<summary>
+ Returns the number of the options in the menu.
+ </summary>
+</member><member name="M:UOAI2.UOAI.ContextMenu.Remove(System.UInt32)">
+	<summary>
+ Removes the option at the specified index.
+ </summary>
+	<param name="Index">The index of the option to remove.</param>
+</member><member name="T:UOAI2.UOAI.ContextMenu">
+	<summary>
+ An object oriented representation of an in-game context menu.
+ </summary>
 </member><member name="P:UOAI2.UOAI.Packet.Data">
 	<summary>Returns the raw packet data as a byte array.</summary>
 </member><member name="T:UOAI2.UOAI.Packet">
@@ -781,6 +825,8 @@ UOAI2
 	<summary>
  This is sent by the server to tell the client to update a Mobile's health and max health.
  </summary>
+</member><member name="T:UOAI2.UOAI.Packets.DisplayContextMenu">
+	<summary>Displays a context menu for the 2D client.</summary>
 </member><member name="T:UOAI2.UOAI.Packets">
 	<summary>A namespace encapsulating the packet types classes.</summary>
 </member><member name="F:UOAI2.UOAI.Enums.GetItemFailedReason.CannotPickup">
