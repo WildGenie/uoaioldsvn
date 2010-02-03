@@ -7,8 +7,6 @@ using System.Runtime.InteropServices.ComTypes;
 using RemoteObjects;
 using System.Reflection;
 
-using Microsoft.Win32;
-
 namespace ProcessInjection
 {
     //dll injection
@@ -41,13 +39,13 @@ namespace ProcessInjection
         private static Guid IID_IAppDomain = new Guid("{05f696dc-2b29-3663-ad8b-c4389cf2a713}");
 
         //injection: loads the CLR on the specified thread of the specified process
-        //it basically does the following:
+        //it thereafter basically does the following:
         //      appdomain=CLR->CreateDomain(setupparameters={..., AppBase-path, ...})
         //      asm=appdomain->load(specified assembly)
         //      asm->CreateInstance(specified type)
         //... i could have used the default appdomain, but when i was testing remoting from the injected code
         // i noticed that the defautl appdomain gets a basepath equal to that of the injected process, which 
-        // causes Remoting to fail as client/server are referring assembly paths, and the injected remoting
+        // causes Remoting to fail as client/server are referring different assembly paths, and the injected remoting
         // code can't find the assembly when trying to read type info to setup remoting proxies.
         // Changing the basepath is impossible, so we just create a new appdomain with the right basepath and
         // run code there.
@@ -158,11 +156,11 @@ namespace ProcessInjection
             //build code
             AsmBuilder _asm = new AsmBuilder();
             
-            //saftey measures : push all registers, save the stack pointer
+            //safety measures : push all registers, save the stack pointer
             _asm.Instructions.Add(new PushAll());
             _asm.Instructions.Add(new BackupEsp((uint)pStackBackup));
 
-            //build loadlibrary, getprocaddress calls to get the CoInitialize and CoCreateInstance function pointers from ole32.dll
+            //build loadlibrary, getprocaddress calls to get the pCorBindToRuntimeEx from MSCorEE.dll
             _asm.Instructions.Add(new PushImmediate((uint)pStrMSCorEE));
             _asm.Instructions.Add(new CallRelative((int)pLoadLibraryA));
             _asm.Instructions.Add(new MovMemoryEax((uint)pHandle));
@@ -274,7 +272,7 @@ namespace ProcessInjection
             _asm.Instructions.Add(new JmpRelative((int)ctx.Eip));
             //- code will be written at half the allocated page
             ctx.Eip=((uint)RemotePage+(4096/2));
-            //- write codew
+            //- write code
             _asm.Write(onprocess,(int)ctx.Eip);
             //- set the thread's context (EIP now points to our code)
             onthread.Context=ctx;

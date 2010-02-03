@@ -31,3 +31,9 @@ C:\Users\WIM\Documents\Code\UOAI\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.dll
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.pdb
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.dll
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.pdb
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\bin\Debug\libdisasm.dll
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.dll
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.pdb
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.dll
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.pdb
