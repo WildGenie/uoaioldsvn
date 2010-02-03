@@ -1,0 +1,6 @@
+LIBRARY LIBDISASM
+EXPORTS
+x86_init
+x86_disasm
+x86_format_insn
+x86_cleanup
