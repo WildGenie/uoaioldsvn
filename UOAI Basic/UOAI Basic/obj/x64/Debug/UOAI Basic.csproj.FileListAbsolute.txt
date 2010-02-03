@@ -1,0 +1,6 @@
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\bin\x64\Debug\libdisasm.dll
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\bin\x64\Debug\UOAI Basic.dll
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\bin\x64\Debug\UOAI Basic.pdb
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\obj\x64\Debug\ResolveAssemblyReference.cache
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\obj\x64\Debug\UOAI Basic.dll
+C:\Users\Wim\Desktop\UOAI Basic\UOAI Basic\obj\x64\Debug\UOAI Basic.pdb
