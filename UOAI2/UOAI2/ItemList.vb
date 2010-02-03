@@ -338,27 +338,47 @@ Partial Class UOAI
         ''' Returns an itemlist containing the items of the specified type.
         ''' </summary>
         ''' <param name="Type">The type of item you want to search for.</param>
-        Public ReadOnly Property byType(ByVal Type As UShort) As ItemList
+        Public ReadOnly Property byType(ByVal Type As UShort, ByVal Recursive As Boolean) As ItemList
             Get
-                Dim k As New ItemList()
+                If Recursive Then
+                    Dim j As New ItemList
 
-                'check each item in the hash 
-                For Each s As Serial In _ItemHashBySerial.Keys
-                    'to see if its type maches the one specified.
-                    If Me.Item(s).Type = Type Then
-                        'Then add that to the itemlist to return
+                    byTypeRecursive(Type, _ParentItem, j)
+
+                    Return j
+                Else
+                    Dim k As New ItemList()
+                    'check each item in the hash 
+                    For Each s As Serial In _ItemHashBySerial.Keys
+                        'to see if its type maches the one specified.
+                        If Me.Item(s).Type = Type Then
+                            'Then add that to the itemlist to return
 #If DebugItemList Then
                         Console.WriteLine("-Adding item to byType search result.")
                         Console.WriteLine(" Serial: " & s.ToString)
                         Console.WriteLine(" Type: " & Type.ToString)
 #End If
-                        k.Add(Me.Item(s))
-                    End If
-                Next
+                            k.Add(Me.Item(s))
+                        End If
+                    Next
 
-                Return k
+                    Return k
+                End If
+
             End Get
         End Property
+
+        Friend Sub byTypeRecursive(ByVal Type As UShort, ByVal BaseItem As Item, ByVal Itemlist As ItemList)
+
+            For Each i As Item In BaseItem._contents
+                'For each item, check if that item is the type we are looking for. If it is, then add it to the list.
+                If i.Type = Type Then Itemlist.Add(i)
+
+                'Then search that item's contents for items of the specified type.
+                i._contents.byTypeRecursive(Type, i, Itemlist)
+            Next
+
+        End Sub
 
 #End Region
 

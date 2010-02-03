@@ -5,7 +5,7 @@
     ''' </summary>
     Public Class ContextMenu
         Implements ICollection(Of ContextMenuOption)
-        Private _OptionHash As New ArrayList
+        Private _OptionHash As New System.Collections.Generic.List(Of ContextMenuOption) 'New ArrayList
         Public Enabled As Boolean = False
 
 #Region "Context Menu Option Class"
@@ -217,11 +217,12 @@
         End Property
 
         Private Function GetEnumerator() As System.Collections.Generic.IEnumerator(Of ContextMenuOption) Implements System.Collections.Generic.IEnumerable(Of ContextMenuOption).GetEnumerator
-            Return _OptionHash.ToArray
+            Dim ie As IEnumerator = _OptionHash.GetEnumerator
+            Return ie
         End Function
 
         Private Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
-            Return _OptionHash.ToArray
+            Return _OptionHash.GetEnumerator
         End Function
 
 #End Region
@@ -240,17 +241,22 @@
         Friend Sub HandleContextMenuRequest(ByVal packet As Packets.ContextMenuRequest)
             If Me.Menu.Enabled Then
                 'Dont send the packet to the server
-                _contents._MyClient.DropPacket()
+                _Client.DropPacket()
+
+#Const DebugContextMenuPacket = False
+#If DebugContextMenuPacket Then
+                Console.WriteLine("Menu Packet: " & BitConverter.ToString(Menu.Packet(Me.Serial).Data))
+#End If
 
                 'Respond by sending the packet for this item's context menu to the client
-                _contents._MyClient.Send(Menu.Packet(Me.Serial), Enums.PacketDestination.CLIENT)
+                _Client.Send(Menu.Packet(Me.Serial), Enums.PacketDestination.CLIENT)
             End If
         End Sub
 
         Friend Sub HandleContextMenuResponse(ByVal packet As Packets.ContextMenuResponse)
             If Menu.Enabled Then
                 'Drop the packet, so it doesnt get sent to the server.
-                _contents._MyClient.DropPacket()
+                _Client.DropPacket()
 
                 RaiseEvent ContextMenuResponse(packet.Index)
             End If

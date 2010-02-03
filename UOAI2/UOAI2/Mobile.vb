@@ -16,7 +16,6 @@ Partial Class UOAI
         End Sub
 
 #Region "Private Variables"
-        Friend _Client As Client
         Friend _Name As String = ""
         Friend _Status As Enums.MobileStatus
         Friend _Notoriety As Enums.Reputation
@@ -414,9 +413,14 @@ Partial Class UOAI
             End Get
         End Property
 
+#If DEBUG Then
+        Class LayersClass
+#Else
         'Hide this class from the user, there is no reason from him/her to see it.
         <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
         Class LayersClass
+#End If
+
             Friend Sub New(ByVal Client As Client)
                 _Client = Client
             End Sub
@@ -725,13 +729,6 @@ Partial Class UOAI
 
         End Sub
 
-        Public Sub RemoveItemFromLayer(ByVal Layer As Enums.Layers)
-            'Set the layer's item serial to 0
-            _Layers.ResetLayer(Layer)
-
-            RaiseEvent onUpdate(_Client, Me, Layer)
-        End Sub
-
         ''' <summary>
         ''' Updates the class given a mobile related packet.
         ''' </summary>
@@ -942,6 +939,8 @@ Partial Class UOAI
             Console.WriteLine(" Item:" & NewItem.Serial.ToString)
             Console.WriteLine(" Layer:" & NewItem.Layer)
 #End If
+
+            NewItem._contents = New ItemList(NewItem, _Client)
 
             'Add the item to the itemlist.
             _Client.Items.Add(NewItem)

@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="ContextMenu.vb" />
     <Compile Include="Enums.vb" />
+    <Compile Include="HuePicker.vb" />
     <Compile Include="Imports.vb" />
     <Compile Include="Item.vb">
       <SubType>Code</SubType>
@@ -146,6 +147,7 @@
     <Content Include="Info\Notes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Info\Packet Guides\PacketGuide_MuadDib.html" />
     <Content Include="UOClientDll.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
