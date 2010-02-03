@@ -26,7 +26,7 @@ Partial Class UOAI
         Private _MobileList As New MobileList(Me)
         Private _Macros As New UOMacros(Me)
         Private _CallibrationInfo As CallibrationInfo
-        Friend _ItemInHand As Item '  <---For drag/drop stuff, to remove the item from the item list and place it here until its dropped.
+        Friend _ItemInHand As Item '<---For drag/drop stuff, to remove the item from the item list and place it here until its dropped.
         Friend _Player As PlayerClass
 
         ''' <summary>
@@ -162,6 +162,18 @@ Partial Class UOAI
 
         Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
 
+
+#Const PacketLogging = False
+
+#If PacketLogging = True Then
+            If origin = Enums.PacketOrigin.FROMCLIENT Then
+                Console.WriteLine("Sent Packet: " & BitConverter.ToString(packetbuffer))
+            Else
+                Console.WriteLine("Recieved Packet: " & BitConverter.ToString(packetbuffer))
+            End If
+#End If
+
+
             Select Case DirectCast(packetbuffer(0), Enums.PacketType)
 
                 Case Enums.PacketType.TextUnicode
@@ -224,6 +236,26 @@ Partial Class UOAI
                 Case Enums.PacketType.HealthBarStatusUpdate
                     Return New Packets.HealthBarStatusUpdate(packetbuffer)
 
+                Case Enums.PacketType.GenericCommand
+
+                    Select Case DirectCast(CUShort(packetbuffer(4)), Enums.BF_Sub_Commands)
+
+                        Case Enums.BF_Sub_Commands.ContextMenuRequest
+                            Return New Packets.ContextMenuRequest(packetbuffer)
+
+                        Case Enums.BF_Sub_Commands.ContextMenuResponse
+                            Return New Packets.ContextMenuResponse(packetbuffer)
+
+                        Case Else
+                            Dim j As New Packet(packetbuffer(0))
+                            j._Data = packetbuffer
+                            j._size = packetbuffer.Length
+                            Return j 'dummy until we have what we need
+                    End Select
+
+                Case Enums.PacketType.HuePicker
+                    Return New Packets.HuePicker(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -233,7 +265,7 @@ Partial Class UOAI
 
         End Function
 
-        Public Sub HandlePacket()
+        Public Sub HandlePacket(ByVal Origin As Enums.PacketOrigin)
             Dim backup As Packet
 
             'magically stops this from taking up 100% cpu on w/e core its on.
@@ -259,7 +291,7 @@ Partial Class UOAI
                 m_EventHandled = True
                 m_EventLocked = True
                 'Late packet handling...
-                LatePacketHandling(m_CurrentPacket)
+                LatePacketHandling(m_CurrentPacket, Origin)
                 'release client
                 Try
                     m_EventSocket.Send(continuemessage)
@@ -269,7 +301,7 @@ Partial Class UOAI
             End If
         End Sub
 
-        Private Sub EarlyPacketHandling(ByRef currentpacket As Packet)
+        Private Sub EarlyPacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
             'whatever we need to do with the current packet BEFORE the client handled it goes here
             Select Case currentpacket.Type
                 Case Enums.PacketType.SpeechUnicode
@@ -277,17 +309,33 @@ Partial Class UOAI
                     RaiseEvent onClientSpeech(Me, k.Text, k.Font, k.Hue, k.Language, k.SpeechType)
 
                 Case Enums.PacketType.GenericCommand
-                    Select Case currentpacket.Data(1)
+
+                    Select Case DirectCast(CUShort(currentpacket.Data(4)), Enums.BF_Sub_Commands)
                         Case Enums.BF_Sub_Commands.ContextMenuRequest
-                            Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial) Then
+                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                            Else
+                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                            End If
+
                         Case Enums.BF_Sub_Commands.ContextMenuResponse
-                            Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial) Then
+                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                            Else
+                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                            End If
+
+                        Case Else
+                            Exit Select
+
                     End Select
+
+                Case Else
+                    Exit Select
             End Select
         End Sub
 
-        Private Sub LatePacketHandling(ByRef currentpacket As Packet)
-
+        Private Sub LatePacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
             Select Case currentpacket.Type
                 Case Enums.PacketType.MobileStats
                     'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
@@ -311,7 +359,7 @@ Partial Class UOAI
                     Mobiles.AddMobile(DirectCast(currentpacket, Packets.EquippedMobile))
 
                 Case Enums.PacketType.DeathAnimation
-                    Mobiles.RemoveMobile(DirectCast(currentpacket, Packets.DeathAnimation))
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.DeathAnimation).Serial).HandleDeathPacket(DirectCast(currentpacket, Packets.DeathAnimation))
 
                 Case Enums.PacketType.Destroy
                     RemoveObject(DirectCast(currentpacket, Packets.Destroy).Serial)
@@ -334,6 +382,11 @@ Partial Class UOAI
                         RaiseEvent onTargetResponse(jimbo)
                     End If
 
+                Case Enums.PacketType.HuePicker
+                    If _WaitingForHue Then
+                        RaiseEvent onHueResponse(DirectCast(currentpacket, Packets.HuePicker).Serial.Value, DirectCast(currentpacket, Packets.HuePicker).Hue)
+                    End If
+
                 Case Enums.PacketType.LoginConfirm
                     'Make a new playerclass
                     Dim pl As New PlayerClass(Me, DirectCast(currentpacket, Packets.LoginConfirm).Serial)
@@ -350,6 +403,7 @@ Partial Class UOAI
 
                     'Cast the player as a mobile and add it to the mobile list.
                     Mobiles.AddMobile(DirectCast(_Player, Mobile))
+
                 Case Enums.PacketType.HealthBarStatusUpdate
                     Mobiles.Mobile(DirectCast(currentpacket, Packets.HealthBarStatusUpdate).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HealthBarStatusUpdate))
 
@@ -378,7 +432,7 @@ Partial Class UOAI
 
             Select Case eventtype
                 Case Enums.EventTypeConstants.object_destroyed
-                    'remove the destroyed object
+                    'remove the destroyed object by its Offset
                     RemoveObject(m_EventBufferHandler.readuint())
                     'continue
                     Try
@@ -398,7 +452,7 @@ Partial Class UOAI
                     Catch ex As Exception
                         Return False
                     End Try
-                    Exit Select
+                    Return True
                 Case Enums.EventTypeConstants.key_down
                     'get virtual key code
                     vkeycode = m_EventBufferHandler.readuint()
@@ -427,34 +481,34 @@ Partial Class UOAI
                     'build the packet
                     m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMSERVER)
 
-                    'internal handling before the client handled this packet
-                    EarlyPacketHandling(m_CurrentPacket)
-
                     'unlock event, user might want it to be handled
                     m_EventLocked = False
+
+                    'internal handling before the client handled this packet
+                    EarlyPacketHandling(m_CurrentPacket, Enums.PacketOrigin.FROMSERVER)
 
                     'packet event
                     RaiseEvent onPacketReceive(Me, m_CurrentPacket)
 
                     'make sure it is handled
-                    HandlePacket()
+                    HandlePacket(Enums.PacketOrigin.FROMSERVER)
 
                     Return True
                 Case Enums.EventTypeConstants.sent_packet
                     'build this packet
                     m_CurrentPacket = BuildPacket(m_EventBufferHandler.readbytes(eventdatasize), Enums.PacketOrigin.FROMCLIENT)
 
-                    'internal handling before the client handled this packet
-                    EarlyPacketHandling(m_CurrentPacket)
-
                     'unlock event, user might want it to be handled
                     m_EventLocked = False
+
+                    'internal handling before the client handled this packet
+                    EarlyPacketHandling(m_CurrentPacket, Enums.PacketOrigin.FROMCLIENT)
 
                     'packet event
                     RaiseEvent onPacketSend(Me, m_CurrentPacket)
 
                     'make sure it is handled
-                    HandlePacket()
+                    HandlePacket(Enums.PacketOrigin.FROMCLIENT)
 
                     Return True
                 Case Else

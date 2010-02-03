@@ -502,6 +502,36 @@
             MobileUpdate
         End Enum
 
+        Public Enum CommonHues
+            BlueDark = 3
+            Blue = 99
+            BlueLight = 101
+
+            RedDark = 32
+            Red = 33
+            RedLight = 35
+
+            YellowDark = 52
+            Yellow = 53
+            YellowLight = 55
+
+            GreenDark = 67
+            Green = 73
+            GreenLight = 70
+
+            VioletDark = 17
+            Violet = 18
+            VioletLight = 21
+
+            OrangeDark = 42
+            Orange = 43
+            OrangeLight = 45
+
+            AquaDark = 82
+            Aqua = 83
+            AquaLight = 85
+        End Enum
+
     End Class
 
 End Class

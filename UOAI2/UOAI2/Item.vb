@@ -6,6 +6,7 @@
         Friend Sub New(ByVal client As Client, ByVal Serial As Serial)
             Me._Serial = Serial
             _contents = New ItemList(Me, client)
+            _Client = client
         End Sub
 
         ''' <summary>
@@ -20,6 +21,7 @@
 
         ''' <summary>Where the actual memory offset of the item is stored</summary>
         Friend MemoryOffset As UInt32
+        Friend _Client As Client
         Friend _Serial As New Serial(0)
         Friend _Type As UShort
         Friend _Layer As Enums.Layers
@@ -143,7 +145,7 @@
             dc.Serial = Me.Serial
 
             'Send the packet to the server.
-            _contents._MyClient.Send(dc, Enums.PacketDestination.SERVER)
+            _Client.Send(dc, Enums.PacketDestination.SERVER)
         End Sub
 
         Public Sub SingleClick()
@@ -154,7 +156,7 @@
             sc.Serial = Me.Serial
 
             'Send the packet to the server.
-            _contents._MyClient.Send(sc, Enums.PacketDestination.SERVER)
+            _Client.Send(sc, Enums.PacketDestination.SERVER)
         End Sub
 
         Public Sub ShowText(ByVal Text As String)
@@ -171,7 +173,7 @@
             Console.WriteLine("Sending SysMsg Packet to Client: " & BitConverter.ToString(k.Data))
 #End If
 
-            _contents._MyClient.Send(k, Enums.PacketDestination.CLIENT)
+            _Client.Send(k, Enums.PacketDestination.CLIENT)
         End Sub
 
 #End Region

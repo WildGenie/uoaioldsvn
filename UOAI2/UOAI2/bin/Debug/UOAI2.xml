@@ -6,7 +6,13 @@ UOAI2
 </name>
 </assembly>
 <members>
-<member name="T:UOAI2.UOAI.Enums.LoginState">
+<member name="M:UOAI2.UOAI.Client.PromptForHue(System.UInt16,System.UInt32)">
+	<summary>
+ Displays a hue picker.
+ </summary>
+	<param name="Artwork">The artwork of the item or w/e you want to hue, this is only for the GUI.</param>
+	<param name="UID">A UID to keep track of this, the response will be handled by the event "onHueResponse".</param>
+</member><member name="T:UOAI2.UOAI.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOAI2.UOAI.Enums.EntityType">
 	<summary>Enumeration of Entity types.</summary>
@@ -134,7 +140,7 @@ UOAI2
 	<param name="Offset">The offset item you want to check the existance of.</param>
 </member><member name="P:UOAI2.UOAI.ItemList.Exists(UOAI2.UOAI.Item)">
 	<param name="Item">The item you want to check the existance of.</param>
-</member><member name="P:UOAI2.UOAI.ItemList.byType(System.UInt16)">
+</member><member name="P:UOAI2.UOAI.ItemList.byType(System.UInt16,System.Boolean)">
 	<summary>
  Returns an itemlist containing the items of the specified type.
  </summary>

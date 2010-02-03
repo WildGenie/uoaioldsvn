@@ -21,8 +21,12 @@ Partial Class UOAI
         ''' <summary>Returns the raw packet data as a byte array.</summary>
         Public Overridable ReadOnly Property Data() As Byte()
             Get
-                If buff Is Nothing Then Return _Data
-                Return buff.buffer
+                If buff Is Nothing Then
+                    Return _Data
+                Else
+                    _Data = buff.buffer
+                    Return _Data
+                End If
             End Get
         End Property
 
@@ -54,10 +58,10 @@ Partial Class UOAI
             Private _font As UShort
             Private _lang As String
             Private _text As String
+            Private _Skip12BitBytes As UShort = 0
 
             Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.SpeechUnicode)
-                _size = bytes.Length
 
                 buff = New BufferHandler(bytes, True)
 
@@ -65,10 +69,10 @@ Partial Class UOAI
 
                 buff.Position = 1
 
-                buff.networkorder = True
+                buff.networkorder = False
                 '1-2
                 _size = buff.readushort
-                buff.networkorder = False
+                buff.networkorder = True
 
                 '3
                 _mode = buff.readbyte
@@ -80,10 +84,48 @@ Partial Class UOAI
                 _font = buff.readushort
 
                 '8-11
-                _lang = buff.readustrn(4)
+                _lang = buff.readstr
 
-                '12-(Size - 1)
-                _text = buff.readustr
+                buff.Position = 12
+
+                If _mode >= 192 Then
+                    _mode -= 192
+
+                    Dim result As UInteger = 0
+                    Dim ushrt1 As UShort = 0
+                    Dim ushrt2 As UShort = 0
+
+                    'God damned mother fucking 12-bit shorts!!! why the fuck did they use 12-bit shorts??!?!?
+
+                    'Move these 8 bits left by 4 bits (11111111 turns into 111111110000)
+                    ushrt1 = buff.readbyte * 16
+
+                    'move these 8 bits right by 4 bits, cutting off and ignoring the right 4. (11110101 turns into 1111)
+                    ushrt2 = buff.readbyte \ 16
+
+                    'Add the together. (combine 111111110000 + 1111 = 111111111111)
+                    result = ushrt1 + ushrt2
+
+                    result += 1 'Accounts for the first 12 bit short we just read)
+
+                    'Checks if the result is even or odd
+                    If (result Mod 2 = 0) Then
+                        'The result is even
+                        _Skip12BitBytes = (result / 2) * 3
+                    Else
+                        'The result is odd
+                        _Skip12BitBytes = (result \ 2) * 3
+                        _Skip12BitBytes += 1
+                    End If
+
+                    buff.Position = 12 + _Skip12BitBytes
+
+                    '(12 + _Skip12BitBytes)-(Size - 1)
+                    _text = buff.readstr
+                Else
+                    '12-(Size - 1)
+                    _text = buff.readustr
+                End If
 
             End Sub
 
@@ -925,44 +967,47 @@ Partial Class UOAI
 
                 Dim it As New Item
 
-                For i As UShort = 0 To _Count - 1
-                    it = New Item
+                If _Count >= 1 Then
 
-                    '5-8
-                    it._Serial = buff.readuint
+                    For i As UShort = 0 To _Count - 1
+                        it = New Item
 
-                    '9-10
-                    it._Type = buff.readushort
+                        '5-8
+                        it._Serial = buff.readuint
 
-                    '11
-                    it._StackID = buff.readbyte
+                        '9-10
+                        it._Type = buff.readushort
 
-                    '12-13
-                    it._Amount = buff.readushort
+                        '11
+                        it._StackID = buff.readbyte
 
-                    '14-15
-                    it._X = buff.readushort
+                        '12-13
+                        it._Amount = buff.readushort
 
-                    '16-17
-                    it._Y = buff.readushort
+                        '14-15
+                        it._X = buff.readushort
 
-                    '18
-                    'Grid Index, since 6.0.1.7
-                    buff.Position += 1
+                        '16-17
+                        it._Y = buff.readushort
 
-                    '19-22
-                    it._Container = buff.readuint
+                        '18
+                        'Grid Index, since 6.0.1.7
+                        buff.Position += 1
 
-                    '23-24
-                    it._Hue = buff.readushort
+                        '19-22
+                        it._Container = buff.readuint
+
+                        '23-24
+                        it._Hue = buff.readushort
 
 #If DebugItems Then
                     Console.WriteLine("Adding item to Container Contents Packet ItemList.")
                     Console.WriteLine("Container Serial: " & it.Container.Value)
                     Console.WriteLine("Serial: " & it.Serial.Value)
 #End If
-                    _ItemList.Add(it)
-                Next
+                        _ItemList.Add(it)
+                    Next
+                End If
 
             End Sub
 
@@ -2566,7 +2611,7 @@ Partial Class UOAI
         End Class
 #End Region
 
-#Region "Interface - Targeting, Single/Double Click, etc..."
+#Region "Interface - Targeting, Single/Double Click, Hue Picker, etc..."
 
         Public Class Target
             Inherits Packet
@@ -2808,20 +2853,72 @@ Partial Class UOAI
 
         End Class
 
+        Public Class HuePicker
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _Artwork As UShort = 0
+            Private _Hue As UShort
+
+            Friend Sub New(ByVal Serial As Serial, ByVal Artwork As UShort, ByVal Hue As UShort)
+                MyBase.New(Enums.PacketType.HuePicker)
+                Dim bytes(8) As Byte
+
+                bytes(0) = 149
+
+                buff = New BufferHandler(bytes, True)
+                buff.Position = 1
+                buff.writeuint(Serial.Value)
+                buff.writeushort(Artwork)
+                buff.writeushort(Hue)
+
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.HuePicker)
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+                    _Serial = .readuint
+                    _Artwork = .readushort
+                    _Hue = .readushort
+                End With
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Artwork() As UShort
+                Get
+                    Return _Artwork
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+            End Property
+
+        End Class
+
 #End Region
 
 #Region "Base Classes"
         Public Class GenericCommand
             Inherits Packet
 
-            Private _SubCommand As Byte = 0
+            Private _SubCommand As UShort = 0
 
             Friend Sub New(ByVal Subcommand As Enums.BF_Sub_Commands)
                 MyBase.New(Enums.PacketType.GenericCommand)
 
                 _SubCommand = Subcommand
             End Sub
-
 
             Public ReadOnly Property SubCommand() As Enums.BF_Sub_Commands
                 Get
@@ -2845,7 +2942,7 @@ Partial Class UOAI
 
                 buff = New BufferHandler(bytes, True)
 
-                buff.Position = 3
+                buff.Position = 5
                 _Serial = buff.readuint
 
             End Sub
@@ -2868,7 +2965,7 @@ Partial Class UOAI
                 MyBase.New(Enums.BF_Sub_Commands.ContextMenuResponse)
                 buff = New BufferHandler(bytes, True)
 
-                buff.Position = 3
+                buff.Position = 5
                 _Serial = buff.readuint
 
                 If buff.Position <> buff.buffer.Length - 1 Then
@@ -2929,6 +3026,8 @@ Partial Class UOAI
                     .networkorder = False
                     .writeushort(k + 1)
                     .networkorder = True
+
+                    .writeushort(20)
 
                     .writeushort(1)
                     .writeuint(_Serial.Value)
@@ -3033,7 +3132,7 @@ Partial Class UOAI
             NoMessage
         End Enum
 
-        Public Enum BF_Sub_Commands As Byte
+        Public Enum BF_Sub_Commands As UShort
             FastWalk = &H1
             AddWalkKey = &H2
             CloseGump = &H4
@@ -3073,7 +3172,7 @@ Partial Class UOAI
 
         End Enum
 
-        Public Enum BF_06_Sub_Commands As Byte
+        Public Enum BF_06_Sub_Commands As UShort
             AddMember_DisplayMenberList = &H1
             RemoveMember = &H2
             PartyPrivateMessage = &H3
@@ -3084,12 +3183,12 @@ Partial Class UOAI
             DeclineRequest = &H9
         End Enum
 
-        Public Enum BF_20_Sub_Commands As Byte
+        Public Enum BF_20_Sub_Commands As UShort
             BeginHouseCustomization = &H4
             EndHouseCustomization = &H5
         End Enum
 
-        Public Enum BF_19_Sub_Commands As Byte
+        Public Enum BF_19_Sub_Commands As UShort
             BondedStatus = &H0
             StatLockInfo = &H2
             UpdateMobileStatusInformation = &H5
