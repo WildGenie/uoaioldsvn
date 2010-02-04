@@ -23,3 +23,6 @@ C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOLite\UOLite\obj\Debug\ResolveAssemb
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOLite\UOLite\obj\Debug\UOLite.Form1.resources
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOLite\UOLite\obj\Debug\UOLite.Resources.resources
 C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOLite\UOLite\obj\Debug\UOLite.vbproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOLite\UOLite\obj\Debug\UOLite.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOLite\UOLite\obj\Debug\UOLite.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOLite\UOLite\obj\Debug\UOLite.pdb
