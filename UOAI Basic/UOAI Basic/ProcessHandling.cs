@@ -658,7 +658,14 @@ namespace Win32API
         }
 
         public uint BaseAddress { get { return m_ME.modBaseAddr ; } }
-        public uint EntryPointAddress { get { return BaseAddress+m_PEHeaders.OptionalHeader.AddressOfEntryPoint; } }
+        public uint EntryPointAddress
+        {
+            get
+            {
+
+                return BaseAddress + PEHeader.OptionalHeader.AddressOfEntryPoint;
+            }
+        }
         public string Name { get { return m_ME.szModule; } }
         public string FileName { get { return m_ME.szExePath; } }
     }
@@ -1593,19 +1600,11 @@ namespace Win32API
                             {
                                 backup = sh.Position;
                                 curordinal=(ushort)(curvar-0x80000000);
-                                if (m_OnProcess == null)
-                                    curname = libname + "_ordinal_0x" + curordinal.ToString("X");
+                                
+                                if ((m_OnProcess != null) && (m_OnProcess.MainModule.Modules.ContainsKey(libname)) && (m_OnProcess.MainModule.Modules[libname].PEHeader.ExportsByOrdinal.ContainsKey(curordinal)))
+                                    curname = m_OnProcess.MainModule.Modules[libname].PEHeader.ExportsByOrdinal[curordinal].Name;
                                 else
-                                {
-                                    try
-                                    {
-                                        curname = m_OnProcess.MainModule.Modules[libname].PEHeader.ExportsByOrdinal[curordinal].Name;
-                                    }
-                                    catch
-                                    {
-                                        curname = libname + "_ordinal_0x" + curordinal.ToString("X");
-                                    }
-                                }
+                                    curname = libname + "_ordinal_0x" + curordinal.ToString("X");
                                
                                 importsbyname.Add(new ImportByName(curordinal, curname));
                                 sh.Position = backup;

@@ -8,7 +8,7 @@
     <ProjectGuid>{2DD89D47-0777-4FDB-9333-BBBE10DCD6EB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UOAI_Basic</RootNamespace>
+    <RootNamespace>UOAIBasic</RootNamespace>
     <AssemblyName>UOAI Basic</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callibration.cs" />
+    <Compile Include="DataStructures.cs" />
     <Compile Include="UOAIBasic.cs" />
     <Compile Include="Imports.cs" />
     <Compile Include="Injection.cs" />
