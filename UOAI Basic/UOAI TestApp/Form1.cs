@@ -22,5 +22,11 @@ namespace UOAI_TestApp
             foreach (Client curclient in ClientList.Default)
                 curclient.WriteLine(textBox1.Text);
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Win32API.WindowHandler wh=Win32API.WindowHandler.FindWindow("Ultima Online",-1,-1)[0];
+            UOCallibration.Callibrate(wh.onProcess);
+        }
     }
 }

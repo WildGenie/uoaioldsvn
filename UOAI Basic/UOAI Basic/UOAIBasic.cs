@@ -28,15 +28,27 @@ namespace UOAIBasic
 
         private Client BuildClient(ProcessHandler onprocess, ThreadHandler onthread)
         {
+            bool success;
             //new client
             Client curclient;
             //- inject it
             ProcessInjection.Injection.Inject(onprocess, onthread, Assembly.GetExecutingAssembly(), typeof(InjectedClient));
 
             //- wait for server to become available
-            do
-                Thread.Sleep(100);
-            while ((curclient = (Client)Server.GetObject(typeof(Client), (int)onprocess.PID)) == null);
+            curclient = (Client)Server.GetObject(typeof(Client), (int)onprocess.PID);
+            success = false;
+            while (!success)
+            {
+                try
+                {
+                    curclient.Validate();
+                    success = true;
+                }
+                catch
+                {
+                    Thread.Sleep(0);
+                }
+            }
 
             return curclient;
         }
@@ -109,6 +121,14 @@ namespace UOAIBasic
             Server.RegisterTypes();
 
             //callibration code is to be called here
+            try
+            {
+                UOCallibration.Callibrate(ProcessHandler.CurrentProcess);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 

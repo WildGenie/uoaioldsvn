@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -515,11 +516,13 @@ namespace libdisasm
     {
         private x86_insn_t m_insn;
         private List<asmOperand> m_Operands;
+        private long m_addr;
 
-        public asmInstruction(x86_insn_t frominsn)
+        public asmInstruction(x86_insn_t frominsn, long addr)
         {
             x86_oplist_t curop;
             m_insn = frominsn;
+            m_addr = addr;
 
             //build operand list
             m_Operands = new List<asmOperand>((int)m_insn.operand_count);
@@ -539,15 +542,467 @@ namespace libdisasm
             get { return m_Operands; }
         }
 
+        public long ReadAddressOperand()
+        {
+            foreach (asmOperand curop in Operands)
+            {
+                if ((curop.Type & x86_op_type.op_relative_far)!=0)
+                    return m_addr + m_insn.size + curop.Data.relative_far;
+                else if ((curop.Type & x86_op_type.op_relative_near)!=0)
+                    return m_addr + m_insn.size + curop.Data.relative_near;
+                else if ((curop.Type & x86_op_type.op_offset)!=0)
+                    return curop.Data.offset;
+            }
+            
+            return 0;
+        }
+
         public x86_insn_t Instruction { get { return m_insn; } }
+
+        public long Address { get { return m_addr; } }
     }
 
-    public class asmChunk
+    public interface asmFind
     {
+        asmInstruction Current { get; set; }
+        asmInstruction Next { get; }
+        asmInstruction MoveNext();
+        asmInstruction Previous { get; }
+        asmInstruction MovePrevious();
+        asmInstruction ToStart();
+        asmInstruction ToEnd();
+        bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found);
+        bool FindSized(x86_insn_type type, byte required_size, bool backwards, out asmInstruction found);
+        bool FindByOperandValue(asmDataHandler value, bool backwards, out asmInstruction found);
+        bool FindMultiple(x86_insn_type[] types, bool backwards, out asmInstruction found);
+        bool FindByOperandType(x86_op_type x86_op_type, bool backwards, out asmInstruction found);
     }
 
-    public class asmFunction
+    public class asmChunk : asmFind
     {
+        private BinaryTree<long, asmInstruction> m_Instructions;
+        private long m_Addr;
+        private asmInstruction m_Current;
+
+        public asmInstruction this[long address]
+        {
+            get { return m_Instructions[address]; }
+        }
+
+        public asmChunk(long position, BinaryTree<long, asmInstruction> instructions)
+        {
+            m_Instructions = instructions;
+            m_Addr = position;
+            m_Current = m_Instructions[position];
+        }
+        public long Address { get { return m_Addr; } }
+        public asmInstruction Current
+        {
+            get { return m_Current; }
+            set
+            {
+                if (m_Instructions.ContainsKey(value.Address))
+                    m_Current = value;
+            }
+        }
+        public asmInstruction Next
+        {
+            get
+            {
+                if (m_Current != null)
+                    m_Current = m_Instructions.Next(m_Current.Address);
+                return m_Current;
+            }
+        }
+        public asmInstruction MoveNext()
+        {
+            return Next;
+        }
+        public asmInstruction Previous
+        {
+            get
+            {
+                if (m_Current != null)
+                    m_Current = m_Instructions.Previous(m_Current.Address);
+                return m_Current;
+            }
+        }
+        public asmInstruction MovePrevious()
+        {
+            return Previous;
+        }
+        public asmInstruction ToStart()
+        {
+            return (m_Current = m_Instructions.leftmost().value);
+        }
+        public asmInstruction ToEnd()
+        {
+            return (m_Current=m_Instructions.rightmost().value);
+        }
+
+        //search functions go here
+        public bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found)
+        {
+            asmInstruction backup = m_Current;
+            found = null;
+            while(m_Current!=null)
+            {
+                if(m_Current.Instruction.type == type)
+                {
+                    found = m_Current;
+                    return true;
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current=Next;
+            }
+            m_Current = backup;
+            return false;
+        }
+        public bool FindSized(x86_insn_type type, byte required_size, bool backwards, out asmInstruction found)
+        {
+            asmInstruction backup = m_Current;
+            found = null;
+            while (m_Current != null)
+            {
+                if ((m_Current.Instruction.type == type)&&(m_Current.Instruction.size==required_size))
+                {
+                    found = m_Current;
+                    return true;
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current = Next;
+            }
+            m_Current = backup;
+            return false;
+        }
+        public bool FindByOperandValue(asmDataHandler value, bool backwards, out asmInstruction found)
+        {
+            asmInstruction backup = m_Current;
+            found = null;
+            while (m_Current != null)
+            {
+                foreach (asmOperand op in m_Current.Operands)
+                {
+                    if (op.Data == value)
+                    {
+                        found = m_Current;
+                        return true;
+                    }
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current = Next;
+            }
+            m_Current = backup;
+            return false;
+        }
+        public bool FindMultiple(x86_insn_type[] types, bool backwards, out asmInstruction found)
+        {
+            bool _found = true;
+            asmInstruction backup, fullbackup;
+            fullbackup = m_Current;
+            found = null;
+            while (m_Current != null)
+            {
+                backup = m_Current;
+                _found = true;
+                for (uint i = 0; i < types.Length; i++)
+                {
+                    if (m_Current.Instruction.type != types[i])
+                    {
+                        _found = false;
+                        break;
+                    }
+                    
+                    if (backwards)
+                        m_Current = Previous;
+                    else
+                        m_Current = Next;
+                    
+                    if (m_Current== null)
+                    {
+                        _found = false;
+                        break;
+                    }
+                }
+                m_Current = backup;
+                if (_found)
+                {
+                    found = m_Current;
+                    return true;
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current = Next;
+            }
+            m_Current = fullbackup;
+            return false;
+        }
+        public bool FindByOperandType(x86_op_type x86_op_type, bool backwards, out asmInstruction found)
+        {
+            asmInstruction backup = m_Current;
+            found = null;
+            while (m_Current != null)
+            {
+                foreach (asmOperand op in m_Current.Operands)
+                {
+                    if (op.Type == x86_op_type)
+                    {
+                        found = m_Current;
+                        return true;
+                    }
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current = Next;
+            }
+            m_Current = backup;
+            return false;
+        }
+    }
+
+    public class asmFunction : asmFind
+    {
+        private BinaryTree<long, asmChunk> m_Chunks;
+        private long m_Address;
+        private asmChunk m_Current;
+        private asmChunk m_Backup;
+        private asmInstruction m_insn_Backup;
+
+        internal asmFunction(BinaryTree<long, asmChunk> chunks, long address)
+        {
+            m_Chunks = chunks;
+            m_Address = address;
+            m_Current = chunks[address];
+        }
+        public long Address { get { return m_Address; } }
+
+        public asmInstruction this[long address]
+        {
+            get
+            {
+                int compres;
+                BinaryTreeNode<long, asmChunk> node = m_Chunks.FindInsertionPoint(address, out compres);
+                if (compres >= 0)
+                    return node.value[address];
+                else
+                {
+                    asmChunk prevchunk = m_Chunks.Previous(node.value.Address);
+                    if (prevchunk != null)
+                        return prevchunk[address];
+                }
+                return null;
+            }
+        }
+
+        #region asmFind Members
+
+        private asmChunk NextChunk()
+        {
+            if((m_Current = m_Chunks.Next(m_Current.Address))!=null)
+                m_Current.Current = m_Current[m_Current.Address];
+            return m_Current;
+        }
+
+        private asmChunk PreviousChunk()
+        {
+            if ((m_Current = m_Chunks.Previous(m_Current.Address)) != null)
+                m_Current.Current = m_Current[m_Current.Address];
+            return m_Current;
+        }
+
+        public asmInstruction Current
+        {
+            get
+            {
+                if (m_Current != null)
+                {
+                    if (m_Current.Current != null)
+                        return m_Current.Current;
+                }
+                return null;
+            }
+            set
+            {
+                //backup current position
+                asmChunk backup = m_Current;
+                asmInstruction insnbackup=null;
+                if(m_Current!=null)
+                    insnbackup = m_Current.Current;
+                
+                //see if we can set this position
+                ToStart();
+                while (m_Current != null)
+                {
+                    if ((m_Current.Current = value) == value)
+                        return;
+                    m_Current = NextChunk();
+                }
+                
+                //restore position
+                if ((m_Current = backup) != null)
+                    m_Current.Current = insnbackup;
+            }
+        }
+
+        public asmInstruction Next
+        {
+            get {
+                while (m_Current != null)
+                {
+                    if (m_Current.Next != null)
+                        return m_Current.Current;
+                    else
+                        m_Current = NextChunk();
+                }
+                return null;
+            }
+        }
+
+        public asmInstruction MoveNext()
+        {
+            return Next;
+        }
+
+        public asmInstruction Previous
+        {
+            get
+            {
+                while (m_Current != null)
+                {
+                    if (m_Current.Previous != null)
+                        return m_Current.Current;
+                    else
+                        m_Current = PreviousChunk();
+                }
+                return null;
+            }
+        }
+
+        public asmInstruction MovePrevious()
+        {
+            return Previous;
+        }
+
+        public asmInstruction ToStart()
+        {
+            if ((m_Current = m_Chunks.leftmost().value) != null)
+                return m_Current.ToStart();
+            return null;
+        }
+
+        public asmInstruction ToEnd()
+        {
+            if ((m_Current = m_Chunks.rightmost().value) != null)
+                return m_Current.ToEnd();
+            return null;
+        }
+
+        public void BackupPosition()
+        {
+            if ((m_Backup = m_Current) != null)
+                m_insn_Backup = m_Backup.Current;
+        }
+
+        public void RestorePosition()
+        {
+            if ((m_Current = m_Backup) != null)
+                m_Current.Current = m_insn_Backup;
+        }
+
+        public bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found)
+        {
+            BackupPosition();
+            found = null;
+            while (m_Current != null)
+            {
+                if (m_Current.FindByType(type, backwards, out found))
+                    return true;
+                if (backwards)
+                    PreviousChunk();
+                else
+                    NextChunk();
+            }
+            RestorePosition();
+            return false;
+        }
+
+        public bool FindSized(x86_insn_type type, byte required_size, bool backwards, out asmInstruction found)
+        {
+            BackupPosition();
+            found = null;
+            while (m_Current != null)
+            {
+                if (m_Current.FindSized(type, required_size, backwards, out found))
+                    return true;
+                if (backwards)
+                    PreviousChunk();
+                else
+                    NextChunk();
+            }
+            RestorePosition();
+            return false;
+        }
+
+        public bool FindByOperandValue(asmDataHandler value, bool backwards, out asmInstruction found)
+        {
+            BackupPosition();
+            found = null;
+            while (m_Current != null)
+            {
+                if (m_Current.FindByOperandValue(value, backwards, out found))
+                    return true;
+                if (backwards)
+                    PreviousChunk();
+                else
+                    NextChunk();
+            }
+            RestorePosition();
+            return false;
+        }
+
+        public bool FindMultiple(x86_insn_type[] types, bool backwards, out asmInstruction found)
+        {
+            BackupPosition();
+            found = null;
+            while (m_Current != null)
+            {
+                if (m_Current.FindMultiple(types,backwards,out found))
+                    return true;
+                if (backwards)
+                    PreviousChunk();
+                else
+                    NextChunk();
+            }
+            RestorePosition();
+            return false;
+        }
+
+        public bool FindByOperandType(x86_op_type x86_op_type, bool backwards, out asmInstruction found)
+        {
+            BackupPosition();
+            found = null;
+            while (m_Current != null)
+            {
+                if (m_Current.FindByOperandType(x86_op_type, backwards, out found))
+                    return true;
+                if (backwards)
+                    PreviousChunk();
+                else
+                    NextChunk();
+            }
+            RestorePosition();
+            return false;
+        }
+
+        #endregion
     }
 
     public class asmDataHandler
@@ -591,7 +1046,50 @@ namespace libdisasm
         public int relative_far { get { return sdword; } }
         public x86_absolute_t absolute { get { return (x86_absolute_t)RawDeserialize(typeof(x86_absolute_t)); } }
         public x86_ea_t expression { get { return (x86_ea_t)RawDeserialize(typeof(x86_ea_t)); } }
+        public static bool operator ==(asmDataHandler a, asmDataHandler b)
+        {
+            if (a.m_RawData.Length != b.m_RawData.Length)
+                return false;
+            else
+            {
+                for (int i = 0; i < a.m_RawData.Length; i++)
+                {
+                    if (a.m_RawData[i] != b.m_RawData[i])
+                        return false;
+                }
+                return true;
+            }
+        }
+        public static bool operator !=(asmDataHandler a, asmDataHandler b)
+        {
+            if (a.m_RawData.Length != b.m_RawData.Length)
+                return true;
+            else
+            {
+                for (int i = 0; i < a.m_RawData.Length; i++)
+                {
+                    if (a.m_RawData[i] != b.m_RawData[i])
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        static public explicit operator uint(asmDataHandler adh)
+        {
+            return adh.dword;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
     }
+    
     //wraps libdisasm imports
     public class disassembler
     {
@@ -610,14 +1108,7 @@ namespace libdisasm
         static disassembler()
         {
             //initiallize
-            x86_init(x86_options.opt_none,new DISASM_REPORTER(InvokeErrorHandler), IntPtr.Zero);
-        }
-
-        public static event DISASM_REPORTER OnError;
-        private static void InvokeErrorHandler(x86_report_codes code, IntPtr data, IntPtr arg)
-        {
-            if(OnError!=null)
-                OnError(code, data, arg);
+            x86_init(x86_options.opt_none, null, IntPtr.Zero);
         }
 
         //ensure static destruction through this dummy class
@@ -638,10 +1129,136 @@ namespace libdisasm
         public static asmInstruction disassemble(byte[] buffer)
         {
             x86_insn_t insn;
-    
-            x86_disasm(buffer, buffer.Length, 0, 0, out insn);
-            
-            return new asmInstruction(insn);//dummy
+
+            if (x86_disasm(buffer, buffer.Length, 0, 0, out insn) > 0)
+                return new asmInstruction(insn, 0);//dummy
+            else
+                return null;
+        }
+
+        public static asmInstruction disassemble(Stream fromstream)
+        {
+            long m_position = fromstream.Position;
+            x86_insn_t insn;
+            byte[] buff = new byte[32];
+            fromstream.Read(buff, 0, 32);
+            if (x86_disasm(buff, 32, 0, 0, out insn) > 0)
+            {
+                fromstream.Position -= 32 - insn.size;
+                return new asmInstruction(insn, m_position);
+            }
+            else
+            {
+                fromstream.Position -= 32;
+                return null;
+            }
+        }
+
+        public static asmChunk disassemble_chunk(Stream fromstream)
+        {
+            Stack<long> newstack = new Stack<long>();
+            return disassemble_chunk(fromstream, ref newstack);
+        }
+
+        private static asmChunk disassemble_chunk(Stream fromstream, ref Stack<long> chunkstack )
+        {
+            long position = fromstream.Position;
+            BinaryTree<long, asmInstruction> instructions = new BinaryTree<long, asmInstruction>();
+            asmInstruction curinsn;
+
+            while ((curinsn = disassemble(fromstream)) != null)
+            {
+                instructions.Add(curinsn.Address, curinsn);
+                if (curinsn.Instruction.type == x86_insn_type.insn_jmp)
+                {
+                    if(chunkstack!=null)                        
+                        chunkstack.Push(curinsn.ReadAddressOperand());
+                    break;
+                }
+                else if (curinsn.Instruction.type == x86_insn_type.insn_return)
+                {
+                    break;
+                }
+                else if (curinsn.Instruction.type == x86_insn_type.insn_jcc)
+                {
+                    if(chunkstack!=null)                        
+                        chunkstack.Push(curinsn.ReadAddressOperand());
+                }
+            }
+            return new asmChunk(position, instructions);
+        }
+
+        public static asmFunction disassemble_function(Stream fromstream)
+        {
+            BinaryTree<long, asmChunk> chunks = new BinaryTree<long, asmChunk>();
+            Stack<long> todisassemble=new Stack<long>();
+            long curpos;
+            long position = fromstream.Position;
+            todisassemble.Push(position);
+            while (todisassemble.Count > 0)
+            {
+                curpos = todisassemble.Pop();
+                fromstream.Position = curpos;
+                chunks.Add(curpos, disassemble_chunk(fromstream, ref todisassemble));
+            }
+            return new asmFunction(chunks, position);
+        }
+
+        //some tool functions
+        public static uint StackSize(asmChunk tocheck)
+        {
+            asmOperand curop;
+            asmInstruction found;
+            tocheck.ToStart();
+            if (tocheck.FindByType(x86_insn_type.insn_return, false, out found))
+            {
+                for (int i = 0; i < found.Operands.Count; i++)
+                {
+                    curop = found.Operands[i];
+                    if (curop.Type == x86_op_type.op_immediate)
+                    {
+                        return (uint)curop.Data;
+                    }
+                }
+            }
+            return 0;
+        }
+        public static uint StackSize(asmFunction tocheck)
+        {
+            asmOperand curop;
+            asmInstruction found;
+            tocheck.ToStart();
+            if (tocheck.FindByType(x86_insn_type.insn_return, false, out found))
+            {
+                for (int i = 0; i < found.Operands.Count; i++)
+                {
+                    curop = found.Operands[i];
+                    if (curop.Type == x86_op_type.op_immediate)
+                    {
+                        return (uint)curop.Data;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        public static bool FuncFind(Stream onstream, asmFunction fromfunction, uint required_stacksize, bool backwards, out asmChunk found)
+        {
+            asmChunk curfunc;
+            asmInstruction curins=fromfunction.ToStart();
+            found = null;
+            while (fromfunction.FindByType(x86_insn_type.insn_call, false, out curins))
+            {
+                onstream.Position = curins.ReadAddressOperand();
+                curfunc = disassemble_chunk(onstream);
+                if (StackSize(curfunc) == required_stacksize)
+                {
+                    found = curfunc;
+                    return true;
+                }
+                fromfunction.MoveNext();
+            }            
+            return false;
         }
     }
 }
