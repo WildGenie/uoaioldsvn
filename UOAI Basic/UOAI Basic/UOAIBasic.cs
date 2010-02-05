@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Win32API;
+using ProcessInjection;
 using RemoteObjects;
 using System.Reflection;
 using System.Threading;
@@ -28,27 +29,17 @@ namespace UOAIBasic
 
         private Client BuildClient(ProcessHandler onprocess, ThreadHandler onthread)
         {
-            bool success;
-            //new client
             Client curclient;
-            //- inject it
-            ProcessInjection.Injection.Inject(onprocess, onthread, Assembly.GetExecutingAssembly(), typeof(InjectedClient));
+
+            //- inject our assembly into the client process (where an instance of the InjectedClient class is created!
+            Injection.Inject(onprocess, onthread, Assembly.GetExecutingAssembly(), typeof(InjectedClient));
+                        
+            //- create a proxy to the remote client object
+            curclient = (Client)Server.GetObject(typeof(Client), (int)onprocess.PID);
 
             //- wait for server to become available
-            curclient = (Client)Server.GetObject(typeof(Client), (int)onprocess.PID);
-            success = false;
-            while (!success)
-            {
-                try
-                {
-                    curclient.Validate();
-                    success = true;
-                }
-                catch
-                {
-                    Thread.Sleep(0);
-                }
-            }
+            while (!IsValid(curclient))
+                Thread.Sleep(0);
 
             return curclient;
         }
@@ -129,6 +120,8 @@ namespace UOAIBasic
             {
                 Console.WriteLine(e);
             }
+            Console.WriteLine("Callibration Dump:");
+            Console.Write(UOCallibration.Callibrations.ToString());
         }
     }
 
