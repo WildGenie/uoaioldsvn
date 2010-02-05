@@ -66,3 +66,15 @@ C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI TestApp\obj\Debug\ResolveAssemblyRef
 C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI TestApp\obj\Debug\UOAI_TestApp.frmTestApp.resources
 C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI TestApp\obj\Debug\UOAI_TestApp.Properties.Resources.resources
 C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI TestApp\obj\Debug\UOAI TestApp.csproj.GenerateResource.Cache
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\UOAI TestApp.exe
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\UOAI TestApp.pdb
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\UOAI_TestApp.frmTestApp.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\UOAI_TestApp.Properties.Resources.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\obj\Debug\UOAI TestApp.csproj.GenerateResource.Cache
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\bin\Debug\libdisasm.dll
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\bin\Debug\UOAI TestApp.exe
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\bin\Debug\UOAI TestApp.pdb
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\bin\Debug\UOAI Basic.dll
+C:\Users\WIM\Documents\Code\UOAI\UOAI2 SVN\UOAI Basic\UOAI TestApp\bin\Debug\UOAI Basic.pdb
+C:\Users\Wim\Desktop\UOAI22\UOAI Basic\UOAI TestApp\obj\Debug\UOAI_TestApp.InstructionFilterBuilder.resources

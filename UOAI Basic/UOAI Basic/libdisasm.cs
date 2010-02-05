@@ -562,27 +562,124 @@ namespace libdisasm
         public long Address { get { return m_addr; } }
     }
 
-    public interface asmFind
+    public enum FilterType
     {
-        asmInstruction Current { get; set; }
-        asmInstruction Next { get; }
-        asmInstruction MoveNext();
-        asmInstruction Previous { get; }
-        asmInstruction MovePrevious();
-        asmInstruction ToStart();
-        asmInstruction ToEnd();
-        bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found);
-        bool FindSized(x86_insn_type type, byte required_size, bool backwards, out asmInstruction found);
-        bool FindByOperandValue(asmDataHandler value, bool backwards, out asmInstruction found);
-        bool FindMultiple(x86_insn_type[] types, bool backwards, out asmInstruction found);
-        bool FindByOperandType(x86_op_type x86_op_type, bool backwards, out asmInstruction found);
+        Type,
+        OpCount,
+        OpType,
+        OpDataType,
+        OpData,
+        Size,
+        ExplicitOpCount,
+        OpKnownData,
+        FilterOr
+    }
+    public enum ActionType
+    {
+        DISASM_CHUNK,
+        DISASM_FUNCTION,
+        FIND_SEQUENCE,
+        FOLLOW_CALL,
+        JUMP_KNOWN,
+        RETURN_ADDRESS,
+        RETURN_DATA,
+        RETURN_DISP,
+        SET_BACKWARDS
     }
 
-    public class asmChunk : asmFind
+    public class asmChunk
     {
         private BinaryTree<long, asmInstruction> m_Instructions;
         private long m_Addr;
         private asmInstruction m_Current;
+
+        public static bool ExecuteActionList(Stream onstream, long startposition, object[] ActionList, BinaryTree<uint, long> results, BinaryTree<uint, long> knowns)
+        {
+            asmChunk curChunk=null;
+            asmInstruction curInstruction=null;
+            object[] cursequence;
+            long longpar;
+            uint uintpar;
+            int intpar;
+            object[] currentaction;
+            ActionType currentactiontype;
+            bool backwards = false;
+            bool boolpar;
+            knowns.Add(0, startposition);
+            //first action must be chunk or func parse
+            for (uint i = 0; i < ActionList.Length; i++)
+            {
+                currentaction = (object[])ActionList[i];
+                currentactiontype = (ActionType)currentaction[0];
+                switch (currentactiontype)
+                {
+                    case ActionType.DISASM_CHUNK:
+                        uintpar = (uint)currentaction[1];
+                        if(!knowns.ContainsKey(uintpar))
+                            return false;
+                        longpar = knowns[uintpar];
+                        onstream.Position = longpar;
+                        curChunk = disassembler.disassemble_chunk(onstream);
+                        break;
+                    case ActionType.DISASM_FUNCTION:
+                        uintpar = (uint)currentaction[1];
+                        if (!knowns.ContainsKey(uintpar))
+                            return false;
+                        longpar = knowns[uintpar];
+                        onstream.Position = longpar;
+                        curChunk = disassembler.disassemble_function(onstream);
+                        break;
+                    case ActionType.FIND_SEQUENCE:
+                        if (curChunk == null)
+                            return false;
+                        cursequence = (object[])currentaction[1];
+                        if (!curChunk.FindSequence(cursequence, backwards, out curInstruction, knowns))
+                            return false;
+                        break;
+                    case ActionType.FOLLOW_CALL:
+                        boolpar=(bool)currentaction[1];
+                        if((curInstruction==null)||(curInstruction.Instruction.type != x86_insn_type.insn_call))
+                            return false;
+                        onstream.Position = curInstruction.ReadAddressOperand();
+                        if (boolpar)
+                            curChunk = disassembler.disassemble_chunk(onstream);
+                        else
+                            curChunk = disassembler.disassemble_function(onstream);
+                        break;
+                    case ActionType.JUMP_KNOWN:
+                        uintpar = (uint)currentaction[1];
+                        if (!knowns.Find(uintpar, out longpar))
+                            return false;
+                        knowns.Remove(0);
+                        knowns.Add(0, longpar);
+                        break;
+                    case ActionType.RETURN_ADDRESS:
+                        uintpar = (uint)currentaction[1];
+                        if (curInstruction == null)
+                            return false;
+                        knowns.Add(uintpar, curInstruction.Address);
+                        break;
+                    case ActionType.RETURN_DATA:
+                        uintpar = (uint)currentaction[1];
+                        intpar = (int)currentaction[2];
+                        if ((curInstruction == null)||(intpar>(curInstruction.Operands.Count-1)))
+                            return false;
+                        knowns.Add(uintpar, (long)curInstruction.Operands[intpar].Data.dword);
+                        break;
+                    case ActionType.RETURN_DISP:
+                        uintpar = (uint)currentaction[1];
+                        intpar = (int)currentaction[2];
+                        if ((curInstruction == null) || (intpar > (curInstruction.Operands.Count - 1)))
+                            return false;
+                        knowns.Add(uintpar, (long)curInstruction.Operands[intpar].Data.expression.disp);
+                        break;
+                    case ActionType.SET_BACKWARDS:
+                        backwards = (bool)currentaction[1];
+                        break;
+                }
+            }
+            return true;
+        }
 
         public asmInstruction this[long address]
         {
@@ -641,6 +738,135 @@ namespace libdisasm
         }
 
         //search functions go here
+        private bool CheckFilter(object[] curfilter, asmInstruction tocompare, BinaryTree<uint, long> knowns)
+        {
+            int opnumber;
+            uint knownnumber;
+            FilterType curfiltertype;
+
+            curfiltertype = (FilterType)curfilter[0];
+            switch (curfiltertype)
+            {
+                case FilterType.OpKnownData:
+                    if (knowns != null)
+                    {
+                        opnumber = (int)curfilter[1];
+                        knownnumber = (uint)curfilter[2];
+                        if ((knowns.ContainsKey(knownnumber)) && (knowns[knownnumber] == tocompare.Operands[opnumber].Data.dword))
+                            return true;
+                    }
+                    break;
+                case FilterType.FilterOr:
+                    object[] orlist = (object[]) curfilter[1];
+                    for (uint i = 0; i < orlist.Length; i++)
+                    {
+                        if (CheckFilter((object[])orlist[i], tocompare, knowns))
+                            return true;
+                    }
+                    break;
+                case FilterType.ExplicitOpCount:
+                    if (tocompare.Instruction.explicit_count == (uint)curfilter[1])
+                        return true;
+                    break;
+                case FilterType.OpCount:
+                    if (tocompare.Instruction.operand_count == (uint)curfilter[1])
+                        return true;
+                    break;
+                case FilterType.OpData:
+                    opnumber = (int)curfilter[1];
+                    if (tocompare.Operands[opnumber].Data.dword == (uint)curfilter[2])
+                        return true;
+                    break;
+                case FilterType.OpDataType:
+                    opnumber = (int)curfilter[1];
+                    if (tocompare.Operands[opnumber].DataType == (x86_op_datatype)curfilter[2])
+                        return true;
+                    break;
+                case FilterType.OpType:
+                    opnumber = (int)curfilter[1];
+                    if (tocompare.Operands[opnumber].Type == (x86_op_type)curfilter[2])
+                        return true;
+                    break;
+                case FilterType.Size:
+                    if (tocompare.Instruction.size == (byte)curfilter[1])
+                        return true;
+                    break;
+                case FilterType.Type:
+                    if (tocompare.Instruction.type == (x86_insn_type)curfilter[1])
+                        return true;
+                    break;
+            }
+            return false;
+        }
+
+        private bool FilterListCompare(object[] insnfilterlist, asmInstruction tocompare, BinaryTree<uint, long> knowns)
+        {
+            for (uint i = 0; i < insnfilterlist.Length; i++)
+            {
+                if (!CheckFilter((object[])insnfilterlist[i], tocompare, knowns))
+                    return false;
+            }
+            return true;
+        }
+
+        public bool FindFilter(object[] filter, bool backwards, out asmInstruction found, BinaryTree<uint, long> knowns)
+        {
+            bool _found = true;
+            asmInstruction backup, fullbackup;
+            fullbackup = m_Current;
+            found = null;
+            while (m_Current != null)
+            {
+                backup = m_Current;
+                _found = true;
+                for (uint i = 0; i < filter.Length; i++)
+                {
+                    if (!FilterListCompare((object[])filter[i], m_Current, knowns))
+                    {
+                        _found = false;
+                        break;
+                    }
+
+                    /*if (backwards)
+                        m_Current = Previous;
+                    else*/
+                    //always next otherwise the instruction list has to be passed reversed
+                    m_Current = Next;
+
+                    if (m_Current == null)
+                    {
+                        _found = false;
+                        break;
+                    }
+                }
+                m_Current = backup;
+                if (_found)
+                {
+                    found = m_Current;
+                    return true;
+                }
+                if (backwards)
+                    m_Current = Previous;
+                else
+                    m_Current = Next;
+            }
+            m_Current = fullbackup;
+            return false;
+        }
+
+        public bool FindSequence(object[] sequence, bool backwards, out asmInstruction found, BinaryTree<uint, long> knowns)
+        {
+            found=null;
+            for (uint i = 0; i < sequence.Length; i++)
+            {
+                if (!FindFilter((object[])sequence[i], backwards, out found, knowns))
+                    return false;
+                if(i!=(sequence.Length-1))
+                    MoveNext(); 
+            }
+            return true;
+        }
+
         public bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found)
         {
             asmInstruction backup = m_Current;
@@ -719,9 +945,9 @@ namespace libdisasm
                         break;
                     }
                     
-                    if (backwards)
+                    /*if (backwards)
                         m_Current = Previous;
-                    else
+                    else*///always next otherwise the instruction list has to be passed reversed
                         m_Current = Next;
                     
                     if (m_Current== null)
@@ -766,243 +992,6 @@ namespace libdisasm
             m_Current = backup;
             return false;
         }
-    }
-
-    public class asmFunction : asmFind
-    {
-        private BinaryTree<long, asmChunk> m_Chunks;
-        private long m_Address;
-        private asmChunk m_Current;
-        private asmChunk m_Backup;
-        private asmInstruction m_insn_Backup;
-
-        internal asmFunction(BinaryTree<long, asmChunk> chunks, long address)
-        {
-            m_Chunks = chunks;
-            m_Address = address;
-            m_Current = chunks[address];
-        }
-        public long Address { get { return m_Address; } }
-
-        public asmInstruction this[long address]
-        {
-            get
-            {
-                int compres;
-                BinaryTreeNode<long, asmChunk> node = m_Chunks.FindInsertionPoint(address, out compres);
-                if (compres >= 0)
-                    return node.value[address];
-                else
-                {
-                    asmChunk prevchunk = m_Chunks.Previous(node.value.Address);
-                    if (prevchunk != null)
-                        return prevchunk[address];
-                }
-                return null;
-            }
-        }
-
-        #region asmFind Members
-
-        private asmChunk NextChunk()
-        {
-            if((m_Current = m_Chunks.Next(m_Current.Address))!=null)
-                m_Current.Current = m_Current[m_Current.Address];
-            return m_Current;
-        }
-
-        private asmChunk PreviousChunk()
-        {
-            if ((m_Current = m_Chunks.Previous(m_Current.Address)) != null)
-                m_Current.Current = m_Current[m_Current.Address];
-            return m_Current;
-        }
-
-        public asmInstruction Current
-        {
-            get
-            {
-                if (m_Current != null)
-                {
-                    if (m_Current.Current != null)
-                        return m_Current.Current;
-                }
-                return null;
-            }
-            set
-            {
-                //backup current position
-                asmChunk backup = m_Current;
-                asmInstruction insnbackup=null;
-                if(m_Current!=null)
-                    insnbackup = m_Current.Current;
-                
-                //see if we can set this position
-                ToStart();
-                while (m_Current != null)
-                {
-                    if ((m_Current.Current = value) == value)
-                        return;
-                    m_Current = NextChunk();
-                }
-                
-                //restore position
-                if ((m_Current = backup) != null)
-                    m_Current.Current = insnbackup;
-            }
-        }
-
-        public asmInstruction Next
-        {
-            get {
-                while (m_Current != null)
-                {
-                    if (m_Current.Next != null)
-                        return m_Current.Current;
-                    else
-                        m_Current = NextChunk();
-                }
-                return null;
-            }
-        }
-
-        public asmInstruction MoveNext()
-        {
-            return Next;
-        }
-
-        public asmInstruction Previous
-        {
-            get
-            {
-                while (m_Current != null)
-                {
-                    if (m_Current.Previous != null)
-                        return m_Current.Current;
-                    else
-                        m_Current = PreviousChunk();
-                }
-                return null;
-            }
-        }
-
-        public asmInstruction MovePrevious()
-        {
-            return Previous;
-        }
-
-        public asmInstruction ToStart()
-        {
-            if ((m_Current = m_Chunks.leftmost().value) != null)
-                return m_Current.ToStart();
-            return null;
-        }
-
-        public asmInstruction ToEnd()
-        {
-            if ((m_Current = m_Chunks.rightmost().value) != null)
-                return m_Current.ToEnd();
-            return null;
-        }
-
-        public void BackupPosition()
-        {
-            if ((m_Backup = m_Current) != null)
-                m_insn_Backup = m_Backup.Current;
-        }
-
-        public void RestorePosition()
-        {
-            if ((m_Current = m_Backup) != null)
-                m_Current.Current = m_insn_Backup;
-        }
-
-        public bool FindByType(x86_insn_type type, bool backwards, out asmInstruction found)
-        {
-            BackupPosition();
-            found = null;
-            while (m_Current != null)
-            {
-                if (m_Current.FindByType(type, backwards, out found))
-                    return true;
-                if (backwards)
-                    PreviousChunk();
-                else
-                    NextChunk();
-            }
-            RestorePosition();
-            return false;
-        }
-
-        public bool FindSized(x86_insn_type type, byte required_size, bool backwards, out asmInstruction found)
-        {
-            BackupPosition();
-            found = null;
-            while (m_Current != null)
-            {
-                if (m_Current.FindSized(type, required_size, backwards, out found))
-                    return true;
-                if (backwards)
-                    PreviousChunk();
-                else
-                    NextChunk();
-            }
-            RestorePosition();
-            return false;
-        }
-
-        public bool FindByOperandValue(asmDataHandler value, bool backwards, out asmInstruction found)
-        {
-            BackupPosition();
-            found = null;
-            while (m_Current != null)
-            {
-                if (m_Current.FindByOperandValue(value, backwards, out found))
-                    return true;
-                if (backwards)
-                    PreviousChunk();
-                else
-                    NextChunk();
-            }
-            RestorePosition();
-            return false;
-        }
-
-        public bool FindMultiple(x86_insn_type[] types, bool backwards, out asmInstruction found)
-        {
-            BackupPosition();
-            found = null;
-            while (m_Current != null)
-            {
-                if (m_Current.FindMultiple(types,backwards,out found))
-                    return true;
-                if (backwards)
-                    PreviousChunk();
-                else
-                    NextChunk();
-            }
-            RestorePosition();
-            return false;
-        }
-
-        public bool FindByOperandType(x86_op_type x86_op_type, bool backwards, out asmInstruction found)
-        {
-            BackupPosition();
-            found = null;
-            while (m_Current != null)
-            {
-                if (m_Current.FindByOperandType(x86_op_type, backwards, out found))
-                    return true;
-                if (backwards)
-                    PreviousChunk();
-                else
-                    NextChunk();
-            }
-            RestorePosition();
-            return false;
-        }
-
-        #endregion
     }
 
     public class asmDataHandler
@@ -1156,27 +1145,28 @@ namespace libdisasm
 
         public static asmChunk disassemble_chunk(Stream fromstream)
         {
-            Stack<long> newstack = new Stack<long>();
-            return disassemble_chunk(fromstream, ref newstack);
+            return disassemble_chunk(fromstream, null, null);
         }
 
-        private static asmChunk disassemble_chunk(Stream fromstream, ref Stack<long> chunkstack )
+        private static asmChunk disassemble_chunk(Stream fromstream, Stack<long> chunkstack, BinaryTree<long, asmInstruction> function_Instructions )
         {
             long position = fromstream.Position;
-            BinaryTree<long, asmInstruction> instructions = new BinaryTree<long, asmInstruction>();
+            BinaryTree<long, asmInstruction> instructions;
             asmInstruction curinsn;
+
+            instructions = new BinaryTree<long, asmInstruction>();
 
             while ((curinsn = disassemble(fromstream)) != null)
             {
                 instructions.Add(curinsn.Address, curinsn);
+                
+                if (function_Instructions != null)
+                    function_Instructions.Add(curinsn.Address, curinsn);
+                
                 if (curinsn.Instruction.type == x86_insn_type.insn_jmp)
                 {
                     if(chunkstack!=null)                        
                         chunkstack.Push(curinsn.ReadAddressOperand());
-                    break;
-                }
-                else if (curinsn.Instruction.type == x86_insn_type.insn_return)
-                {
                     break;
                 }
                 else if (curinsn.Instruction.type == x86_insn_type.insn_jcc)
@@ -1184,13 +1174,15 @@ namespace libdisasm
                     if(chunkstack!=null)                        
                         chunkstack.Push(curinsn.ReadAddressOperand());
                 }
+                else if (curinsn.Instruction.type == x86_insn_type.insn_return)
+                    break;
             }
             return new asmChunk(position, instructions);
         }
 
-        public static asmFunction disassemble_function(Stream fromstream)
+        public static asmChunk disassemble_function(Stream fromstream)
         {
-            BinaryTree<long, asmChunk> chunks = new BinaryTree<long, asmChunk>();
+            BinaryTree<long, asmInstruction> chunked_instructions = new BinaryTree<long, asmInstruction>();
             Stack<long> todisassemble=new Stack<long>();
             long curpos;
             long position = fromstream.Position;
@@ -1198,13 +1190,17 @@ namespace libdisasm
             while (todisassemble.Count > 0)
             {
                 curpos = todisassemble.Pop();
-                fromstream.Position = curpos;
-                chunks.Add(curpos, disassemble_chunk(fromstream, ref todisassemble));
+                if (!chunked_instructions.ContainsKey(curpos))
+                {
+                    fromstream.Position = curpos;
+                    disassemble_chunk(fromstream, todisassemble, chunked_instructions);
+                }
             }
-            return new asmFunction(chunks, position);
+            return new asmChunk(position, chunked_instructions);
         }
 
         //some tool functions
+
         public static uint StackSize(asmChunk tocheck)
         {
             asmOperand curop;
@@ -1223,29 +1219,20 @@ namespace libdisasm
             }
             return 0;
         }
-        public static uint StackSize(asmFunction tocheck)
-        {
-            asmOperand curop;
-            asmInstruction found;
-            tocheck.ToStart();
-            if (tocheck.FindByType(x86_insn_type.insn_return, false, out found))
-            {
-                for (int i = 0; i < found.Operands.Count; i++)
-                {
-                    curop = found.Operands[i];
-                    if (curop.Type == x86_op_type.op_immediate)
-                    {
-                        return (uint)curop.Data;
-                    }
-                }
-            }
-            return 0;
-        }
 
-        public static bool FuncFind(Stream onstream, asmFunction fromfunction, uint required_stacksize, bool backwards, out asmChunk found)
+        /// <summary>
+        /// Find the first function called from the parent function with the specified stacksize (as obtained from the retrn instruction; ccall functions won't work)
+        /// </summary>
+        /// <param name="onstream">process or binary executable file stream</param>
+        /// <param name="fromfunction">parent</param>
+        /// <param name="required_stacksize">stacksize to look for</param>
+        /// <param name="backwards">search forward or backwards from the current position</param>
+        /// <param name="found">parsed chunk for the found function</param>
+        /// <returns>whether or not a function with the specified stack size was found</returns>
+        public static bool FuncFind(Stream onstream, asmChunk fromfunction, uint required_stacksize, bool backwards, out asmChunk found)
         {
+            asmInstruction curins;
             asmChunk curfunc;
-            asmInstruction curins=fromfunction.ToStart();
             found = null;
             while (fromfunction.FindByType(x86_insn_type.insn_call, false, out curins))
             {
@@ -1257,7 +1244,7 @@ namespace libdisasm
                     return true;
                 }
                 fromfunction.MoveNext();
-            }            
+            }
             return false;
         }
     }
