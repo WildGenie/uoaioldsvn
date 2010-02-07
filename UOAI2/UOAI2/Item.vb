@@ -128,7 +128,7 @@
             End Get
         End Property
 
-        Public ReadOnly Property Layer() As Enums.Layers
+        Public Overridable ReadOnly Property Layer() As Enums.Layers
             Get
                 Return _Layer
             End Get
@@ -174,6 +174,23 @@
 #End If
 
             _Client.Send(k, Enums.PacketDestination.CLIENT)
+        End Sub
+
+        ''' <summary>
+        ''' Picks up the object.
+        ''' </summary>
+        ''' <param name="Amount">The amount that you want to take, if it is a stack. (0 for the whole stack)</param>
+        Public Sub Take(ByVal Amount As UShort)
+            Dim j As Packets.TakeObject
+
+            If Amount = 0 Then
+                j = New Packets.TakeObject(_Serial, _Amount)
+            Else
+                j = New Packets.TakeObject(_Serial, Amount)
+            End If
+
+            _Client._ItemInHand = _Serial
+            _Client.Send(j, Enums.PacketDestination.SERVER)
         End Sub
 
 #End Region

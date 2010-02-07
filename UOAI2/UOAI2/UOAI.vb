@@ -24,12 +24,16 @@ Public Class UOAI
     ''' <summary>Gets or sets the name of the client executable, normally "client.exe"</summary>
     Public Shared ClientExe As String
 
-    Public Shared StrLst As StringList
+    Friend Shared StrLst As StringList
 
 #End Region
 
 #Region "UOAI Constructor"
     Sub New()
+
+        If File.Exists(UOClientDllPath) = False Then
+            Throw New Exception("Unable to locate UOClientDll.dll!")
+        End If
 
         'Checks for to see if the current user is part of the administrators group, throws an exception if it fails
         If My.User.IsInRole(Microsoft.VisualBasic.ApplicationServices.BuiltInRole.Administrator) = False Then

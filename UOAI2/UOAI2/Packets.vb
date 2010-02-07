@@ -1,6 +1,8 @@
 ﻿Imports System.IO
 Imports System.Text
 
+
+#Const PacketLogging = False
 #Const DebugMobiles = False
 #Const DebugItems = False
 #Const DebugTargeting = False
@@ -577,6 +579,137 @@ Partial Class UOAI
             End Property
 
         End Class
+
+        Public Class LocalizedText
+            Inherits Packet
+            Friend _Serial As Serial
+            Friend _BodyType As UShort
+            Friend _SpeechType As Enums.SpeechTypes
+            Friend _Hue As UShort
+            Friend _Font As Enums.Fonts
+            Friend _CliLocNumber As UInt32
+            Friend _Name As String
+            Friend _ArgString As String
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.LocalizedText)
+                _Data = bytes
+                _Size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 3
+                    '3-6
+                    _Serial = .readuint
+                    '7-8
+                    _BodyType = .readushort
+                    '9-9
+                    _SpeechType = .readbyte
+                    '10-11
+                    _Hue = .readushort
+                    '12-13
+                    _Font = .readushort
+                    '14-17
+                    _CliLocNumber = .readuint
+                    '18-47
+                    _Name = .readstr
+
+                    buff.Position = 48
+                    '48-77
+                    _ArgString = .readustr
+                End With
+            End Sub
+
+            Public Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+                Set(ByVal Value As Serial)
+                    _Serial = Value
+                    buff.Position = 3
+                    buff.writeuint(Value.Value)
+                End Set
+            End Property
+
+            Public Property BodyType() As UShort
+                Get
+                    Return _BodyType
+                End Get
+                Set(ByVal Value As UShort)
+                    _BodyType = Value
+                    buff.Position = 7
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property SpeechType() As Enums.SpeechTypes
+                Get
+                    Return _SpeechType
+                End Get
+                Set(ByVal Value As Enums.SpeechTypes)
+                    _SpeechType = Value
+                    buff.Position = 9
+                    buff.writebyte(Value)
+                End Set
+            End Property
+
+            Public Property Hue() As UShort
+                Get
+                    Return _Hue
+                End Get
+                Set(ByVal Value As UShort)
+                    _Hue = Value
+                    buff.Position = 10
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property Font() As Enums.Fonts
+                Get
+                    Return _Font
+                End Get
+                Set(ByVal Value As Enums.Fonts)
+                    _Font = Value
+                    buff.Position = 12
+                    buff.writeushort(Value)
+                End Set
+            End Property
+
+            Public Property CliLocNumber() As UInt32
+                Get
+                    Return _CliLocNumber
+                End Get
+                Set(ByVal Value As UInt32)
+                    _CliLocNumber = Value
+                    buff.Position = 14
+                    buff.writeuint(Value)
+                End Set
+            End Property
+
+            Public Property Name() As String
+                Get
+                    Return _Name
+                End Get
+                Set(ByVal Value As String)
+                    _Name = Value
+                    buff.Position = 18
+                    buff.writeustrn(Value, 30)
+                End Set
+            End Property
+
+            Public Property ArgString() As String
+                Get
+                    Return _ArgString
+                End Get
+                Set(ByVal Value As String)
+                    _ArgString = Value
+                    buff.Position = 48
+                    buff.writeustr(Value)
+                End Set
+            End Property
+
+        End Class
+
 #End Region
 
 #Region "Items"
@@ -680,9 +813,11 @@ Partial Class UOAI
                 '12-13
                 _Y = buff.readushort
 
-                '14
-                'Grid Index: Since 6.0.1.7
-                buff.Position += 1
+                If Size = 21 Then
+                    '14
+                    'Grid Index: Since 6.0.1.7
+                    buff.Position += 1
+                End If
 
                 '15-18
                 _Container = buff.readuint
@@ -968,45 +1103,82 @@ Partial Class UOAI
                 Dim it As New Item
 
                 If _Count >= 1 Then
+                    If (Size - 5) Mod 20 = 0 Then
+                        For i As UShort = 0 To _Count - 1
+                            it = New Item
 
-                    For i As UShort = 0 To _Count - 1
-                        it = New Item
+                            '5-8
+                            it._Serial = buff.readuint
 
-                        '5-8
-                        it._Serial = buff.readuint
+                            '9-10
+                            it._Type = buff.readushort
 
-                        '9-10
-                        it._Type = buff.readushort
+                            '11
+                            it._StackID = buff.readbyte
 
-                        '11
-                        it._StackID = buff.readbyte
+                            '12-13
+                            it._Amount = buff.readushort
 
-                        '12-13
-                        it._Amount = buff.readushort
+                            '14-15
+                            it._X = buff.readushort
 
-                        '14-15
-                        it._X = buff.readushort
+                            '16-17
+                            it._Y = buff.readushort
 
-                        '16-17
-                        it._Y = buff.readushort
+                            '18
+                            'Grid Index, since 6.0.1.7
+                            buff.Position += 1
 
-                        '18
-                        'Grid Index, since 6.0.1.7
-                        buff.Position += 1
+                            '19-22
+                            it._Container = buff.readuint
 
-                        '19-22
-                        it._Container = buff.readuint
-
-                        '23-24
-                        it._Hue = buff.readushort
+                            '23-24
+                            it._Hue = buff.readushort
 
 #If DebugItems Then
                     Console.WriteLine("Adding item to Container Contents Packet ItemList.")
                     Console.WriteLine("Container Serial: " & it.Container.Value)
                     Console.WriteLine("Serial: " & it.Serial.Value)
 #End If
-                        _ItemList.Add(it)
-                    Next
+                            _ItemList.Add(it)
+                        Next
+                    Else
+                        For i As UShort = 0 To _Count - 1
+                            it = New Item
+
+                            '5-8
+                            it._Serial = buff.readuint
+
+                            '9-10
+                            it._Type = buff.readushort
+
+                            '11
+                            it._StackID = buff.readbyte
+
+                            '12-13
+                            it._Amount = buff.readushort
+
+                            '14-15
+                            it._X = buff.readushort
+
+                            '16-17
+                            it._Y = buff.readushort
+
+                            '19-22
+                            it._Container = buff.readuint
+
+                            '23-24
+                            it._Hue = buff.readushort
+
+#If DebugItems Then
+                    Console.WriteLine("Adding item to Container Contents Packet ItemList.")
+                    Console.WriteLine("Container Serial: " & it.Container.Value)
+                    Console.WriteLine("Serial: " & it.Serial.Value)
+#End If
+                            _ItemList.Add(it)
+                        Next
+                    End If
+
                 End If
 
             End Sub
@@ -2160,6 +2332,7 @@ Partial Class UOAI
             Private _Status As Enums.MobileStatus
             Private _Notoriety As Enums.Reputation
             Private _EquippedItems As New ItemList
+            Private _AmountOrCorpse As UShort = 1
 
             Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.EquippedMOB)
@@ -2171,6 +2344,12 @@ Partial Class UOAI
                     .Position = 3
                     _Serial = .readuint
                     _BodyType = .readushort
+
+                    If _Serial.Value >= 2147483648 Then
+                        _Serial.Value -= 2147483648
+                        _AmountOrCorpse = .readushort
+                    End If
+
                     _X = .readushort
                     _Y = .readushort
                     _Z = .readbyte
@@ -2210,6 +2389,12 @@ Partial Class UOAI
             Public ReadOnly Property Serial() As Serial
                 Get
                     Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Amount() As UShort
+                Get
+                    Return _AmountOrCorpse
                 End Get
             End Property
 
@@ -2547,7 +2732,7 @@ Partial Class UOAI
 
             Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.HealthBarStatusUpdate)
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
                 With buff
                     .Position = 3
@@ -2612,6 +2797,129 @@ Partial Class UOAI
 #End Region
 
 #Region "Interface - Targeting, Single/Double Click, Hue Picker, etc..."
+        Public Class TakeObject
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _Amount As UShort
+
+            Friend Sub New(ByVal Serial As Serial, ByVal Amount As UShort)
+                MyBase.New(Enums.PacketType.TakeObject)
+                Dim bytes(6) As Byte
+                bytes(0) = 7 'TakeObject Byte
+                buff = New BufferHandler(bytes, True)
+
+                buff.Position = 1
+                buff.writeuint(Serial.Value)
+                buff.writeushort(Amount)
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.TakeObject)
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+
+                    _Serial = .readuint
+                    _Amount = .readushort
+                End With
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Amount() As UShort
+                Get
+                    Return _Amount
+                End Get
+            End Property
+
+        End Class
+
+        Public Class DropObject
+            Inherits Packet
+
+            Private _Serial As Serial
+            Private _X As UShort
+            Private _Y As UShort
+            Private _Z As Byte
+            Private _Container As Serial
+
+            Friend Sub New(ByVal Serial As Serial, ByVal X As UShort, ByVal Y As UShort, ByVal Z As Byte, ByVal Container As Serial)
+                MyBase.New(Enums.PacketType.DropObject)
+                Dim bytes(14) As Byte
+                bytes(0) = 8 'Drop Object byte
+
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+                    .writeuint(Serial.Value)
+                    .writeushort(X)
+                    .writeushort(Y)
+                    .writebyte(Z)
+
+                    'Skip the gridindex
+                    .Position += 1
+
+                    .writeuint(Container.Value)
+                End With
+
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.DropObject)
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+                    _Serial = .readuint
+                    _X = .readushort
+                    _Y = .readushort
+                    _Z = .readbyte
+
+                    'Skip the gridindex
+                    .Position += 1
+
+                    _Container = .readuint
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Serial() As Serial
+                Get
+                    Return _Serial
+                End Get
+            End Property
+
+            Public ReadOnly Property X() As UShort
+                Get
+                    Return _X
+                End Get
+            End Property
+
+            Public ReadOnly Property Y() As UShort
+                Get
+                    Return _Y
+                End Get
+            End Property
+
+            Public ReadOnly Property Z() As Byte
+                Get
+                    Return _Z
+                End Get
+            End Property
+
+            Public ReadOnly Property Container() As Serial
+                Get
+                    Return _Container
+                End Get
+            End Property
+        End Class
 
         Public Class Target
             Inherits Packet
@@ -2740,7 +3048,7 @@ Partial Class UOAI
                 Set(ByVal Value As UShort)
                     _Z = Value
                     buff.Position = 15
-                    buff.writebyte(Value)
+                    buff.writeushort(Value)
                 End Set
             End Property
 
@@ -2768,7 +3076,7 @@ Partial Class UOAI
                 _Data = bytes
                 _size = 5
 
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
             End Sub
 
@@ -2816,7 +3124,7 @@ Partial Class UOAI
                 _Data = bytes
                 _size = 5
 
-                buff = New BufferHandler(bytes)
+                buff = New BufferHandler(bytes, True)
 
             End Sub
 
@@ -3421,6 +3729,253 @@ Partial Class UOAI
             CharacterTransferLog = &HDB
         End Enum
 
+    End Class
+
+    Partial Class Client
+
+        Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
+
+#If PacketLogging = True Then
+            If origin = Enums.PacketOrigin.FROMCLIENT Then
+                Console.WriteLine("Sent Packet: " & BitConverter.ToString(packetbuffer))
+            Else
+                Console.WriteLine("Recieved Packet: " & BitConverter.ToString(packetbuffer))
+            End If
+#End If
+
+            Select Case DirectCast(packetbuffer(0), Enums.PacketType)
+                Case Enums.PacketType.TakeObject
+                    Dim k As New Packets.TakeObject(packetbuffer)
+                    _ItemInHand = k.Serial
+                    Return k
+
+                Case Enums.PacketType.DropObject
+                    Return New Packets.DropObject(packetbuffer)
+
+                Case Enums.PacketType.TextUnicode
+                    Return New Packets.UnicodeTextPacket(packetbuffer)
+
+                Case Enums.PacketType.SpeechUnicode
+                    Return New Packets.UnicodeSpeechPacket(packetbuffer)
+
+                Case Enums.PacketType.NakedMOB
+                    Return New Packets.NakedMobile(packetbuffer)
+
+                Case Enums.PacketType.EquippedMOB
+                    Return New Packets.EquippedMobile(packetbuffer)
+
+                Case Enums.PacketType.FatHealth
+                    Return New Packets.FatHealth(packetbuffer)
+
+                Case Enums.PacketType.HPHealth
+                    Return New Packets.HPHealth(packetbuffer)
+
+                Case Enums.PacketType.ManaHealth
+                    Return New Packets.ManaHealth(packetbuffer)
+
+                Case Enums.PacketType.DeathAnimation
+                    Return New Packets.DeathAnimation(packetbuffer)
+
+                Case Enums.PacketType.Destroy
+                    Return New Packets.Destroy(packetbuffer)
+
+                Case Enums.PacketType.MobileStats
+                    Return New Packets.MobileStats(packetbuffer)
+
+                Case Enums.PacketType.EquipItem
+                    Return New Packets.EquipItem(packetbuffer)
+
+                Case Enums.PacketType.ContainerContents
+                    Return New Packets.ContainerContents(packetbuffer)
+
+                Case Enums.PacketType.ObjecttoObject
+                    Return New Packets.ObjectToObject(packetbuffer)
+
+                Case Enums.PacketType.ShowItem
+                    Return New Packets.ShowItem(packetbuffer)
+
+                Case Enums.PacketType.Target
+                    Dim k As Packets.Target = New Packets.Target(packetbuffer)
+
+                    'Set the targeting variables.
+                    If origin = Enums.PacketOrigin.FROMSERVER Then
+                        _Targeting = True
+                        _TargetUID = k.Serial
+                        _TargetType = k.TargetType
+                        _TargetFlag = k.Flag
+                    Else
+                        _Targeting = False
+                    End If
+
+                    Return k
+                Case Enums.PacketType.DoubleClick
+                    Return New Packets.Doubleclick(packetbuffer)
+
+                Case Enums.PacketType.SingleClick
+                    Return New Packets.Singleclick(packetbuffer)
+
+                Case Enums.PacketType.Text
+                    Return New Packets.Text(packetbuffer)
+
+                Case Enums.PacketType.LoginConfirm
+                    Return New Packets.LoginConfirm(packetbuffer)
+
+                Case Enums.PacketType.HealthBarStatusUpdate
+                    Return New Packets.HealthBarStatusUpdate(packetbuffer)
+
+                Case Enums.PacketType.GenericCommand
+
+                    Select Case DirectCast(CUShort(packetbuffer(4)), Enums.BF_Sub_Commands)
+
+                        Case Enums.BF_Sub_Commands.ContextMenuRequest
+                            Return New Packets.ContextMenuRequest(packetbuffer)
+
+                        Case Enums.BF_Sub_Commands.ContextMenuResponse
+                            Return New Packets.ContextMenuResponse(packetbuffer)
+
+                        Case Else
+                            Dim j As New Packet(packetbuffer(0))
+                            j._Data = packetbuffer
+                            j._size = packetbuffer.Length
+                            Return j 'dummy until we have what we need
+                    End Select
+
+                Case Enums.PacketType.HuePicker
+                    Return New Packets.HuePicker(packetbuffer)
+
+                Case Enums.PacketType.LocalizedText
+                    Return New Packets.LocalizedText(packetbuffer)
+
+                Case Else
+                    Dim j As New Packet(packetbuffer(0))
+                    j._Data = packetbuffer
+                    j._size = packetbuffer.Length
+                    Return j 'dummy until we have what we need
+            End Select
+
+        End Function
+
+        Private Sub EarlyPacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
+            'whatever we need to do with the current packet BEFORE the client handled it goes here
+            Select Case currentpacket.Type
+                Case Enums.PacketType.SpeechUnicode
+                    Dim k As Packets.UnicodeSpeechPacket = DirectCast(currentpacket, Packets.UnicodeSpeechPacket)
+                    RaiseEvent onClientSpeech(Me, k.Text, k.Font, k.Hue, k.Language, k.SpeechType)
+
+                Case Enums.PacketType.GenericCommand
+
+                    Select Case DirectCast(CUShort(currentpacket.Data(4)), Enums.BF_Sub_Commands)
+                        Case Enums.BF_Sub_Commands.ContextMenuRequest
+                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial) Then
+                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                            Else
+                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                            End If
+
+                        Case Enums.BF_Sub_Commands.ContextMenuResponse
+                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial) Then
+                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                            Else
+                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
+                            End If
+
+                        Case Else
+                            Exit Select
+
+                    End Select
+
+                Case Else
+                    Exit Select
+            End Select
+        End Sub
+
+        Private Sub LatePacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
+            Select Case currentpacket.Type
+                Case Enums.PacketType.MobileStats
+                    'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
+                    'So there is no need to check for the existance of the MOB. Just send the packet to the mobile for it to update itself.
+                    'This is done through direct casts and hash tables, so its REALLY fast.
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.MobileStats).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.MobileStats))
+
+                Case Enums.PacketType.HPHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HPHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HPHealth))
+
+                Case Enums.PacketType.FatHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.FatHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.FatHealth))
+
+                Case Enums.PacketType.ManaHealth
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.ManaHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.ManaHealth))
+
+                Case Enums.PacketType.NakedMOB
+                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.NakedMobile))
+
+                Case Enums.PacketType.EquippedMOB
+                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.EquippedMobile))
+
+                Case Enums.PacketType.DeathAnimation
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.DeathAnimation).Serial).HandleDeathPacket(DirectCast(currentpacket, Packets.DeathAnimation))
+
+                Case Enums.PacketType.Destroy
+                    RemoveObject(DirectCast(currentpacket, Packets.Destroy).Serial)
+
+                Case Enums.PacketType.EquipItem
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.EquipItem).Container).HandleUpdatePacket(DirectCast(currentpacket, Packets.EquipItem))
+
+                Case Enums.PacketType.ContainerContents
+                    Items.Add(DirectCast(currentpacket, Packets.ContainerContents))
+
+                Case Enums.PacketType.ObjecttoObject
+                    Items.Add(DirectCast(currentpacket, Packets.ObjectToObject))
+
+                Case Enums.PacketType.ShowItem
+                    Items.Add(DirectCast(currentpacket, Packets.ShowItem))
+
+                Case Enums.PacketType.Target
+                    If _WaitingForTarget = True Then
+                        'Dont let the packet get to the server.
+                        DropPacket()
+
+                        Dim jimbo As New TargetInfo(Me, DirectCast(currentpacket, Packets.Target))
+                        RaiseEvent onTargetResponse(jimbo)
+                    End If
+
+                Case Enums.PacketType.HuePicker
+                    If _WaitingForHue Then
+                        RaiseEvent onHueResponse(DirectCast(currentpacket, Packets.HuePicker).Serial.Value, DirectCast(currentpacket, Packets.HuePicker).Hue)
+                    End If
+
+                Case Enums.PacketType.LoginConfirm
+                    'Make a new playerclass
+                    Dim pl As New Mobile(Me, DirectCast(currentpacket, Packets.LoginConfirm).Serial)
+
+                    'Apply the packet's info to the new playerclass
+                    pl._Type = DirectCast(currentpacket, Packets.LoginConfirm).BodyType
+                    pl._X = DirectCast(currentpacket, Packets.LoginConfirm).X
+                    pl._Y = DirectCast(currentpacket, Packets.LoginConfirm).Y
+                    pl._Z = DirectCast(currentpacket, Packets.LoginConfirm).Z
+                    pl._Direction = DirectCast(currentpacket, Packets.LoginConfirm).Direction
+
+                    _Player = pl
+
+                    'Cast the player as a mobile and add it to the mobile list.
+                    Mobiles.AddMobile(pl)
+
+                    RaiseEvent onLogin(Player)
+                Case Enums.PacketType.HealthBarStatusUpdate
+                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HealthBarStatusUpdate).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HealthBarStatusUpdate))
+
+                Case Enums.PacketType.LocalizedText
+                    RaiseEvent onCliLocSpeech(Me, DirectCast(currentpacket, Packets.LocalizedText).Serial, _
+                                              DirectCast(currentpacket, Packets.LocalizedText).BodyType, _
+                                               DirectCast(currentpacket, Packets.LocalizedText).SpeechType, _
+                                                DirectCast(currentpacket, Packets.LocalizedText).Hue, _
+                                                DirectCast(currentpacket, Packets.LocalizedText).Font, _
+                                                DirectCast(currentpacket, Packets.LocalizedText).CliLocNumber, _
+                                                DirectCast(currentpacket, Packets.LocalizedText).Name, _
+                                                DirectCast(currentpacket, Packets.LocalizedText).ArgString)
+
+            End Select
+        End Sub
     End Class
 
 #Region "BufferHandler"

@@ -22,4 +22,3 @@ C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.dll
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.xml
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\obj\Release\UOAI2.pdb
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2\bin\Release\UOAI2.tlb
-C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2\bin\Release\Info\Notes.txt

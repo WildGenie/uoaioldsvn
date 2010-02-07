@@ -285,7 +285,7 @@
         End Enum
 
         'UOML Fonts
-        Public Enum Fonts As UInteger
+        Public Enum Fonts As UShort
             BigFont = &H0
             ShadowFont = &H1
             BigShadowFont = &H2
@@ -502,7 +502,7 @@
             MobileUpdate
         End Enum
 
-        Public Enum CommonHues
+        Public Enum CommonHues As UShort
             BlueDark = 3
             Blue = 99
             BlueLight = 101

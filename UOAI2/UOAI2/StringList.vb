@@ -4,6 +4,22 @@
 
 Partial Class UOAI
 
+    Public Function GetTypeString(ByVal Type As UShort)
+        If StrLst.Table(1036383 + Type) Is Nothing Then
+            Return ""
+        End If
+
+        Return StrLst.Table(1036383 + Type)
+    End Function
+
+    Public Function GetCliLocString(ByVal CliLocNumber As UInteger)
+        If StrLst.Table(CliLocNumber) Is Nothing Then
+            Return ""
+        End If
+
+        Return StrLst.Table(CliLocNumber)
+    End Function
+
 #If DEBUG Then
     ''' <summary>
     ''' A list of the clients strings from the cliloc files.

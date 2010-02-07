@@ -23,11 +23,15 @@ Partial Class UOAI
         Private m_ShutdownEventTimer As Boolean
         Private _Items As Item
         Friend _AllItems As New Hashtable
-        Private _MobileList As New MobileList(Me)
+        Private WithEvents _MobileList As New MobileList(Me)
         Private _Macros As New UOMacros(Me)
         Private _CallibrationInfo As CallibrationInfo
-        Friend _ItemInHand As Item '<---For drag/drop stuff, to remove the item from the item list and place it here until its dropped.
-        Friend _Player As PlayerClass
+        Friend _ItemInHand As Serial
+        Friend _Player As Mobile
+        Friend _Targeting As Boolean = False
+        Friend _TargetUID As UInteger
+        Friend _TargetType As Byte
+        Friend _TargetFlag As Byte
 
         ''' <summary>
         ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -76,9 +80,15 @@ Partial Class UOAI
             End Get
         End Property
 
-        Public ReadOnly Property Player() As PlayerClass
+        Public ReadOnly Property Player() As Mobile
             Get
                 Return _Player
+            End Get
+        End Property
+
+        Public ReadOnly Property Targeting() As Boolean
+            Get
+                Return _Targeting
             End Get
         End Property
 
@@ -160,111 +170,6 @@ Partial Class UOAI
             End If
         End Sub
 
-        Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
-
-
-#Const PacketLogging = False
-
-#If PacketLogging = True Then
-            If origin = Enums.PacketOrigin.FROMCLIENT Then
-                Console.WriteLine("Sent Packet: " & BitConverter.ToString(packetbuffer))
-            Else
-                Console.WriteLine("Recieved Packet: " & BitConverter.ToString(packetbuffer))
-            End If
-#End If
-
-
-            Select Case DirectCast(packetbuffer(0), Enums.PacketType)
-
-                Case Enums.PacketType.TextUnicode
-                    Return New Packets.UnicodeTextPacket(packetbuffer)
-
-                Case Enums.PacketType.SpeechUnicode
-                    Return New Packets.UnicodeSpeechPacket(packetbuffer)
-
-                Case Enums.PacketType.NakedMOB
-                    Return New Packets.NakedMobile(packetbuffer)
-
-                Case Enums.PacketType.EquippedMOB
-                    Return New Packets.EquippedMobile(packetbuffer)
-
-                Case Enums.PacketType.FatHealth
-                    Return New Packets.FatHealth(packetbuffer)
-
-                Case Enums.PacketType.HPHealth
-                    Return New Packets.HPHealth(packetbuffer)
-
-                Case Enums.PacketType.ManaHealth
-                    Return New Packets.ManaHealth(packetbuffer)
-
-                Case Enums.PacketType.DeathAnimation
-                    Return New Packets.DeathAnimation(packetbuffer)
-
-                Case Enums.PacketType.Destroy
-                    Return New Packets.Destroy(packetbuffer)
-
-                Case Enums.PacketType.MobileStats
-                    Return New Packets.MobileStats(packetbuffer)
-
-                Case Enums.PacketType.EquipItem
-                    Return New Packets.EquipItem(packetbuffer)
-
-                Case Enums.PacketType.ContainerContents
-                    Return New Packets.ContainerContents(packetbuffer)
-
-                Case Enums.PacketType.ObjecttoObject
-                    Return New Packets.ObjectToObject(packetbuffer)
-
-                Case Enums.PacketType.ShowItem
-                    Return New Packets.ShowItem(packetbuffer)
-
-                Case Enums.PacketType.Target
-                    Return New Packets.Target(packetbuffer)
-
-                Case Enums.PacketType.DoubleClick
-                    Return New Packets.Doubleclick(packetbuffer)
-
-                Case Enums.PacketType.SingleClick
-                    Return New Packets.Singleclick(packetbuffer)
-
-                Case Enums.PacketType.Text
-                    Return New Packets.Text(packetbuffer)
-
-                Case Enums.PacketType.LoginConfirm
-                    Return New Packets.LoginConfirm(packetbuffer)
-
-                Case Enums.PacketType.HealthBarStatusUpdate
-                    Return New Packets.HealthBarStatusUpdate(packetbuffer)
-
-                Case Enums.PacketType.GenericCommand
-
-                    Select Case DirectCast(CUShort(packetbuffer(4)), Enums.BF_Sub_Commands)
-
-                        Case Enums.BF_Sub_Commands.ContextMenuRequest
-                            Return New Packets.ContextMenuRequest(packetbuffer)
-
-                        Case Enums.BF_Sub_Commands.ContextMenuResponse
-                            Return New Packets.ContextMenuResponse(packetbuffer)
-
-                        Case Else
-                            Dim j As New Packet(packetbuffer(0))
-                            j._Data = packetbuffer
-                            j._size = packetbuffer.Length
-                            Return j 'dummy until we have what we need
-                    End Select
-
-                Case Enums.PacketType.HuePicker
-                    Return New Packets.HuePicker(packetbuffer)
-
-                Case Else
-                    Dim j As New Packet(packetbuffer(0))
-                    j._Data = packetbuffer
-                    j._size = packetbuffer.Length
-                    Return j 'dummy until we have what we need
-            End Select
-
-        End Function
-
         Public Sub HandlePacket(ByVal Origin As Enums.PacketOrigin)
             Dim backup As Packet
 
@@ -299,115 +204,6 @@ Partial Class UOAI
                     Return
                 End Try
             End If
-        End Sub
-
-        Private Sub EarlyPacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
-            'whatever we need to do with the current packet BEFORE the client handled it goes here
-            Select Case currentpacket.Type
-                Case Enums.PacketType.SpeechUnicode
-                    Dim k As Packets.UnicodeSpeechPacket = DirectCast(currentpacket, Packets.UnicodeSpeechPacket)
-                    RaiseEvent onClientSpeech(Me, k.Text, k.Font, k.Hue, k.Language, k.SpeechType)
-
-                Case Enums.PacketType.GenericCommand
-
-                    Select Case DirectCast(CUShort(currentpacket.Data(4)), Enums.BF_Sub_Commands)
-                        Case Enums.BF_Sub_Commands.ContextMenuRequest
-                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial) Then
-                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
-                            Else
-                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
-                            End If
-
-                        Case Enums.BF_Sub_Commands.ContextMenuResponse
-                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial) Then
-                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
-                            Else
-                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial).HandleContextMenuResponse(DirectCast(currentpacket, Packets.ContextMenuResponse))
-                            End If
-
-                        Case Else
-                            Exit Select
-
-                    End Select
-
-                Case Else
-                    Exit Select
-            End Select
-        End Sub
-
-        Private Sub LatePacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
-            Select Case currentpacket.Type
-                Case Enums.PacketType.MobileStats
-                    'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
-                    'So there is no need to check for the existance of the MOB. Just send the packet to the mobile for it to update itself.
-                    'This is done through direct casts and hash tables, so its REALLY fast.
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.MobileStats).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.MobileStats))
-
-                Case Enums.PacketType.HPHealth
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HPHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HPHealth))
-
-                Case Enums.PacketType.FatHealth
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.FatHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.FatHealth))
-
-                Case Enums.PacketType.ManaHealth
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.ManaHealth).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.ManaHealth))
-
-                Case Enums.PacketType.NakedMOB
-                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.NakedMobile))
-
-                Case Enums.PacketType.EquippedMOB
-                    Mobiles.AddMobile(DirectCast(currentpacket, Packets.EquippedMobile))
-
-                Case Enums.PacketType.DeathAnimation
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.DeathAnimation).Serial).HandleDeathPacket(DirectCast(currentpacket, Packets.DeathAnimation))
-
-                Case Enums.PacketType.Destroy
-                    RemoveObject(DirectCast(currentpacket, Packets.Destroy).Serial)
-
-                Case Enums.PacketType.EquipItem
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.EquipItem).Container).HandleUpdatePacket(DirectCast(currentpacket, Packets.EquipItem))
-
-                Case Enums.PacketType.ContainerContents
-                    Items.Add(DirectCast(currentpacket, Packets.ContainerContents))
-
-                Case Enums.PacketType.ObjecttoObject
-                    Items.Add(DirectCast(currentpacket, Packets.ObjectToObject))
-
-                Case Enums.PacketType.ShowItem
-                    Items.Add(DirectCast(currentpacket, Packets.ShowItem))
-
-                Case Enums.PacketType.Target
-                    If _WaitingForTarget = True Then
-                        Dim jimbo As New TargetInfo(Me, DirectCast(currentpacket, Packets.Target))
-                        RaiseEvent onTargetResponse(jimbo)
-                    End If
-
-                Case Enums.PacketType.HuePicker
-                    If _WaitingForHue Then
-                        RaiseEvent onHueResponse(DirectCast(currentpacket, Packets.HuePicker).Serial.Value, DirectCast(currentpacket, Packets.HuePicker).Hue)
-                    End If
-
-                Case Enums.PacketType.LoginConfirm
-                    'Make a new playerclass
-                    Dim pl As New PlayerClass(Me, DirectCast(currentpacket, Packets.LoginConfirm).Serial)
-
-                    'Apply the packet's info to the new playerclass
-                    pl._Type = DirectCast(currentpacket, Packets.LoginConfirm).BodyType
-                    pl._X = DirectCast(currentpacket, Packets.LoginConfirm).X
-                    pl._Y = DirectCast(currentpacket, Packets.LoginConfirm).Y
-                    pl._Z = DirectCast(currentpacket, Packets.LoginConfirm).Z
-                    pl._Direction = DirectCast(currentpacket, Packets.LoginConfirm).Direction
-
-                    'Assign it to player
-                    _Player = pl
-
-                    'Cast the player as a mobile and add it to the mobile list.
-                    Mobiles.AddMobile(DirectCast(_Player, Mobile))
-
-                Case Enums.PacketType.HealthBarStatusUpdate
-                    Mobiles.Mobile(DirectCast(currentpacket, Packets.HealthBarStatusUpdate).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HealthBarStatusUpdate))
-
-            End Select
         End Sub
 
         'handles all IPC packets, including sent/received packets on the client
@@ -526,7 +322,7 @@ Partial Class UOAI
 
         Private Sub RemoveObject(ByVal Serial As Serial)
             'RemoveObject(Me.Items.Item(Serial).MemoryOffset)
-            If Me.Items.Exists(Serial) Then
+            If Serial.Value >= 1073741824 Then
                 Me.Items.RemoveItem(Serial)
             Else
                 Mobiles.RemoveMobile(Serial)
@@ -546,7 +342,7 @@ Partial Class UOAI
         ''' Called when the client recieves a login confirm packets from the game server, and the player character is created.
         ''' </summary>
         ''' <remarks></remarks>
-        Public Event onLogin()
+        Public Event onLogin(ByVal Player As Mobile)
 
         ''' <summary>
         ''' Called when a Packet arrives on this client.
@@ -593,6 +389,34 @@ Partial Class UOAI
         ''' <param name="SpeechType">The speech type as <see cref="UOAI.Enums.SpeechTypes"/></param>
         Public Event onClientSpeech(ByVal client As Client, ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As Enums.SpeechTypes)
 
+        ''' <summary>
+        ''' Called when a mobile is created and added to the mobile list.
+        ''' </summary>
+        ''' <param name="Client">The client to which this applies.</param>
+        ''' <param name="Mobile">The new mobile.</param>
+        Public Event onNewMobile(ByVal Client As Client, ByVal Mobile As Mobile)
+
+        ''' <summary>
+        ''' Called after a new item is created and added to the item list.
+        ''' </summary>
+        ''' <param name="Client">The client to which this applies.</param>
+        ''' <param name="Item">The new item.</param>
+        Public Event onNewItem(ByVal Client As Client, ByVal Item As Item)
+
+        ''' <summary>
+        ''' Called when the server sends the client a CliLoc speech packet. This is after the client processes the packet.
+        ''' </summary>
+        ''' <param name="Client">The client to which this applies.</param>
+        ''' <param name="Serial">The serial of the mobile/item speaking. 0xFFFFFFFF for System</param>
+        ''' <param name="BodyType">The bodytype/artwork of the mobile/item speaking. 0xFFFF for System</param>
+        ''' <param name="SpeechType">The type of speech.</param>
+        ''' <param name="Hue">The hue of the message.</param>
+        ''' <param name="Font">The font of the message.</param>
+        ''' <param name="CliLocNumber">The cliloc number.</param>
+        ''' <param name="Name">The name of the speaker. "SYSTEM" for System.</param>
+        ''' <param name="ArgsString">The arguements string, for formatting the speech. Each arguement is seperated by a "\t".</param>
+        Public Event onCliLocSpeech(ByVal Client As Client, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal CliLocNumber As UInteger, ByVal Name As String, ByVal ArgsString As String)
+
 #End Region
 
 #Region "Public Functions and Subs"
@@ -630,6 +454,19 @@ Partial Class UOAI
         End Sub
 
         ''' <summary>
+        ''' Drops an object into the specified container.
+        ''' </summary>
+        ''' <param name="X">The number of pixels from the left side that the item will be placed.</param>
+        ''' <param name="Y">The number of pixels from the top that the item will be placed.</param>
+        ''' <param name="Z">The height of the item. This only applies to items dropped on the ground.</param>
+        ''' <param name="Container">The container to drop the item into. (0xFFFFFFFF or 4294967295 for the ground)</param>
+        Public Sub DropItem(ByVal X As UShort, ByVal Y As UShort, ByVal Z As Byte, ByVal Container As Serial)
+            Dim k As Packets.DropObject = New Packets.DropObject(_ItemInHand, X, Y, Z, Container)
+
+            Send(k, Enums.PacketDestination.SERVER)
+        End Sub
+
+        ''' <summary>
         ''' Pings the specified address and returns the latency as a UShort.
         ''' </summary>
         ''' <param name="ServerAddress">The address of the server to ping.</param>
@@ -640,14 +477,11 @@ Partial Class UOAI
         End Function
 
         Public Sub Send(ByVal tosend As Packet, ByVal destination As Enums.PacketDestination)
-            Dim networkobject As UInteger
-            Dim remotebuffer As UInteger
-
             'read the network address of the client's c++ object that handles network traffic
-            networkobject = PStream.ReadUInt(_CallibrationInfo.pSockObject)
+            Dim networkobject As UInteger = PStream.ReadUInt(_CallibrationInfo.pSockObject)
 
             'allocate a buffer to hold the packet
-            remotebuffer = InjectedDll.allocate(tosend.Size)
+            Dim remotebuffer As UInteger = InjectedDll.allocate(tosend.Size)
 
             'write the packet
             PStream.Write(remotebuffer, tosend.Data)
@@ -672,6 +506,7 @@ Partial Class UOAI
             InjectedDll.PatchEncryption()
         End Sub
 
+        'TODO:Change this to simply drop the old packet and send a new one.
         ''' <summary>Used from within the onRecievePacket/onPacketSend events to commit the changes to the packet and pass it on.</summary>
         ''' <param name="newpacket">The packet object as a <see cref="UOAI.Packet"/></param>
         Public Sub UpdatePacket(ByRef newpacket As Packet)
@@ -704,11 +539,16 @@ Partial Class UOAI
             End If
         End Sub
 
-        ''' <summary>
-        ''' Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
-        ''' </summary>
-        Public Sub Close()
-            Process.GetProcessById(PID).Kill()
+#End Region
+
+#Region "Private Subs and Functions"
+
+        Private Sub _MobileList_AddedMobile(ByVal Mobile As Mobile) Handles _MobileList.AddedMobile
+            RaiseEvent onNewMobile(Me, Mobile)
+        End Sub
+
+        Friend Sub NewItem(ByVal Item As Item)
+            RaiseEvent onNewItem(Me, Item)
         End Sub
 
 #End Region
@@ -719,6 +559,62 @@ Partial Class UOAI
             Dim eargs As New EventArgs
             RaiseEvent onClientExit(Me)
         End Sub
+
+        Public ReadOnly Property WindowHandle() As System.IntPtr
+            Get
+                Return Process.GetProcessById(PID).Handle
+            End Get
+        End Property
+
+        ''' <summary>
+        ''' Minimizes the client window.
+        ''' </summary>
+        Public Sub Minimize()
+            ShowWindow(Process.GetProcessById(PID).Handle, SHOW_WINDOW.SW_MINIMIZE)
+        End Sub
+
+        ''' <summary>
+        ''' Maximizes the client window.
+        ''' </summary>
+        Public Sub Maxamize()
+            ShowWindow(Process.GetProcessById(PID).Handle, SHOW_WINDOW.SW_MAXIMIZE)
+        End Sub
+
+        ''' <summary>
+        ''' Restores the client window.
+        ''' </summary>
+        Public Sub Restore()
+            ShowWindow(Process.GetProcessById(PID).Handle, SHOW_WINDOW.SW_RESTORE)
+        End Sub
+
+        Private Declare Function ShowWindow Lib "user32.dll" (ByVal hWnd As IntPtr, ByVal nCmdShow As SHOW_WINDOW) As Boolean
+
+        <Flags()> _
+        Private Enum SHOW_WINDOW As Integer
+            SW_HIDE = 0
+            SW_SHOWNORMAL = 1
+            SW_NORMAL = 1
+            SW_SHOWMINIMIZED = 2
+            SW_SHOWMAXIMIZED = 3
+            SW_MAXIMIZE = 3
+            SW_SHOWNOACTIVATE = 4
+            SW_SHOW = 5
+            SW_MINIMIZE = 6
+            SW_SHOWMINNOACTIVE = 7
+            SW_SHOWNA = 8
+            SW_RESTORE = 9
+            SW_SHOWDEFAULT = 10
+            SW_FORCEMINIMIZE = 11
+            SW_MAX = 11
+        End Enum
+
+        ''' <summary>
+        ''' Kills the client process, which subsequently calls the "onClientExit" event for this client instance.
+        ''' </summary>
+        Public Sub Close()
+            Process.GetProcessById(PID).Kill()
+        End Sub
+
 #End Region
 
     End Class

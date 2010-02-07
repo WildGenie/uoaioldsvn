@@ -106,17 +106,19 @@ Partial Class UOAI
         ''' <param name="EquipmentLayers">The <see cref="Enums.Layers">layers</see> that were changed.</param>
         Public Event onEquipmentUpdate(ByVal Client As Client, ByVal Mobile As Mobile, ByVal EquipmentLayers() As Enums.Layers)
 
-
-        ''' <summary>
-        ''' This is called immediately after the client handles an update to a mobile.
-        ''' </summary>
-        ''' <param name="Client">The <see cref="UOAI.Client"/> that the mobile update was handled by.</param>
-        ''' <param name="Mobile">The <see cref="UOAI.Mobile"/> that was updated.</param>
-        Public Event onStatusChange(ByVal Client As Client, ByVal Mobile As Mobile)
-
 #End Region
 
 #Region "Public Properties"
+
+        'hide the layer property. It makes no sense for a mobile to have this, and can be misleading since mobiles have the "Layers" property.
+        <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
+        Public Overrides ReadOnly Property Layer() As Enums.Layers
+            Get
+                'throw an exception if it is called
+                Throw New Exception("Mobiles do not have a clothing layer! If you need an item on a layer of the mobile please use Mobiles.Layers.<layername>")
+            End Get
+        End Property
+
         ''' <summary>
         ''' Returns the item on the specified layer.
         ''' </summary>
@@ -464,7 +466,7 @@ Partial Class UOAI
                     Case Enums.Layers.Back
                         _Back = Serial
                     Case Enums.Layers.BackPack
-                        _Back = Serial
+                        _BackPack = Serial
                     Case Enums.Layers.OuterTorso
                         _OuterTorso = Serial
                     Case Enums.Layers.OuterLegs
@@ -723,12 +725,6 @@ Partial Class UOAI
             End If
         End Function
 
-        Public Sub AddItemToLayer(ByVal Layer As Enums.Layers, ByVal Serial As Serial)
-            '
-            _Layers.SetLayer(Layer, Serial)
-
-        End Sub
-
         ''' <summary>
         ''' Updates the class given a mobile related packet.
         ''' </summary>
@@ -892,6 +888,7 @@ Partial Class UOAI
             Console.WriteLine("-Updated Mobile Status: " & Packet.Serial.ToString)
 #End If
 
+            RaiseEvent onUpdate(_Client, Me, Enums.MobileUpdateType.FullUpdate)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.HPHealth)
@@ -948,11 +945,14 @@ Partial Class UOAI
             'Assign the item to the proper layer on this mobile.
             Layers.SetLayer(Packet.Layer, Packet.Serial)
 
-            RaiseEvent onUpdate(_Client, Me, Packet.Layer)
+            Dim k() As Enums.Layers = {Packet.Layer}
+            RaiseEvent onEquipmentUpdate(_Client, Me, k)
         End Sub
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.EquippedMobile)
+
             Me._Type = Packet.BodyType
+            Me._Amount = Packet.Amount
             Me._X = Packet.X
             Me._Y = Packet.Y
             Me._Z = Packet.Z
@@ -966,7 +966,6 @@ Partial Class UOAI
 
                 'Loop through the items and add their serials to the proper layers for later reference
                 For i As Byte = 0 To Packet.Count - 1
-                    'TODO: Fix ItemList Enumeration.
                     Select Case Packet.EquippedItems(i).Layer
                         Case Enums.Layers.Arms
                             Me._Layers.SetLayer(Enums.Layers.Arms, Packet.EquippedItems(i).Serial)
@@ -1060,8 +1059,8 @@ Partial Class UOAI
                             Me._Layers.SetLayer(Enums.Layers.Shoes, Packet.EquippedItems(i).Serial)
                             k(i) = Enums.Layers.Shoes
 
-                        Case Enums.Layers.None
-                            Me._Layers.SetLayer(Enums.Layers.None, Packet.EquippedItems(i).Serial)
+                        Case Enums.Layers.Waist
+                            Me._Layers.SetLayer(Enums.Layers.Waist, Packet.EquippedItems(i).Serial)
                             k(i) = Enums.Layers.Waist
 
                     End Select
@@ -1078,6 +1077,10 @@ Partial Class UOAI
                     Console.WriteLine(" Item:" & Packet.EquippedItems(i).Serial.ToString)
                     Console.WriteLine(" Layer:" & Packet.EquippedItems(i).Layer)
 #End If
+
+                        'Set the item's _client variable to the current client
+                        Packet.EquippedItems(i)._Client = _Client
+
                         'Instantiate the contents veriable of the time.
                         Packet.EquippedItems(i)._contents = New ItemList(DirectCast(Packet.EquippedItems(i), Item), _Client)
 
@@ -1085,7 +1088,10 @@ Partial Class UOAI
 
                     End If
 
+
                 Next
+
+                RaiseEvent onEquipmentUpdate(_Client, Me, k)
             End If
 
 #If DebugMobiles Then
@@ -1151,11 +1157,9 @@ Partial Class UOAI
             Health
             Stamina
             Mana
-            Status
-            FullUpdate
             Move
-            EquipItem
             Poison
+            FullUpdate
         End Enum
 
     End Class
