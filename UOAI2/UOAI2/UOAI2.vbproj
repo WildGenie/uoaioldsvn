@@ -78,9 +78,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ClientList.vb" />
-    <Compile Include="ClientSocket.vb">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ContextMenu.vb" />
     <Compile Include="Enums.vb" />
     <Compile Include="HuePicker.vb" />
@@ -111,7 +108,6 @@
     </Compile>
     <Compile Include="Packets.vb" />
     <Content Include="Info\Packet Guides\PacketsWalkthrough.vb" />
-    <Compile Include="Player.vb" />
     <Compile Include="Point3D.vb" />
     <Compile Include="ProcessStream.vb" />
     <Compile Include="Serial.vb" />
@@ -145,7 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Info\Notes.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Info\Packet Guides\PacketGuide_MuadDib.html" />
     <Content Include="UOClientDll.dll">

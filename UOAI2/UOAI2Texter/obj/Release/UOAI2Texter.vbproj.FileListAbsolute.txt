@@ -59,4 +59,3 @@ C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2Texter\obj\Release\ResolveAssemblyReferenc
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Form1.resources
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.Resources.resources
 C:\Users\Wim\Desktop\UOAI2\UOAI2\UOAI2Texter\obj\Release\UOAI2Texter.vbproj.GenerateResource.Cache
-C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI2\UOAI2Texter\bin\Release\Info\Notes.txt

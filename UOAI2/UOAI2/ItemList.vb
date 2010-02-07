@@ -102,19 +102,26 @@ Partial Class UOAI
 
             ElseIf Item.Container = _Serial Then 'if the items container is this container, then add it to the hash
 
-                'Add the item to this container's hash
-                _ItemHashBySerial.Add(Item.Serial, Item)
+                    'If the item exists in the list then remove it, because this is obviously an update.
+                    If Exists(Item.Serial) Then
+                        Me.Item(Item.Serial) = Item
+                    End If
 
-                'Add it to the client's Allitem hash, for access as a container.
-                _MyClient._AllItems.Add(Item.Serial, Item)
+                    'Add the item to this container's hash
+                    _ItemHashBySerial.Add(Item.Serial, Item)
+
+                    'Add it to the client's Allitem hash, for access as a container.
+                    _MyClient._AllItems.Add(Item.Serial, Item)
 
 #If DebugItemList Then
                 Console.WriteLine("-Successfully Added Item: " & Item.Serial.ToString)
 #End If
-            Else
-                'If this item's container is NOT this container,
-                'then look up the container by Serial in the client's master item list
-                'and add the item to that items contents.
+                    _MyClient.NewItem(Item)
+
+                Else
+                    'If this item's container is NOT this container,
+                    'then look up the container by Serial in the client's master item list
+                    'and add the item to that items contents.
 #If DebugItemList Then
                 If _MyClient._AllItems.ContainsKey(Item.Container) = False Then
                     Console.WriteLine("-Item Add is about to fail because the item's container is not in the all item's list.")
@@ -124,7 +131,7 @@ Partial Class UOAI
                 End If
 #End If
 
-                DirectCast(_MyClient._AllItems(Item.Container), UOAI.Item).Contents.Add(Item)
+                    DirectCast(_MyClient._AllItems(Item.Container), UOAI.Item).Contents.Add(Item)
 
             End If
 
@@ -230,6 +237,7 @@ Partial Class UOAI
                 If _SearchReturn = True Then
                     'use the serial hash to locate the item inside the offset hash and remove it
                     _ItemHashByOffset.Remove(DirectCast(_ItemHashBySerial(ItemSerial), Item).MemoryOffset)
+
                     'use the serial to find the item in the serial hash and remove it.
                     _ItemHashBySerial.Remove(ItemSerial)
                 ElseIf Exists(ItemSerial) Then 'This is the item's container.
@@ -273,7 +281,7 @@ Partial Class UOAI
         ''' Returns the specified item, either by index or <see cref="UOAI.serial"/>
         ''' </summary>
         ''' <param name="Serial">The serial of the item to be returned.</param>
-        Public ReadOnly Property Item(ByVal Serial As UOAI.Serial) As UOAI.Item
+        Public Property Item(ByVal Serial As UOAI.Serial) As UOAI.Item
             Get
                 If _Serial = WorldSerial Then
                     Return DirectCast(_MyClient._AllItems(Serial), Item)
@@ -281,6 +289,10 @@ Partial Class UOAI
                     Return DirectCast(_ItemHashBySerial(Serial), Item)
                 End If
             End Get
+            Friend Set(ByVal value As UOAI.Item)
+                _MyClient._AllItems(Serial) = value
+                _ItemHashBySerial(Serial) = value
+            End Set
         End Property
 
         ''' <param name="OffSet">The offset of the item in the client's memory.</param>
@@ -334,20 +346,34 @@ Partial Class UOAI
 
 #Region "Searching And Counting Items"
 
+
+        Public ReadOnly Property byType(ByVal Type() As UShort, ByVal Recursive As Boolean) As ItemList
+            Get
+                Dim k As New ItemList
+
+                For Each u As UShort In Type
+                    For Each i As Item In byType(u, Recursive)
+                        k.Add(i)
+                    Next
+                Next
+
+                Return k
+            End Get
+        End Property
+
         ''' <summary>
         ''' Returns an itemlist containing the items of the specified type.
         ''' </summary>
         ''' <param name="Type">The type of item you want to search for.</param>
         Public ReadOnly Property byType(ByVal Type As UShort, ByVal Recursive As Boolean) As ItemList
             Get
+                Dim j As New ItemList
+
                 If Recursive Then
-                    Dim j As New ItemList
-
+                    Console.WriteLine("Searching for type: " & Type)
                     byTypeRecursive(Type, _ParentItem, j)
-
-                    Return j
                 Else
-                    Dim k As New ItemList()
+
                     'check each item in the hash 
                     For Each s As Serial In _ItemHashBySerial.Keys
                         'to see if its type maches the one specified.
@@ -358,13 +384,13 @@ Partial Class UOAI
                         Console.WriteLine(" Serial: " & s.ToString)
                         Console.WriteLine(" Type: " & Type.ToString)
 #End If
-                            k.Add(Me.Item(s))
+                            j.Add(Me.Item(s))
                         End If
                     Next
 
-                    Return k
                 End If
 
+                Return j
             End Get
         End Property
 
@@ -372,13 +398,40 @@ Partial Class UOAI
 
             For Each i As Item In BaseItem._contents
                 'For each item, check if that item is the type we are looking for. If it is, then add it to the list.
-                If i.Type = Type Then Itemlist.Add(i)
+                If i.Type = Type Then
+                    Itemlist.Add(i)
+                End If
+            Next
 
+            For Each i As Item In BaseItem._contents
                 'Then search that item's contents for items of the specified type.
                 i._contents.byTypeRecursive(Type, i, Itemlist)
             Next
 
         End Sub
+
+        ''' <summary>
+        ''' Returns the total number of items of the specified type. This takes stack count into consideration as well.
+        ''' </summary>
+        ''' <param name="Type">The type of item that you want the count of.</param>
+        ''' <param name="Recursive">Set to true if you want it to count the items in sub containers.</param>
+        Public ReadOnly Property CountByType(ByVal Type As UShort, ByVal Recursive As Boolean)
+            Get
+                Dim _count As Integer = 0
+
+                If Recursive Then
+                    For Each i As Item In _ParentItem.Contents.byType(Type, True)
+                        _count += i.Amount
+                    Next
+                Else
+                    For Each i As Item In _ParentItem.Contents.byType(Type, False)
+                        _count += i.Amount
+                    Next
+                End If
+
+                Return _count
+            End Get
+        End Property
 
 #End Region
 

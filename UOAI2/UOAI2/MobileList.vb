@@ -11,6 +11,8 @@ Partial Class UOAI
         Private _Client As Client
         Private _IsSearchResult As Boolean = False
 
+        Friend Event AddedMobile(ByVal Mobile As Mobile)
+
         Friend Sub New(ByRef Client As Client)
             _Client = Client
         End Sub
@@ -31,7 +33,7 @@ Partial Class UOAI
 #If DebugMobileList Then
             Console.WriteLine("-Added Mobile: " & Mobile.Serial.ToString)
 #End If
-
+            RaiseEvent AddedMobile(Mobile)
         End Sub
 
         ''' <summary>
@@ -51,6 +53,7 @@ Partial Class UOAI
             Dim NewMobile As New Mobile(_Client, Packet.Serial)
 
             NewMobile._Type = Packet.BodyType
+            NewMobile._Amount = Packet.Amount
             NewMobile._X = Packet.X
             NewMobile._Y = Packet.Y
             NewMobile._Z = Packet.Z
@@ -101,8 +104,6 @@ Partial Class UOAI
         Friend Sub HashByOffset(ByVal Serial As Serial, ByVal Offset As UInt32)
             _MobileHashByOffset.Add(Offset, Mobile(Serial))
         End Sub
-
-        'Friend Sub AddPlayer(byval 
 
         ''' <summary>
         ''' Removes the specified mobile from the MobileList.

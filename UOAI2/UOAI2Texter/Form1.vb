@@ -4,7 +4,7 @@ Public Class Form1
     Private WithEvents UOAIObj As New UOAI2.UOAI
     Private WithEvents UOAI_Cl As Client
     Private WithEvents DeathMobile As Mobile
-    Private WithEvents Player As UOAI2.UOAI.Client.PlayerClass
+    Private WithEvents Player As UOAI.Mobile
 
     Private packetlog As StreamWriter
     Private packetnumber As Integer = 0
@@ -20,7 +20,7 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onClientClose() Handles UOAI_Cl.onClientExit
-        'MsgBox("win")
+
     End Sub
 
     Private Sub Button3_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button3.Click
@@ -32,6 +32,7 @@ Public Class Form1
         Do While UOAIObj.Clients.Count = 0
             Threading.Thread.Sleep(0)
         Loop
+
         UOAI_Cl = UOAIObj.Clients.Client(0)
         'AddHandler UOAI_Cl.onPacketReceive, AddressOf PacketHandler
     End Sub
@@ -43,12 +44,15 @@ Public Class Form1
             DoWriteToLabel(up.Name & " says : " & up.Text)
         End If
     End Sub
+
     Private Sub DoWriteToLabel(ByVal text As String)
         Me.Invoke(New WriteToLabelDelegate(AddressOf Writer), New Object() {text})
     End Sub
+
     Private Sub Writer(ByVal text As String)
         Label2.Text = text
     End Sub
+
     Private Delegate Sub WriteToLabelDelegate(ByVal text As String)
 
     Private Sub Form1_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
@@ -107,8 +111,8 @@ Public Class Form1
                 Case "webhelp"
                     System.Diagnostics.Process.Start("http://www.decelle.be/UOAI/forum/index.php")
 
-                Case "recursivetest"
-                    UOAI_Cl.TargetPrompt(CUInt(5568957), Enums.TargetRequestType.ItemOrMobile)
+                Case "test"
+                    UOAI_Cl.Player.DoubleClick()
 
                 Case "help", "?"
                     UOAI_Cl.SysMsg(".sysmsg - Display a system message.")
@@ -116,12 +120,19 @@ Public Class Form1
                     UOAI_Cl.SysMsg(".help or .? - Displays help with the given command.")
                     UOAI_Cl.SysMsg(".webhelp - Opens your default web browser to the UOAI forums.")
 
+                Case "otbp", "opentargetbackpack"
+                    client.TargetPrompt(123456789, UOAI.Enums.TargetRequestType.ItemOrMobile)
+
                 Case Else
                     UOAI_Cl.SysMsg("Unrecognized Command: " & Chr(34) & Text & Chr(34))
 
             End Select
         End If
 
+    End Sub
+
+    Private Sub Player_onUpdate(ByVal Client As UOAI2.UOAI.Client, ByVal Mobile As UOAI2.UOAI.Mobile, ByVal UpdateType As UOAI2.UOAI.Enums.MobileUpdateType) Handles Player.onUpdate
+        Client.SysMsg("Poisoned to Level " & Player.PoisonLevel)
     End Sub
 
     Private Sub UOAI_Cl_onHueResponse(ByVal UID As UShort, ByVal Hue As UShort) Handles UOAI_Cl.onHueResponse
@@ -170,11 +181,25 @@ Public Class Form1
 
     Private Sub UOAI_Cl_onTargetResponse(ByVal TargetInfo As UOAI2.UOAI.TargetInfo) Handles UOAI_Cl.onTargetResponse
         Select Case TargetInfo.UID
+            Case 123456789
+                Select Case TargetInfo.Type
+                    Case UOAI.Enums.TargetType.Mobile
+                        If UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).Layers.BackPack IsNot Nothing Then
+                            UOAI_Cl.Mobiles.Mobile(TargetInfo.Target).Layers.BackPack.DoubleClick()
+                        Else
+                            UOAI_Cl.SysMsg("That mobile has no backpack!", UOAI.Enums.CommonHues.Red)
+                        End If
+
+                    Case UOAI.Enums.TargetType.Item
+                        UOAI_Cl.SysMsg("You must select a mobile!", UOAI.Enums.CommonHues.Red)
+
+                    Case UOAI.Enums.TargetType.Canceled
+                        UOAI_Cl.SysMsg("Target Canceled!", UOAI.Enums.CommonHues.Red)
+
+                End Select
+
             Case 5568957
-                Dim lay As Mobile.LayersClass = UOAI_Cl.Player.Layers
-                Dim bp As Item = lay.BackPack
-                Dim ilt As ItemList = bp.Contents
-                Dim il As ItemList = UOAI_Cl.Player.Layers.BackPack.Contents.byType(TargetInfo.Type, True)
+                Dim il As ItemList = UOAI_Cl.Player.Layers.BackPack.Contents.byType(UOAI_Cl.Items.Item(TargetInfo.Target).Type, True)
 
                 Console.WriteLine("Number of results: " & il.Count)
 
@@ -230,7 +255,6 @@ Public Class Form1
                         Console.WriteLine("Target Canceled")
                 End Select
 
-
         End Select
     End Sub
 
@@ -238,7 +262,7 @@ Public Class Form1
         UOAI_Cl.Items.Item(CorpseSerial).ShowText("I LOSE! 'Cause I'm Dead!")
     End Sub
 
-    Private Sub Player_ContextMenuResponse(ByVal Index As UShort) Handles Player.ContextMenuResponse
+    Private Sub Player_ContextMenuResponse(ByVal Serial As Serial, ByVal Index As UShort) Handles Player.ContextMenuResponse
         Select Case Index
             Case 0
                 Console.WriteLine("Responded: 0")

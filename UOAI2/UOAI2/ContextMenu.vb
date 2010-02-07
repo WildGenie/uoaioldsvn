@@ -5,7 +5,7 @@
     ''' </summary>
     Public Class ContextMenu
         Implements ICollection(Of ContextMenuOption)
-        Private _OptionHash As New System.Collections.Generic.List(Of ContextMenuOption) 'New ArrayList
+        Private _OptionHash As New System.Collections.Generic.List(Of ContextMenuOption)
         Public Enabled As Boolean = False
 
 #Region "Context Menu Option Class"
@@ -240,7 +240,6 @@
 
         Friend Sub HandleContextMenuRequest(ByVal packet As Packets.ContextMenuRequest)
             If Me.Menu.Enabled Then
-                'Dont send the packet to the server
                 _Client.DropPacket()
 
 #Const DebugContextMenuPacket = False
@@ -255,14 +254,35 @@
 
         Friend Sub HandleContextMenuResponse(ByVal packet As Packets.ContextMenuResponse)
             If Menu.Enabled Then
-                'Drop the packet, so it doesnt get sent to the server.
                 _Client.DropPacket()
 
-                RaiseEvent ContextMenuResponse(packet.Index)
+                Dim k As New ContextMenuResponder
+                k.parent = Me
+                k.index = packet.Index
+                k.Serial = _Serial
+
+                'Handle the response on a seperate thread. Otherwise the client waits for this to return.
+                Dim CMRThread As Threading.Thread = New Threading.Thread(AddressOf k.StartEvent)
+                CMRThread.Start()
+
             End If
         End Sub
 
-        Public Event ContextMenuResponse(ByVal Index As UShort)
+        Private Class ContextMenuResponder
+            Public Serial As Serial
+            Public index As UShort
+            Public parent As Item
+
+            Public Sub StartEvent()
+                parent.CallCMREvent(Serial, index)
+            End Sub
+        End Class
+
+        Private Sub CallCMREvent(ByVal Serial As Serial, ByVal Index As UShort)
+            RaiseEvent ContextMenuResponse(Serial, Index)
+        End Sub
+
+        Public Event ContextMenuResponse(ByVal Serial As Serial, ByVal Index As UShort)
 
     End Class
 

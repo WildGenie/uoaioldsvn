@@ -138,5 +138,24 @@ Partial Class UOAI
 
     End Class
 
+    Partial Class Item
+        Public Sub Target()
+            Dim k As New Packets.Target
+
+            k.Serial = _Client._TargetUID
+            k.Target = _Serial
+            k.TargetType = _Client._TargetType
+            k.X = _X
+            k.Y = _Y
+            k.Z = _Z
+            k.Artwork = _Type
+            k.Flag = _Client._TargetFlag
+
+            'TODO: Set targeting to false, clear the clients target cursor.
+            _Client._Targeting = False
+
+            _Client.Send(k, Enums.PacketDestination.SERVER)
+        End Sub
+    End Class
 
 End Class

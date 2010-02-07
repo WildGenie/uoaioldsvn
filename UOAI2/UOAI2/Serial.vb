@@ -16,7 +16,7 @@
             Get
                 Return m_IntValue
             End Get
-            Set(ByVal value As UInt32)
+            Friend Set(ByVal value As UInt32)
                 m_IntValue = value
             End Set
         End Property
@@ -92,18 +92,12 @@
             Return New String(euostring.ToArray())
         End Function
 
+        Public Function ToRazorString() As String
+            Return BitConverter.ToString(BitConverter.GetBytes(m_IntValue)).Replace("-", "")
+        End Function
+
         Public Overloads Overrides Function ToString() As String
-            Dim euostring As New List(Of Char)()
-            Dim i As UInteger
-            Dim cA As Char = "A"c
-
-            i = (CUInt(m_IntValue) Xor &H45) + 7
-            While i <> 0
-                euostring.Add(Chr(((i Mod 26) + Convert.ToInt16(cA))))
-                i /= 26
-            End While
-
-            Return New String(euostring.ToArray())
+            Return m_IntValue.ToString
         End Function
 
         Public Shared Widening Operator CType(ByVal a As Serial) As UInt32
