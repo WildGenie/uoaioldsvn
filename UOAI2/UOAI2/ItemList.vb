@@ -104,7 +104,7 @@ Partial Class UOAI
 
                     'If the item exists in the list then remove it, because this is obviously an update.
                     If Exists(Item.Serial) Then
-                        Me.Item(Item.Serial) = Item
+                        _MyClient.Items.RemoveItem(Item.Serial)
                     End If
 
                     'Add the item to this container's hash
