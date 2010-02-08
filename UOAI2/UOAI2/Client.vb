@@ -342,7 +342,10 @@ Partial Class UOAI
         ''' Called when the client recieves a login confirm packets from the game server, and the player character is created.
         ''' </summary>
         ''' <remarks></remarks>
-        Public Event onLogin(ByVal Player As Mobile)
+        Public Event onLoginConfirm(ByVal Player As Mobile)
+
+        ''' <summary>Called when the clientis completely logged in, after all the items and everything loads completely.</summary>
+        Public Event onLoginComplete()
 
         ''' <summary>
         ''' Called when a Packet arrives on this client.
@@ -417,6 +420,17 @@ Partial Class UOAI
         ''' <param name="ArgsString">The arguements string, for formatting the speech. Each arguement is seperated by a "\t".</param>
         Public Event onCliLocSpeech(ByVal Client As Client, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal CliLocNumber As UInteger, ByVal Name As String, ByVal ArgsString As String)
 
+        ''' <summary>Called when the client recieves a "text" or "Unicode Text" packet from the server.</summary>
+        ''' <param name="Client">The client to which this applies.</param>
+        ''' <param name="Serial">The serial of the mobile/item speaking. 0xFFFFFFFF for System</param>
+        ''' <param name="BodyType">The bodytype/artwork of the mobile/item speaking. 0xFFFF for System</param>
+        ''' <param name="SpeechType">The type of speech.</param>
+        ''' <param name="Hue">The hue of the message.</param>
+        ''' <param name="Font">The font of the message.</param>
+        ''' <param name="Text">The text to be displayed.</param>
+        ''' <param name="Name">The name of the speaker. "SYSTEM" for System.</param>
+        Public Event onSpeech(ByVal Client As Client, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal Text As String, ByVal Name As String)
+
 #End Region
 
 #Region "Public Functions and Subs"
@@ -451,6 +465,11 @@ Partial Class UOAI
 #End If
 
             Send(k, Enums.PacketDestination.CLIENT)
+        End Sub
+
+        Public Sub Say(ByVal Text As String)
+            Dim k As New Packets.UnicodeSpeechPacket(Enums.SpeechTypes.Regular, CUShort(52), Enums.Fonts.Default, "ENU", Text)
+            Send(k, Enums.PacketDestination.SERVER)
         End Sub
 
         ''' <summary>

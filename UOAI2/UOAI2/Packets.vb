@@ -55,14 +55,36 @@ Partial Class UOAI
         Public Class UnicodeSpeechPacket
             Inherits UOAI.Packet
 
-            Private _mode As Byte
+            Private _mode As Enums.SpeechTypes
             Private _hue As UShort
-            Private _font As UShort
+            Private _font As Enums.Fonts
             Private _lang As String
             Private _text As String
             Private _Skip12BitBytes As UShort = 0
 
-            Sub New(ByVal bytes() As Byte)
+            Friend Sub New(ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal Language As String, ByVal Text As String)
+                MyBase.New(Enums.PacketType.SpeechUnicode)
+                Dim bytes(16 + (Text.Length * 2)) As Byte
+                bytes(0) = 173 '0xAD
+
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+
+                    .networkorder = False
+                    .writeushort(bytes.Length)
+                    .networkorder = True
+
+                    .writebyte(SpeechType)
+                    .writeushort(Hue)
+                    .writeushort(Font)
+                    .writestrn(UCase(Language), 4)
+                    .writeustrn(Text, Text.Length + 1)
+                End With
+            End Sub
+
+            Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.SpeechUnicode)
 
                 buff = New BufferHandler(bytes, True)
@@ -265,12 +287,14 @@ Partial Class UOAI
                 _font = buff.readushort
 
                 '14-17
-                _lang = buff.readstrn(3)
+                _lang = buff.readstr
+
+                buff.Position = 18
 
                 '18-48
                 _name = buff.readstr
 
-                buff.Position = 49
+                buff.Position = 48
 
                 '49-(Size - 1)
                 _text = buff.readustr
@@ -469,6 +493,7 @@ Partial Class UOAI
                     _Name = .readstr
 
                     .Position = 44
+
                     '44-46
                     _Text = .readstr
                 End With
@@ -3214,6 +3239,15 @@ Partial Class UOAI
 
         End Class
 
+        Public Class LoginComplete
+            Inherits Packet
+
+            'The simplist packet ever...  1 byte.
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.LoginComplete)
+            End Sub
+        End Class
+
 #End Region
 
 #Region "Base Classes"
@@ -3846,6 +3880,9 @@ Partial Class UOAI
                 Case Enums.PacketType.LocalizedText
                     Return New Packets.LocalizedText(packetbuffer)
 
+                Case Enums.PacketType.LoginComplete
+                    Return New Packets.LoginComplete(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -3960,7 +3997,7 @@ Partial Class UOAI
                     'Cast the player as a mobile and add it to the mobile list.
                     Mobiles.AddMobile(pl)
 
-                    RaiseEvent onLogin(Player)
+                    RaiseEvent onLoginConfirm(Player)
                 Case Enums.PacketType.HealthBarStatusUpdate
                     Mobiles.Mobile(DirectCast(currentpacket, Packets.HealthBarStatusUpdate).Serial).HandleUpdatePacket(DirectCast(currentpacket, Packets.HealthBarStatusUpdate))
 
@@ -3973,6 +4010,28 @@ Partial Class UOAI
                                                 DirectCast(currentpacket, Packets.LocalizedText).CliLocNumber, _
                                                 DirectCast(currentpacket, Packets.LocalizedText).Name, _
                                                 DirectCast(currentpacket, Packets.LocalizedText).ArgString)
+
+                Case Enums.PacketType.Text
+                    RaiseEvent onSpeech(Me, DirectCast(currentpacket, Packets.Text).Serial, _
+                                              DirectCast(currentpacket, Packets.Text).BodyType, _
+                                              DirectCast(currentpacket, Packets.Text).SpeechType, _
+                                              DirectCast(currentpacket, Packets.Text).TextHue, _
+                                              DirectCast(currentpacket, Packets.Text).TextFont, _
+                                              DirectCast(currentpacket, Packets.Text).Text, _
+                                              DirectCast(currentpacket, Packets.Text).Name)
+
+                Case Enums.PacketType.TextUnicode
+                    RaiseEvent onSpeech(Me, DirectCast(currentpacket, Packets.UnicodeTextPacket).Serial, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Body, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Mode, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Hue, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Font, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Text, _
+                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Name)
+
+                Case Enums.PacketType.LoginComplete
+                    RaiseEvent onLoginComplete()
+
 
             End Select
         End Sub

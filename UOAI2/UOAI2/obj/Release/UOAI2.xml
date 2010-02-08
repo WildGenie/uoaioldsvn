@@ -618,11 +618,13 @@ UOAI2
  Called when the client process closes.
  </summary>
 	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-</member><member name="E:UOAI2.UOAI.Client.onLogin">
+</member><member name="E:UOAI2.UOAI.Client.onLoginConfirm">
 	<summary>
  Called when the client recieves a login confirm packets from the game server, and the player character is created.
  </summary>
 	<remarks></remarks>
+</member><member name="E:UOAI2.UOAI.Client.onLoginComplete">
+	<summary>Called when the clientis completely logged in, after all the items and everything loads completely.</summary>
 </member><member name="E:UOAI2.UOAI.Client.onPacketReceive">
 	<summary>
  Called when a Packet arrives on this client.
@@ -687,6 +689,16 @@ UOAI2
 	<param name="CliLocNumber">The cliloc number.</param>
 	<param name="Name">The name of the speaker. "SYSTEM" for System.</param>
 	<param name="ArgsString">The arguements string, for formatting the speech. Each arguement is seperated by a "\t".</param>
+</member><member name="E:UOAI2.UOAI.Client.onSpeech">
+	<summary>Called when the client recieves a "text" or "Unicode Text" packet from the server.</summary>
+	<param name="Client">The client to which this applies.</param>
+	<param name="Serial">The serial of the mobile/item speaking. 0xFFFFFFFF for System</param>
+	<param name="BodyType">The bodytype/artwork of the mobile/item speaking. 0xFFFF for System</param>
+	<param name="SpeechType">The type of speech.</param>
+	<param name="Hue">The hue of the message.</param>
+	<param name="Font">The font of the message.</param>
+	<param name="Text">The text to be displayed.</param>
+	<param name="Name">The name of the speaker. "SYSTEM" for System.</param>
 </member><member name="M:UOAI2.UOAI.Client.SysMsg(System.String)">
 	<summary>
  Displays a message in game, on the bottom left corner of the screen.
