@@ -21,7 +21,7 @@ Partial Class UOAI
             Return _ItemHashBySerial.ContainsValue(item)
         End Function
 
-        Public Sub CopyTo(ByVal array() As Item, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of Item).CopyTo
+        Private Sub CopyTo(ByVal array() As Item, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of Item).CopyTo
 
         End Sub
 
@@ -31,7 +31,7 @@ Partial Class UOAI
             End Get
         End Property
 
-        Public ReadOnly Property IsReadOnly() As Boolean Implements System.Collections.Generic.ICollection(Of Item).IsReadOnly
+        Private ReadOnly Property IsReadOnly() As Boolean Implements System.Collections.Generic.ICollection(Of Item).IsReadOnly
             Get
                 Return False
             End Get
@@ -258,9 +258,7 @@ Partial Class UOAI
                 End If
 
             Catch ex As Exception
-#If DebugItemList Then
-                Console.WriteLine("-Item deletion failed due to: " & ex.Message)
-#End If
+                WriteErrorLog("-Item deletion failed due to: " & ex.Message)
                 Return False
             End Try
 

@@ -5,11 +5,11 @@
 Partial Class UOAI
 
     Public Function GetTypeString(ByVal Type As UShort)
-        If StrLst.Table(1036383 + Type) Is Nothing Then
+        If StrLst.Table(1020000 + Type) Is Nothing Then
             Return ""
         End If
 
-        Return StrLst.Table(1036383 + Type)
+        Return StrLst.Table(1020000 + Type)
     End Function
 
     Public Function GetCliLocString(ByVal CliLocNumber As UInteger)

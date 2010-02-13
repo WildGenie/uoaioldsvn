@@ -438,26 +438,43 @@ Partial Class UOAI
         ''' Displays a message in game, on the bottom left corner of the screen.
         ''' </summary>
         ''' <param name="Text">The text you want to display.</param>
-        Public Sub SysMsg(ByVal Text As String)
-            SysMsg(Text, Enums.Fonts.Default, CUShort(52))
+        Public Sub SysMsg(ByVal Text As String, ByVal ASCII As Boolean)
+            SysMsg(Text, Enums.Fonts.Default, 946, ASCII)
         End Sub
 
-        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts)
-            SysMsg(Text, Font, CUShort(52))
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal ASCII As Boolean)
+            SysMsg(Text, Font, 946, ASCII)
         End Sub
 
-        Public Sub SysMsg(ByVal Text As String, ByVal Hue As UShort)
-            SysMsg(Text, Enums.Fonts.Default, Hue)
+        Public Sub SysMsg(ByVal Text As String, ByVal Hue As UShort, ByVal ASCII As Boolean)
+            SysMsg(Text, Enums.Fonts.Default, Hue, ASCII)
         End Sub
 
-        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort)
-            Dim k As New Packets.Text(Text)
-            k.Name = "System"
-            k.Serial = New Serial(CUInt(4294967295))
-            k.BodyType = CUShort(&HFFFF)
-            k.SpeechType = Enums.SpeechTypes.System
-            k.TextHue = Hue
-            k.TextFont = Font
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal ASCII As Boolean)
+            SysMsg(Text, Font, Hue, "ENU", ASCII)
+        End Sub
+
+        Public Sub SysMsg(ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal ASCII As Boolean)
+            Dim k As Object
+
+            If ASCII Then
+                k = New Packets.Text(Text)
+                k.Name = "System"
+                k.Serial = New Serial(CUInt(4294967295))
+                k.BodyType = CUShort(&HFFFF)
+                k.SpeechType = Enums.SpeechTypes.Regular
+                k.TextHue = Hue
+                k.TextFont = Font
+            Else
+                k = New Packets.UnicodeText(Text)
+                k.Name = "System"
+                k.Serial = New Serial(CUInt(4294967295))
+                k.Body = CUShort(&HFFFF)
+                k.Mode = Enums.SpeechTypes.Regular
+                k.Hue = Hue
+                k.Font = Font
+                k.Language = Language
+            End If
 
 #Const DebugSysMsg = False
 #If DebugSysMsg Then
