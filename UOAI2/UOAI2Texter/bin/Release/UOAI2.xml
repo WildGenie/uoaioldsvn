@@ -217,6 +217,8 @@ UOAI2
 </summary>
 </member><member name="P:UOAI2.UOAI.Clients">
 	<summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
+</member><member name="P:UOAI2.UOAI.ClientVersion">
+	<summary>Returns the version information of client.exe, use this to check for the proper client version before counting the clients.</summary>
 </member><member name="F:UOAI2.UOAI.Clientpath">
 	<summary>Gets or sets the path of the client executable, usualy something like 
  "C:\Program Files\EA Games\Ultima Online Mondain's Legacy\". This is also the 
@@ -618,11 +620,13 @@ UOAI2
  Called when the client process closes.
  </summary>
 	<param name="Client">The client that exited, for multi-clienting event handlers in VB.NET</param>
-</member><member name="E:UOAI2.UOAI.Client.onLogin">
+</member><member name="E:UOAI2.UOAI.Client.onLoginConfirm">
 	<summary>
  Called when the client recieves a login confirm packets from the game server, and the player character is created.
  </summary>
 	<remarks></remarks>
+</member><member name="E:UOAI2.UOAI.Client.onLoginComplete">
+	<summary>Called when the clientis completely logged in, after all the items and everything loads completely.</summary>
 </member><member name="E:UOAI2.UOAI.Client.onPacketReceive">
 	<summary>
  Called when a Packet arrives on this client.
@@ -697,7 +701,7 @@ UOAI2
 	<param name="Font">The font of the message.</param>
 	<param name="Text">The text to be displayed.</param>
 	<param name="Name">The name of the speaker. "SYSTEM" for System.</param>
-</member><member name="M:UOAI2.UOAI.Client.SysMsg(System.String)">
+</member><member name="M:UOAI2.UOAI.Client.SysMsg(System.String,System.Boolean)">
 	<summary>
  Displays a message in game, on the bottom left corner of the screen.
  </summary>
@@ -807,23 +811,23 @@ UOAI2
 </member><member name="T:UOAI2.UOAI.Packets.UnicodeSpeechPacket">
 	<summary>Clients send this packet when talking.</summary>
 	<remarks>Packet 0xAD</remarks>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Text">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Text">
 	<summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Name">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Name">
 	<summary>Gets or Sets the name of the speaker. Maximum of 30 characters.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Mode">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Mode">
 	<summary>Gets or Sets the speech type as <see cref="T:UOAI2.UOAI.Enums.SpeechTypes"/>.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Serial">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Serial">
 	<summary>Gets or sets the serial of the person or object speaking. 0xFFFFFFFF is used for system.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Body">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Body">
 	<summary>Gets or Sets the body value of the character that is talking. 0xFFFF is used for system.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Hue">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Hue">
 	<summary>Gets or Sets the hue of the text.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Font">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Font">
 	<summary>Gets or Sets the font of the text.</summary>
-</member><member name="P:UOAI2.UOAI.Packets.UnicodeTextPacket.Language">
+</member><member name="P:UOAI2.UOAI.Packets.UnicodeText.Language">
 	<summary>Gets or Sets the language key of the packet. This only effects how it is interpreted, it does NOT change the actual language.</summary>
-</member><member name="T:UOAI2.UOAI.Packets.UnicodeTextPacket">
+</member><member name="T:UOAI2.UOAI.Packets.UnicodeText">
 	<summary>This is sent from the server to tell the client that someone is talking.</summary>
 	<remarks>Packet 0xAE</remarks>
 </member><member name="P:UOAI2.UOAI.Packets.OpenContainer.Serial">
@@ -1018,11 +1022,10 @@ UOAI2
 </member><member name="P:UOAI2.UOAI.ClientList.Count">
 	<summary>Forces update of client list then returns a count of the clients.</summary>
 	<returns>An integer value representing the current number of UO clients running.</returns>
-</member><member name="P:UOAI2.UOAI.ClientList.Client">
+</member><member name="P:UOAI2.UOAI.ClientList.Client(System.UInt32)">
 	<summary>Returns the UOAI.Client at the specified index.</summary>
 </member><member name="M:UOAI2.UOAI.ClientList.ForceUpdateClientList">
 	<summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
-	<remarks></remarks>
 </member><member name="M:UOAI2.UOAI.ClientList.ClientProcessExit(System.Object,System.EventArgs)">
 	<summary>Handles the "Process.Exited" for client processes.</summary>
 	<param name="sender">The System.Diagnostics.Process that is being handled.</param>

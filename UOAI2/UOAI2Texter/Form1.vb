@@ -39,8 +39,8 @@ Public Class Form1
 
     Private Sub PacketHandler(ByRef cl As Client, ByRef p As Packet)
         If p.Type = Enums.PacketType.TextUnicode Then
-            Dim up As Packets.UnicodeTextPacket
-            up = DirectCast(p, Packets.UnicodeTextPacket)
+            Dim up As Packets.UnicodeText
+            up = DirectCast(p, Packets.UnicodeText)
             DoWriteToLabel(up.Name & " says : " & up.Text)
         End If
     End Sub
@@ -85,54 +85,7 @@ Public Class Form1
     End Sub
 
     Private Sub UOAI_Cl_onClientSpeech(ByVal client As UOAI2.UOAI.Client, ByVal Text As String, ByVal Font As UOAI2.UOAI.Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As UOAI2.UOAI.Enums.SpeechTypes) Handles UOAI_Cl.onClientSpeech
-        If Text.IndexOf(".") = 0 Then
-            UOAI_Cl.DropPacket()
-
-            Dim x() As String = Text.Substring(1).Split(" ")
-
-            Select Case LCase(x(0))
-                Case "sysmsg"
-                    UOAI_Cl.SysMsg(Text.Substring(8))
-
-                Case "set"
-                    Select Case LCase(x(1))
-                        Case "deathtest"
-                            UOAI_Cl.TargetPrompt(CUInt(5568956), Enums.TargetRequestType.ItemOrMobile)
-
-                        Case "help", "?"
-                            UOAI_Cl.SysMsg(".set deathtest - Designates a target as a test subject for death test.")
-                            UOAI_Cl.SysMsg(".set help - Displays this information.")
-
-                        Case Else
-                            UOAI_Cl.SysMsg("Unrecognized Command: " & Chr(34) & Text & Chr(34))
-
-                    End Select
-
-                Case "webhelp"
-                    System.Diagnostics.Process.Start("http://www.decelle.be/UOAI/forum/index.php")
-
-                Case "test"
-                    UOAI_Cl.Player.DoubleClick()
-
-                Case "help", "?"
-                    UOAI_Cl.SysMsg(".sysmsg - Display a system message.")
-                    UOAI_Cl.SysMsg(".set - Sets a plethora of stuff.")
-                    UOAI_Cl.SysMsg(".help or .? - Displays help with the given command.")
-                    UOAI_Cl.SysMsg(".webhelp - Opens your default web browser to the UOAI forums.")
-
-                Case "otbp", "opentargetbackpack"
-                    client.TargetPrompt(123456789, UOAI.Enums.TargetRequestType.ItemOrMobile)
-
-                Case Else
-                    UOAI_Cl.SysMsg("Unrecognized Command: " & Chr(34) & Text & Chr(34))
-
-            End Select
-        End If
-
-    End Sub
-
-    Private Sub Player_onUpdate(ByVal Client As UOAI2.UOAI.Client, ByVal Mobile As UOAI2.UOAI.Mobile, ByVal UpdateType As UOAI2.UOAI.Enums.MobileUpdateType) Handles Player.onUpdate
-        Client.SysMsg("Poisoned to Level " & Player.PoisonLevel)
+       
     End Sub
 
     Private Sub UOAI_Cl_onHueResponse(ByVal UID As UShort, ByVal Hue As UShort) Handles UOAI_Cl.onHueResponse

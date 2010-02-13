@@ -2,17 +2,25 @@
 
 Public Class UOAI
 
-#Region "UOAI Variables"
+#Region "UOAI2 Variables"
     Private _ClientList As New ClientList
+
     Shared UOClientDllPath As String = My.Application.Info.DirectoryPath & "\UOClientDll.dll"
 #End Region
 
-#Region "UOAI Properties"
+#Region "UOAI2 Properties"
 
     ''' <summary>The list of running Ultima Online 2D clients as UOAI.Client objects.</summary>
     Public ReadOnly Property Clients() As ClientList
         Get
             Return _ClientList
+        End Get
+    End Property
+
+    ''' <summary>Returns the version information of client.exe, use this to check for the proper client version before counting the clients.</summary>
+    Public ReadOnly Property ClientVersion() As FileVersionInfo
+        Get
+            Return FileVersionInfo.GetVersionInfo(Clientpath & ClientExe)
         End Get
     End Property
 
@@ -28,11 +36,13 @@ Public Class UOAI
 
 #End Region
 
-#Region "UOAI Constructor"
+#Region "UOAI2 Constructor"
+
     Sub New()
 
         If File.Exists(UOClientDllPath) = False Then
-            Throw New Exception("Unable to locate UOClientDll.dll!")
+            WriteErrorLog("Unable to locate UOClientDll.dll")
+            Throw New FileNotFoundException("Unable to locate the injected dll.", "UOClientDll.dll")
         End If
 
         'Checks for to see if the current user is part of the administrators group, throws an exception if it fails
@@ -40,13 +50,18 @@ Public Class UOAI
             Dim ci As New Microsoft.VisualBasic.Devices.ComputerInfo
 
             'Just adding this to help people get a better idea of why they are having trouble
-            'with their application not having admin privilages, even if running ad administrator
+            'with their application not having admin privilages, even if running as administrator
             'on a vista/7 machine. Fucking vistualized vista/7 security model....
             If Convert.ToByte(ci.OSVersion.Split(".")(0)) >= 6 Then
-                Throw New ApplicationException("You need to be part of the administrators group to use UOAI2." & _
-                                               " If you have User Account Control enabled, please run this application " & _
+                WriteErrorLog("You need to be part of the administrators group to use UOAI2. " & _
+                                               "If you have User Account Control enabled, please run this application " & _
+                                               "as administrator.")
+
+                Throw New ApplicationException("You need to be part of the administrators group to use UOAI2. " & _
+                                               "If you have User Account Control enabled, please run this application " & _
                                                "as administrator.")
             Else
+                WriteErrorLog("You need to be part of the administrators group to use UOAI2.")
                 Throw New ApplicationException("You need to be part of the administrators group to use UOAI2.")
             End If
         End If
@@ -128,14 +143,20 @@ Public Class UOAI
         Exit Sub
     End Sub
 
-#End Region
+    Friend Shared Function WriteErrorLog(ByVal Text As String)
 
-#Region "UOAI Events"
-    Public Event onError(ByVal ErrorText As String)
+        Try
+            'Try to make an error log, or append text to the current error log.
+            File.AppendAllText(My.Application.Info.DirectoryPath & "\UOAI2 Errors.txt", Date.Now.ToString & ":" & vbTab & Text & vbNewLine)
+            Return True
 
-    Private Sub RaiseErrorEvent(ByVal Message As String)
-        RaiseEvent onError(Message)
-    End Sub
+        Catch ex As Exception
+            Return False
+
+        End Try
+
+    End Function
+
 #End Region
 
 End Class

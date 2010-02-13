@@ -6,28 +6,29 @@ Partial Class UOAI
 #If DEBUG Then
     ''' <summary>A list of Ultima Online clients.</summary>
     Public Class ClientList
+        Implements Collections.Generic.ICollection(Of Client)
+
 #Else
     ''' <summary>A list of Ultima Online clients.</summary>
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class ClientList
+        Implements Collections.Generic.ICollection(Of Client)
 #End If
-
 
 #Region "Statements"
 
+        Private ClientHash As New Hashtable
         Private proclist() As Process
-        Private Clients As New ArrayList
         Friend ClientExe As String
         Friend ClientPath As String
+
 #End Region
 
 #Region "Constructors"
         Sub New()
-
             InitializeClientPaths() 'Taken almost directly from your uoai C#, Wim.
             ForceUpdateClientList()
         End Sub
-
 
         '''<summary>Gets the working directory and location of client.exe from the registry.</summary>
         Private Sub InitializeClientPaths()
@@ -96,14 +97,14 @@ Partial Class UOAI
         '''  Although if it doesn't find one matching the PID it will raise the "onError" event
         '''  and return the first client in the list.</returns>
         Public Function byPID(ByVal ProcessID As Integer) As Client
-            For Each i As Client In Clients
-                If i.PID = ProcessID Then Return i
-            Next
-
-            Throw New ApplicationException("No such client with PID: '" & ProcessID & "'. Returning client(0) to avoid null-reference exception")
-            Return Nothing 'You lose, you get nothing!
+            Try
+                Return ClientHash(ProcessID)
+            Catch ex As Exception
+                WriteErrorLog("No such client with PID: '" & ProcessID & "'. Returning nothing.")
+                Throw New ApplicationException("No such client with PID: '" & ProcessID & "'. Returning nothing.")
+                Return Nothing 'You lose, you get nothing!
+            End Try
         End Function
-
 
 #End Region
 
@@ -112,40 +113,29 @@ Partial Class UOAI
         ''' <param name="PID">The process ID of the client you want to add.</param>
         Friend Shadows Sub Add(ByVal PID As Integer)
             Dim c As New UOAI.Client(PID)
-            Clients.Add(c)
+            ClientHash.Add(PID, c)
         End Sub
 
         ''' <summary>Removed a client from the clients arraylist, based on PID.</summary>
         ''' <param name="PID">The process ID of the client you want to remove.</param>
         Friend Shadows Sub Remove(ByVal PID As Integer)
-            For Each c As UOAI.Client In Clients
-                If c.PID = PID Then
-                    Clients.Remove(c)
-                    c.CallEvent_onClientExit()
-                    Exit Sub
-                End If
-            Next
+            DirectCast(ClientHash(PID), Client).CallEvent_onClientExit()
+            ClientHash.Remove(PID)
         End Sub
 
         ''' <summary>Forces update of client list then returns a count of the clients.</summary>
         ''' <returns>An integer value representing the current number of UO clients running.</returns>
-        Public ReadOnly Property Count() As Integer
+        Public ReadOnly Property Count() As Integer Implements System.Collections.Generic.ICollection(Of Client).Count
             Get
                 ForceUpdateClientList()
-                Return Clients.Count
-            End Get
-        End Property
-
-        Default Public ReadOnly Property Item(ByVal index As Integer) As Client
-            Get
-                Return Clients(index)
+                Return ClientHash.Count
             End Get
         End Property
 
         ''' <summary>Returns the UOAI.Client at the specified index.</summary>
-        Public ReadOnly Property Client() As Client()
+        Default Public ReadOnly Property Client(ByVal Index As UInteger) As Client
             Get
-                Return Clients.ToArray(GetType(Client))
+                Return ClientHash.Values(Index)
             End Get
         End Property
 
@@ -153,39 +143,28 @@ Partial Class UOAI
 
 #Region "Sub's"
         ''' <summary>Forces the clientlist to update, called when UOAI.UOClientList.Count is called and on startup.</summary>
-        ''' <remarks></remarks>
         Private Sub ForceUpdateClientList()
             'Update process list
             proclist = Process.GetProcessesByName(ClientExe.Split(".")(0))
 
-            Dim ProcChk As Boolean = False
-
-            'Check for clients
+            'Check for new clients
             For Each proc As Process In proclist
-                'Just ensures it is a uo client
-                If proc.MainWindowTitle.Contains("Ultima Online") Then
-                    'See If the client is already in the list, if not then add it.
-                    For Each c As Client In Clients
-                        'If the PID of "proc" = PID of any of the clients in "Clients" then
-                        'procchk is set to true.
-                        If c.PID = proc.Id Then ProcChk = True
-                    Next
 
-                    'Instatiate the "NewClient" from before, set it's PID and add it to the list.
-                    If ProcChk = False Then
-                        Add(proc.Id)
+                'Just ensures it is a uo client, and the client isnt in the hash already.
+                If proc.MainWindowTitle.Contains("Ultima Online") And ClientHash.ContainsKey(proc.Id) = False Then
 
-                        'Add an event handler for when the client closes.
-                        proc.EnableRaisingEvents = True
-                        AddHandler proc.Exited, AddressOf ClientProcessExit
+                    'Make a new UOAI.Client with the PID and add it to the hash.
+                    Add(proc.Id)
 
-                    Else
-                        ProcChk = False
-                        Continue For
-                    End If
-
+                    'Add an event handler for when the client closes.
+                    proc.EnableRaisingEvents = True
+                    AddHandler proc.Exited, AddressOf ClientProcessExit
                 End If
+
             Next
+
+            'Clients are removed from the list when they close.
+
         End Sub
 
         ''' <summary>Handles the "Process.Exited" for client processes.</summary>
@@ -194,6 +173,45 @@ Partial Class UOAI
         Private Sub ClientProcessExit(ByVal sender As Object, ByVal e As System.EventArgs)
             Remove(sender.ID)
         End Sub
+
+#End Region
+
+#Region "Enumeration stuff"
+
+        Private Sub Add1(ByVal item As Client) Implements System.Collections.Generic.ICollection(Of Client).Add
+
+        End Sub
+
+        Private Sub Clear() Implements System.Collections.Generic.ICollection(Of Client).Clear
+
+        End Sub
+
+        Private Function Contains(ByVal item As Client) As Boolean Implements System.Collections.Generic.ICollection(Of Client).Contains
+
+        End Function
+
+        Private Sub CopyTo(ByVal array() As Client, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of Client).CopyTo
+
+        End Sub
+
+        Private ReadOnly Property IsReadOnly() As Boolean Implements System.Collections.Generic.ICollection(Of Client).IsReadOnly
+            Get
+                Return False
+            End Get
+        End Property
+
+        Private Function Remove1(ByVal item As Client) As Boolean Implements System.Collections.Generic.ICollection(Of Client).Remove
+
+        End Function
+
+        Private Function GetEnumerator() As System.Collections.Generic.IEnumerator(Of Client) Implements System.Collections.Generic.IEnumerable(Of Client).GetEnumerator
+            Return ClientHash.Values.GetEnumerator
+        End Function
+
+        Private Function GetEnumerator1() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
+            Return ClientHash.Values.GetEnumerator
+        End Function
+
 #End Region
 
     End Class

@@ -80,7 +80,7 @@ Partial Class UOAI
                     .writeushort(Hue)
                     .writeushort(Font)
                     .writestrn(UCase(Language), 4)
-                    .writeustrn(Text, Text.Length + 1)
+                    .writeustr(Text)
                 End With
             End Sub
 
@@ -225,7 +225,7 @@ Partial Class UOAI
 
         ''' <summary>This is sent from the server to tell the client that someone is talking.</summary>
         ''' <remarks>Packet 0xAE</remarks>
-        Public Class UnicodeTextPacket
+        Public Class UnicodeText
             Inherits Packet
             Private _text As String = ""
             Private _Mode As Enums.SpeechTypes
@@ -239,16 +239,19 @@ Partial Class UOAI
 
             Friend Sub New(ByVal Text As String)
                 MyBase.New(Enums.PacketType.TextUnicode)
-                Dim txtbytes() As Byte = System.Text.Encoding.Unicode.GetBytes(Text)
-                Dim bytes(48 + txtbytes.Length) As Byte
+                'Dim txtbytes() As Byte = System.Text.Encoding.Unicode.GetBytes(Text)
+                Dim bytes(52 + (Text.Length * 2)) As Byte
+                bytes(0) = 174
+                buff = New BufferHandler(bytes, True)
+                With buff
+                    .Position = 1
+                    .networkorder = False
+                    .writeushort(bytes.Length)
+                    .networkorder = True
+                    .Position = 48
+                    .writeustr(Text)
+                End With
 
-                For i As Integer = 0 To txtbytes.Length - 1
-                    bytes(49 + i) = txtbytes(i)
-                Next
-
-                _size = bytes.Length
-
-                buff = New BufferHandler(bytes)
             End Sub
 
             Friend Sub New(ByVal bytes() As Byte)
@@ -306,25 +309,15 @@ Partial Class UOAI
                 Console.WriteLine(" Serial: " & Serial.ToString)
                 Console.WriteLine(" Body: " & Body)
                 Console.WriteLine(" Name: " & Name)
-                Console.WriteLine(" Model: " & Mode)
+                Console.WriteLine(" SpeechType: " & Mode.ToString)
                 Console.WriteLine(" Hue: " & Hue)
-                Console.WriteLine(" Font: " & Font)
+                Console.WriteLine(" Font: " & Font.ToString)
                 Console.WriteLine(" Text: " & Text)
                 Console.WriteLine(" Language: " & Language)
                 Console.WriteLine("")
 #End If
 
             End Sub
-
-            Public Overrides ReadOnly Property Data() As Byte()
-                Get
-                    buff.Position = 1
-                    buff.networkorder = False
-                    buff.writeushort(Size)
-                    buff.networkorder = True
-                    Return MyBase.Data
-                End Get
-            End Property
 
             ''' <summary>Gets or Sets the text that will be displayed. Will not allow a value longer than the current one.</summary>
             Public Property Text() As String
@@ -412,7 +405,7 @@ Partial Class UOAI
                     Return _font
                 End Get
                 Set(ByVal value As Enums.Fonts)
-                    _hue = value
+                    _font = value
                     buff.Position = 12
                     buff.writeushort(value)
                 End Set
@@ -449,20 +442,21 @@ Partial Class UOAI
             Friend Sub New(ByVal Text As String)
                 MyBase.New(Enums.PacketType.Text)
 
-                Dim txtbytes() As Byte = System.Text.Encoding.ASCII.GetBytes(Text)
-                Dim bytes(43 + txtbytes.Length) As Byte
+                Dim bytes(46 + Text.Length) As Byte
                 bytes(0) = 28
 
-                For i As Integer = 0 To txtbytes.Length - 1
-                    bytes(44 + i) = txtbytes(i)
-                Next
+                buff = New BufferHandler(bytes, True)
 
-                buff = New BufferHandler(bytes)
+                With buff
+                    .Position = 1
+                    .networkorder = False
+                    .writeushort(buff.buffer.Length)
+                    .networkorder = True
 
-                buff.Position = 1
-                buff.networkorder = False
-                buff.writeushort(buff.buffer.Length)
-                buff.networkorder = True
+                    .Position = 44
+                    .writestr(Text)
+
+                End With
 
                 Name = "System"
                 Serial = New Serial(CUInt(4294967295))
@@ -597,12 +591,6 @@ Partial Class UOAI
                 End Set
             End Property
 
-            Public Overrides ReadOnly Property Data() As Byte()
-                Get
-                    Return buff.buffer
-                End Get
-            End Property
-
         End Class
 
         Public Class LocalizedText
@@ -619,7 +607,7 @@ Partial Class UOAI
             Friend Sub New(ByVal bytes() As Byte)
                 MyBase.New(Enums.PacketType.LocalizedText)
                 _Data = bytes
-                _Size = bytes.Length
+                _size = bytes.Length
                 buff = New BufferHandler(bytes, True)
 
                 With buff
@@ -640,7 +628,7 @@ Partial Class UOAI
                     _Name = .readstr
 
                     buff.Position = 48
-                    '48-77
+                    '48-??
                     _ArgString = .readustr
                 End With
             End Sub
@@ -3776,119 +3764,130 @@ Partial Class UOAI
                 Console.WriteLine("Recieved Packet: " & BitConverter.ToString(packetbuffer))
             End If
 #End If
+            Try
 
-            Select Case DirectCast(packetbuffer(0), Enums.PacketType)
-                Case Enums.PacketType.TakeObject
-                    Dim k As New Packets.TakeObject(packetbuffer)
-                    _ItemInHand = k.Serial
-                    Return k
+                Select Case DirectCast(packetbuffer(0), Enums.PacketType)
+                    Case Enums.PacketType.TakeObject
+                        Dim k As New Packets.TakeObject(packetbuffer)
+                        _ItemInHand = k.Serial
+                        Return k
 
-                Case Enums.PacketType.DropObject
-                    Return New Packets.DropObject(packetbuffer)
+                    Case Enums.PacketType.DropObject
+                        Return New Packets.DropObject(packetbuffer)
 
-                Case Enums.PacketType.TextUnicode
-                    Return New Packets.UnicodeTextPacket(packetbuffer)
+                    Case Enums.PacketType.TextUnicode
+                        Return New Packets.UnicodeText(packetbuffer)
 
-                Case Enums.PacketType.SpeechUnicode
-                    Return New Packets.UnicodeSpeechPacket(packetbuffer)
+                    Case Enums.PacketType.SpeechUnicode
+                        Return New Packets.UnicodeSpeechPacket(packetbuffer)
 
-                Case Enums.PacketType.NakedMOB
-                    Return New Packets.NakedMobile(packetbuffer)
+                    Case Enums.PacketType.NakedMOB
+                        Return New Packets.NakedMobile(packetbuffer)
 
-                Case Enums.PacketType.EquippedMOB
-                    Return New Packets.EquippedMobile(packetbuffer)
+                    Case Enums.PacketType.EquippedMOB
+                        Return New Packets.EquippedMobile(packetbuffer)
 
-                Case Enums.PacketType.FatHealth
-                    Return New Packets.FatHealth(packetbuffer)
+                    Case Enums.PacketType.FatHealth
+                        Return New Packets.FatHealth(packetbuffer)
 
-                Case Enums.PacketType.HPHealth
-                    Return New Packets.HPHealth(packetbuffer)
+                    Case Enums.PacketType.HPHealth
+                        Return New Packets.HPHealth(packetbuffer)
 
-                Case Enums.PacketType.ManaHealth
-                    Return New Packets.ManaHealth(packetbuffer)
+                    Case Enums.PacketType.ManaHealth
+                        Return New Packets.ManaHealth(packetbuffer)
 
-                Case Enums.PacketType.DeathAnimation
-                    Return New Packets.DeathAnimation(packetbuffer)
+                    Case Enums.PacketType.DeathAnimation
+                        Return New Packets.DeathAnimation(packetbuffer)
 
-                Case Enums.PacketType.Destroy
-                    Return New Packets.Destroy(packetbuffer)
+                    Case Enums.PacketType.Destroy
+                        Return New Packets.Destroy(packetbuffer)
 
-                Case Enums.PacketType.MobileStats
-                    Return New Packets.MobileStats(packetbuffer)
+                    Case Enums.PacketType.MobileStats
+                        Return New Packets.MobileStats(packetbuffer)
 
-                Case Enums.PacketType.EquipItem
-                    Return New Packets.EquipItem(packetbuffer)
+                    Case Enums.PacketType.EquipItem
+                        Return New Packets.EquipItem(packetbuffer)
 
-                Case Enums.PacketType.ContainerContents
-                    Return New Packets.ContainerContents(packetbuffer)
+                    Case Enums.PacketType.ContainerContents
+                        Return New Packets.ContainerContents(packetbuffer)
 
-                Case Enums.PacketType.ObjecttoObject
-                    Return New Packets.ObjectToObject(packetbuffer)
+                    Case Enums.PacketType.ObjecttoObject
+                        Return New Packets.ObjectToObject(packetbuffer)
 
-                Case Enums.PacketType.ShowItem
-                    Return New Packets.ShowItem(packetbuffer)
+                    Case Enums.PacketType.ShowItem
+                        Return New Packets.ShowItem(packetbuffer)
 
-                Case Enums.PacketType.Target
-                    Dim k As Packets.Target = New Packets.Target(packetbuffer)
+                    Case Enums.PacketType.Target
+                        Dim k As Packets.Target = New Packets.Target(packetbuffer)
 
-                    'Set the targeting variables.
-                    If origin = Enums.PacketOrigin.FROMSERVER Then
-                        _Targeting = True
-                        _TargetUID = k.Serial
-                        _TargetType = k.TargetType
-                        _TargetFlag = k.Flag
-                    Else
-                        _Targeting = False
-                    End If
+                        'Set the targeting variables.
+                        If origin = Enums.PacketOrigin.FROMSERVER Then
+                            _Targeting = True
+                            _TargetUID = k.Serial
+                            _TargetType = k.TargetType
+                            _TargetFlag = k.Flag
+                        Else
+                            _Targeting = False
+                        End If
 
-                    Return k
-                Case Enums.PacketType.DoubleClick
-                    Return New Packets.Doubleclick(packetbuffer)
+                        Return k
+                    Case Enums.PacketType.DoubleClick
+                        Return New Packets.Doubleclick(packetbuffer)
 
-                Case Enums.PacketType.SingleClick
-                    Return New Packets.Singleclick(packetbuffer)
+                    Case Enums.PacketType.SingleClick
+                        Return New Packets.Singleclick(packetbuffer)
 
-                Case Enums.PacketType.Text
-                    Return New Packets.Text(packetbuffer)
+                    Case Enums.PacketType.Text
+                        Return New Packets.Text(packetbuffer)
 
-                Case Enums.PacketType.LoginConfirm
-                    Return New Packets.LoginConfirm(packetbuffer)
+                    Case Enums.PacketType.LoginConfirm
+                        Return New Packets.LoginConfirm(packetbuffer)
 
-                Case Enums.PacketType.HealthBarStatusUpdate
-                    Return New Packets.HealthBarStatusUpdate(packetbuffer)
+                    Case Enums.PacketType.HealthBarStatusUpdate
+                        Return New Packets.HealthBarStatusUpdate(packetbuffer)
 
-                Case Enums.PacketType.GenericCommand
+                    Case Enums.PacketType.GenericCommand
 
-                    Select Case DirectCast(CUShort(packetbuffer(4)), Enums.BF_Sub_Commands)
+                        Select Case DirectCast(CUShort(packetbuffer(4)), Enums.BF_Sub_Commands)
 
-                        Case Enums.BF_Sub_Commands.ContextMenuRequest
-                            Return New Packets.ContextMenuRequest(packetbuffer)
+                            Case Enums.BF_Sub_Commands.ContextMenuRequest
+                                Return New Packets.ContextMenuRequest(packetbuffer)
 
-                        Case Enums.BF_Sub_Commands.ContextMenuResponse
-                            Return New Packets.ContextMenuResponse(packetbuffer)
+                            Case Enums.BF_Sub_Commands.ContextMenuResponse
+                                Return New Packets.ContextMenuResponse(packetbuffer)
 
-                        Case Else
-                            Dim j As New Packet(packetbuffer(0))
-                            j._Data = packetbuffer
-                            j._size = packetbuffer.Length
-                            Return j 'dummy until we have what we need
-                    End Select
+                            Case Else
+                                Dim j As New Packet(packetbuffer(0))
+                                j._Data = packetbuffer
+                                j._size = packetbuffer.Length
+                                Return j 'dummy until we have what we need
+                        End Select
 
-                Case Enums.PacketType.HuePicker
-                    Return New Packets.HuePicker(packetbuffer)
+                    Case Enums.PacketType.HuePicker
+                        Return New Packets.HuePicker(packetbuffer)
 
-                Case Enums.PacketType.LocalizedText
-                    Return New Packets.LocalizedText(packetbuffer)
+                    Case Enums.PacketType.LocalizedText
+                        Return New Packets.LocalizedText(packetbuffer)
 
-                Case Enums.PacketType.LoginComplete
-                    Return New Packets.LoginComplete(packetbuffer)
+                    Case Enums.PacketType.LoginComplete
+                        Return New Packets.LoginComplete(packetbuffer)
 
-                Case Else
-                    Dim j As New Packet(packetbuffer(0))
-                    j._Data = packetbuffer
-                    j._size = packetbuffer.Length
-                    Return j 'dummy until we have what we need
-            End Select
+                    Case Else
+                        Dim j As New Packet(packetbuffer(0))
+                        j._Data = packetbuffer
+                        j._size = packetbuffer.Length
+                        Return j 'dummy until we have what we need
+                End Select
+
+            Catch ex As Exception
+                Dim k() As Byte = {0}
+                Dim j As New Packet(k(0))
+
+                j._Data = packetbuffer
+                j._size = packetbuffer.Length
+
+                Return j
+            End Try
 
         End Function
 
@@ -3903,11 +3902,17 @@ Partial Class UOAI
 
                     Select Case DirectCast(CUShort(currentpacket.Data(4)), Enums.BF_Sub_Commands)
                         Case Enums.BF_Sub_Commands.ContextMenuRequest
-                            If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial) Then
-                                Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
-                            Else
-                                Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
-                            End If
+
+                            Try
+                                If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial) Then
+                                    Me.Mobiles.Mobile(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                                Else
+                                    Me.Items.Item(DirectCast(currentpacket, Packets.ContextMenuRequest).Serial).HandleContextMenuRequest(DirectCast(currentpacket, Packets.ContextMenuRequest))
+                                End If
+                            Catch ex As Exception
+                                Console.WriteLine("Context Menu Failed: " & ex.Message)
+                            End Try
+
 
                         Case Enums.BF_Sub_Commands.ContextMenuResponse
                             If Me.Mobiles.Exists(DirectCast(currentpacket, Packets.ContextMenuResponse).Serial) Then
@@ -4021,13 +4026,13 @@ Partial Class UOAI
                                               DirectCast(currentpacket, Packets.Text).Name)
 
                 Case Enums.PacketType.TextUnicode
-                    RaiseEvent onSpeech(Me, DirectCast(currentpacket, Packets.UnicodeTextPacket).Serial, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Body, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Mode, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Hue, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Font, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Text, _
-                          DirectCast(currentpacket, Packets.UnicodeTextPacket).Name)
+                    RaiseEvent onSpeech(Me, DirectCast(currentpacket, Packets.UnicodeText).Serial, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Body, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Mode, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Hue, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Font, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Text, _
+                          DirectCast(currentpacket, Packets.UnicodeText).Name)
 
                 Case Enums.PacketType.LoginComplete
                     RaiseEvent onLoginComplete()
@@ -4035,6 +4040,7 @@ Partial Class UOAI
 
             End Select
         End Sub
+
     End Class
 
 #Region "BufferHandler"

@@ -75,18 +75,24 @@ Partial Class UOAI
             _Packet = Packet
 
 #End If
+
             _Target = Packet.Target
             _X = Packet.X
             _Y = Packet.Y
             _Z = Packet.Z
             _UID = Packet.Serial.Value
 
-            If _Target.Value = 0 Then _Type = Enums.TargetType.Ground
-            If Packet.TargetType = 1 Then _Type = Enums.TargetType.Ground
-
             If Packet.TargetType = 0 Then _Type = Enums.TargetType.Item
             If Client.Mobiles.Exists(_Target) Then _Type = Enums.TargetType.Mobile
             If Client.Items.Exists(_Target) Then _Type = Enums.TargetType.Item
+
+            If _Target.Value = 0 Then
+                If Packet.TargetType = 1 Then
+                    _Type = Enums.TargetType.Ground
+                Else
+                    _Type = Enums.TargetType.Canceled
+                End If
+            End If
 
             If Packet.Flag = 3 Then _Type = Enums.TargetType.Canceled
 
