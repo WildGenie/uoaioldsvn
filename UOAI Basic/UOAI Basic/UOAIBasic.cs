@@ -127,6 +127,7 @@ namespace UOAIBasic
     //An intermediate eventhandler class (initiated at the handler site) solves this.
     public class ClientEvents : MarshalByRefObject
     {
+        private bool m_Async;
         private Client m_Client;
         private System.ComponentModel.ISynchronizeInvoke m_Invoker = null;
 
@@ -134,6 +135,12 @@ namespace UOAIBasic
         {
             get { return m_Invoker; }
             set { m_Invoker = value; }
+        }
+
+        public bool ASynchronous
+        {
+            get { return m_Async; }
+            set { m_Async = value; }
         }
 
         public delegate bool OnPacketReceiveDelegate(UnmanagedBuffer packet);
@@ -144,19 +151,15 @@ namespace UOAIBasic
             {
                 if (m_Invoker != null)
                 {
-                    bool toreturn = true;
-                    foreach (Delegate d in OnPacketReceive.GetInvocationList())
-                    {
-                        if (!(bool)m_Invoker.Invoke(d, new object[] { packet }))
-                        {
-                            toreturn = false;
-                            break;
-                        }
-                    }
-                    return toreturn;
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnPacketReceive, new object[] { packet });
+                    else
+                        return (bool)m_Invoker.Invoke(OnPacketReceive, new object[] { packet });
                 }
+                else if (m_Async)
+                    OnPacketReceive.BeginInvoke(packet, null, null);
                 else
-                    return OnPacketReceive(packet);
+                    return OnPacketReceive(packet);                    
             }
             return true;
         }
@@ -169,13 +172,58 @@ namespace UOAIBasic
             {
                 if (m_Invoker != null)
                 {
-                    foreach (Delegate d in OnPacketHandled.GetInvocationList())
-                        m_Invoker.Invoke(d, new object[] { });
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnPacketHandled, new object[] { });
+                    else
+                        m_Invoker.Invoke(OnPacketHandled, new object[] { });
                 }
+                else if (m_Async)
+                    OnPacketHandled.BeginInvoke(null, null);
                 else
                     OnPacketHandled();
             }
             return;
+        }
+
+        public delegate bool OnKeyUpDelegate(uint VirtualKeyCode);
+        public delegate bool OnKeyDownDelegate(uint VirtualKeyCode, bool repeated);
+        public event OnKeyDownDelegate OnKeyDown;
+        public event OnKeyUpDelegate OnKeyUp;
+        public bool InvokeOnKeyDown(uint VirtualKeyCode, bool repeated)
+        {
+            if (OnKeyDown != null)
+            {
+                if (m_Invoker != null)
+                {
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnKeyDown, new object[] { VirtualKeyCode, repeated });
+                    else
+                        return (bool)m_Invoker.Invoke(OnKeyDown, new object[] { VirtualKeyCode, repeated });
+                }
+                else if (m_Async)
+                    OnKeyDown.BeginInvoke(VirtualKeyCode, repeated, null, null);
+                else
+                    return OnKeyDown(VirtualKeyCode, repeated);
+            }
+            return true;
+        }
+        public bool InvokeOnKeyUp(uint VirtualKeyCode)
+        {
+            if (OnKeyUp != null)
+            {
+                if (m_Invoker != null)
+                {
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnKeyUp, new object[] { VirtualKeyCode });
+                    else
+                        return (bool)m_Invoker.Invoke(OnKeyUp, new object[] { VirtualKeyCode });
+                }
+                else if (m_Async)
+                    OnKeyUp.BeginInvoke(VirtualKeyCode, null, null);
+                else
+                    return OnKeyUp(VirtualKeyCode);
+            }
+            return true;
         }
 
         public delegate bool OnPacketSendDelegate(UnmanagedBuffer packet);
@@ -186,17 +234,13 @@ namespace UOAIBasic
             {
                 if (m_Invoker != null)
                 {
-                    bool result = true;
-                    foreach (Delegate d in OnPacketSend.GetInvocationList())
-                    {
-                        if (!(bool)m_Invoker.Invoke(d, new object[] { packet }))
-                        {
-                            result = false;
-                            break;
-                        }
-                    }
-                    return result;
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnPacketSend, new object[] { packet });
+                    else
+                        return (bool)m_Invoker.Invoke(OnPacketSend, new object[] { packet });
                 }
+                else if (m_Async)
+                    OnPacketSend.BeginInvoke(packet, null, null);
                 else
                     return OnPacketSend(packet);
             }
@@ -212,9 +256,13 @@ namespace UOAIBasic
             {
                 if (m_Invoker != null)
                 {
-                    foreach (Delegate d in OnTick.GetInvocationList())
-                        m_Invoker.BeginInvoke(d, new object[] { });
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnTick, new object[] { });
+                    else
+                        m_Invoker.Invoke(OnTick, new object[] { });
                 }
+                else if (m_Async)
+                    OnTick.BeginInvoke(null, null);
                 else
                     OnTick();
             }
@@ -227,9 +275,13 @@ namespace UOAIBasic
             {
                 if (m_Invoker != null)
                 {
-                    foreach (Delegate d in OnQuit.GetInvocationList())
-                        m_Invoker.Invoke(d, new object[] { });
+                    if (m_Async)
+                        m_Invoker.BeginInvoke(OnQuit, new object[] { });
+                    else
+                        m_Invoker.Invoke(OnQuit, new object[] { });
                 }
+                else if (m_Async)
+                    OnQuit.BeginInvoke(null, null);
                 else
                     OnQuit();
             }
@@ -249,14 +301,6 @@ namespace UOAIBasic
 
         ~ClientEvents()
         {
-            try
-            {
-                if (ClientList.IsValid(m_Client))
-                    m_Client.RemoveEventSink(this);
-            }
-            catch
-            {
-            }
         }
     }
 
@@ -268,20 +312,16 @@ namespace UOAIBasic
         private Exception m_CallibrationException;
         private List<LocalHook> m_Hooks = new List<LocalHook>();
         private UnmanagedBuffer m_PacketInfo;
-        private List<ClientEvents> m_EventSinks=new List<ClientEvents>();
+        private BinaryTree<int,ClientEvents> m_EventSinks=new BinaryTree<int,ClientEvents>();
         private Imports.HookProc m_HookProc;
         private bool m_ShuttingDown = false;
-
-        public void UnHookTest()
-        {
-            m_Hooks[1].UnHook();
-        }
+        private uint drop_msg_message = 0;
 
         public Client()
         {
             m_Client = this;//keep us alive
 
-            //Imports.AllocConsole();
+            drop_msg_message = Imports.RegisterWindowMessage("drop_msg_message");//dummy message.. changing an msg.message to this will make sure the client doesn't handle it
 
             //callibrations:
             try
@@ -331,9 +371,18 @@ namespace UOAIBasic
             if (!m_ShuttingDown)
             {
                 //invoke on Tick
-                foreach (ClientEvents ce in m_EventSinks)
-                    ce.InvokeOnTick();
 
+                    foreach (ClientEvents ce in m_EventSinks)
+                    {
+                        try
+                        {
+                            ce.InvokeOnTick();
+                        }
+                        catch
+                        {
+                            m_EventSinks.Remove(ce.GetHashCode());
+                        }
+                    }
                 //sync's go here
             }
          
@@ -342,27 +391,79 @@ namespace UOAIBasic
 
         private int MessageHook(int code, IntPtr wParam, IntPtr lParam)
         {
-            Imports.MSG msg = (Imports.MSG)System.Runtime.InteropServices.Marshal.PtrToStructure(lParam, typeof(Imports.MSG));
-            if (msg.message == (uint)WindowHandler.Messages.WM_CLOSE)
+            UnmanagedBuffer msgbuff=new UnmanagedBuffer(lParam);
+            Imports.MSG msg = msgbuff.Read<Imports.MSG>();
+            if (msg.message == (uint)WindowHandler.Messages.WM_QUIT)
             {
                 m_ShuttingDown = true;
+
+                foreach (ClientEvents ce in m_EventSinks)
+                {
+                    try
+                    {
+                        ce.InvokeOnQuit();
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());                        
+                    }
+                }
+
                 m_EventSinks.Clear();
+                
                 foreach (LocalHook lh in m_Hooks)
                     lh.UnHook();
-                for (uint i = 0; i < 50000; i++)
-                    ;
             }
+            else if (msg.message == (uint)WindowHandler.Messages.WM_KEYDOWN)
+            {
+                bool dropkey = false;
+                foreach (ClientEvents ce in m_EventSinks)
+                {
+                    try
+                    {
+                        if (!ce.InvokeOnKeyDown(msg.wParam, ((msg.lParam & 0x40000000) == 0)))
+                            dropkey = true;
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());
+                    }
+                }
+                if (dropkey)
+                    msg.message = drop_msg_message;
+            }
+            else if (msg.message == (uint)WindowHandler.Messages.WM_KEYUP)
+            {
+                bool dropkey = false;
+                foreach (ClientEvents ce in m_EventSinks)
+                {
+                    try
+                    {
+                        if (!ce.InvokeOnKeyUp(msg.wParam))
+                            dropkey = true;
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());
+                    }
+                }
+                if (dropkey)
+                    msg.message = drop_msg_message;
+            }
+            msgbuff.WriteAt<Imports.MSG>(msg, 0);
             return Imports.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
         }
 
         public void AddEventSink(ClientEvents toadd)
         {
-            m_EventSinks.Add(toadd);
+            if (!m_EventSinks.ContainsKey(toadd.GetHashCode()))
+                m_EventSinks.Add(toadd.GetHashCode(),toadd);
         }
 
         public void RemoveEventSink(ClientEvents toremove)
         {
-            m_EventSinks.Remove(toremove);
+            if(m_EventSinks.ContainsKey(toremove.GetHashCode()))
+                m_EventSinks.Remove(toremove.GetHashCode());
         }
 
         private bool GetPacketSize(byte packetnumber, out ushort size)
@@ -379,7 +480,16 @@ namespace UOAIBasic
             if (!m_ShuttingDown)
             {
                 foreach (ClientEvents ce in m_EventSinks)
-                    ce.InvokeOnPacketHandled();
+                {
+                    try
+                    {
+                        ce.InvokeOnPacketHandled();
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());
+                    }
+                }
             }
             return true;
         }
@@ -396,10 +506,17 @@ namespace UOAIBasic
             {
                 foreach (ClientEvents ce in m_EventSinks)
                 {
-                    if (!ce.InvokeOnPacketSend(packet))
+                    try
                     {
-                        toreturn = false;
-                        break;
+                        if (!ce.InvokeOnPacketSend(packet))
+                        {
+                            toreturn = false;
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());
                     }
                 }
             }
@@ -419,10 +536,17 @@ namespace UOAIBasic
             {
                 foreach (ClientEvents ce in m_EventSinks)
                 {
-                    if (!ce.InvokeOnPacketReceive(packet))
+                    try
                     {
-                        toreturn = false;
-                        break;
+                        if (!ce.InvokeOnPacketReceive(packet))
+                        {
+                            toreturn = false;
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                        m_EventSinks.Remove(ce.GetHashCode());
                     }
                 }
             }

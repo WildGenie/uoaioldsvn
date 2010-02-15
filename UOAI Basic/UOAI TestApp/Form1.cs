@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using UOAIBasic;
 using libdisasm;
+using System.Windows.Input;
 
 namespace UOAI_TestApp
 {
@@ -25,11 +26,33 @@ namespace UOAI_TestApp
             {
                 curclient.PatchEncryption();
                 cures = new ClientEvents(curclient);
-                cures.SynchronizationObject = this;
+                cures.ASynchronous = false;//we don't need to filter packets so we can receive them asynchronously (begininvoke rather then invoke is used)
+                cures.SynchronizationObject = this;//tell UOAI Basic to use this form's Invoke function to invoke events
                 cures.OnPacketHandled += curclient_OnPacketHandled;
                 cures.OnPacketReceive += curclient_OnPacketReceive;
                 cures.OnPacketSend += curclient_OnPacketSend;
+                cures.OnKeyDown += new ClientEvents.OnKeyDownDelegate(cures_OnKeyDown);
+                cures.OnKeyUp += new ClientEvents.OnKeyUpDelegate(cures_OnKeyUp);
             }
+        }
+
+        bool cures_OnKeyUp(uint VirtualKeyCode)
+        {
+            Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
+            label1.Text = "Last Key Pressed: " + thekey.ToString();
+            if ((thekey >= Key.F1) && (thekey <= Key.F24))
+                return false;//don't pass function keys
+            return true;
+        }
+
+        bool cures_OnKeyDown(uint VirtualKeyCode, bool repeated)
+        {
+            Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
+            if(!repeated)
+                label1.Text = "Key Down: " + thekey.ToString();
+            if ((thekey >= Key.F1) && (thekey <= Key.F24))
+                return false;//don't pass function keys
+            return true;
         }
 
         void curclient_OnPacketHandled()
@@ -44,7 +67,8 @@ namespace UOAI_TestApp
         {
             if (listBox1.Items.Count == 10)
                 listBox1.Items.RemoveAt(9);
-            listBox1.Items.Insert(0, "received packet 0x" + packet.ReadAt<byte>(0).ToString("X"));
+            byte packetcmd = packet.ReadAt<byte>(0);
+            listBox1.Items.Insert(0, "received packet 0x" + packetcmd.ToString("X"));
             return true;
         }
 
@@ -52,7 +76,10 @@ namespace UOAI_TestApp
         {
             if (listBox1.Items.Count == 10)
                 listBox1.Items.RemoveAt(9);
-            listBox1.Items.Insert(0, "sent packet 0x" + packet.ReadAt<byte>(0).ToString("X"));
+            byte packetcmd = packet.ReadAt<byte>(0);
+            listBox1.Items.Insert(0, "sent packet 0x" + packetcmd.ToString("X"));
+            if (packetcmd == 0x06)
+                return false;//drop doubleclick packet
             return true;
         }
 
@@ -79,22 +106,25 @@ namespace UOAI_TestApp
 
         private void button4_Click(object sender, EventArgs e)
         {
-            string[] buffs=textBox2.Text.Split(new char[]{' '});
-            byte[] bytes = new byte[buffs.Length];
-            for (uint i = 0; i < buffs.Length; i++)
+            try
             {
-                bytes[i] = byte.Parse(buffs[i], System.Globalization.NumberStyles.HexNumber);
+                string[] buffs = textBox2.Text.Split(new char[] { ' ' });
+                byte[] bytes = new byte[buffs.Length];
+                for (uint i = 0; i < buffs.Length; i++)
+                {
+                    bytes[i] = byte.Parse(buffs[i], System.Globalization.NumberStyles.HexNumber);
+                }
+                asmInstruction curins = disassembler.disassemble(bytes);
+                MessageBox.Show(Filter.GetOpDataAsUInt(curins.Operands[1]).ToString());
             }
-            asmInstruction curins=disassembler.disassemble(bytes);
-            MessageBox.Show(Filter.GetOpDataAsUInt(curins.Operands[1]).ToString());
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            foreach (Client cl in ClientList.Default)
-            {
-                cl.UnHookTest();
-            }
         }
     }
 }
