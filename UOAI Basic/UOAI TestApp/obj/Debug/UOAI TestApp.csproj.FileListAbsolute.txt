@@ -1,0 +1,16 @@
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.ActionBuilder.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.CallibrationFileEditor.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.FilterBuilder.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.frmTestApp.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.frmListBuilder.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI_TestApp.Properties.Resources.resources
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI TestApp.csproj.GenerateResource.Cache
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\Callibrations.xml
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\libdisasm.dll
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\UOAI TestApp.exe
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\UOAI TestApp.pdb
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\UOAI Basic.dll
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\bin\Debug\UOAI Basic.pdb
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI TestApp.exe
+C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI TestApp\obj\Debug\UOAI TestApp.pdb
