@@ -289,12 +289,10 @@ namespace ProcessInjection
     public class Allocator
     {
         public static IntPtr m_Heap;
-        private static NestedDestructorClass m_Destructor;
 
         static Allocator()
         {
             m_Heap = Imports.HeapCreate(Imports.HeapCreationOptions.HEAP_CREATE_ENABLE_EXECUTE, 0, 0);
-            m_Destructor = new NestedDestructorClass();//static destruction doesn't exist, so we need some object to do this for us
         }
 
         public static UnmanagedBuffer AllocateBuffer(uint size)
@@ -317,18 +315,6 @@ namespace ProcessInjection
         public static void Free(IntPtr tofree)
         {
             Imports.HeapFree(m_Heap, 0, tofree);
-        }
-
-        internal class NestedDestructorClass
-        {
-            public NestedDestructorClass()
-            {
-            }
-
-            ~NestedDestructorClass()
-            {
-                Imports.HeapDestroy(Allocator.m_Heap);
-            }
         }
     }
 
