@@ -59,7 +59,7 @@ namespace UOAI_TestApp
         {
             if (listBox1.Items.Count == 10)
                 listBox1.Items.RemoveAt(9);
-            listBox1.Items.Insert(0, "received packet handled");
+            listBox1.Items.Insert(0, "Received packet handled");
             return;
         }
 
@@ -68,7 +68,7 @@ namespace UOAI_TestApp
             if (listBox1.Items.Count == 10)
                 listBox1.Items.RemoveAt(9);
             byte packetcmd = packet.ReadAt<byte>(0);
-            listBox1.Items.Insert(0, "received packet 0x" + packetcmd.ToString("X"));
+            listBox1.Items.Insert(0, "Received packet 0x" + packetcmd.ToString("X"));
             return true;
         }
 
@@ -77,7 +77,7 @@ namespace UOAI_TestApp
             if (listBox1.Items.Count == 10)
                 listBox1.Items.RemoveAt(9);
             byte packetcmd = packet.ReadAt<byte>(0);
-            listBox1.Items.Insert(0, "sent packet 0x" + packetcmd.ToString("X"));
+            listBox1.Items.Insert(0, "Sent packet 0x" + packetcmd.ToString("X"));
             if (packetcmd == 0x06)
                 return false;//drop doubleclick packet
             return true;

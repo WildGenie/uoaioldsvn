@@ -1,0 +1,16 @@
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\Callibrations.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\libdisasm.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\UOAI TestApp.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\UOAI TestApp.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\UOAI Basic.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\bin\Release\UOAI Basic.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.ActionBuilder.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.CallibrationFileEditor.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.FilterBuilder.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.frmTestApp.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.frmListBuilder.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI_TestApp.Properties.Resources.resources
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI TestApp.csproj.GenerateResource.Cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI TestApp.exe
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI TestApp\obj\Release\UOAI TestApp.pdb

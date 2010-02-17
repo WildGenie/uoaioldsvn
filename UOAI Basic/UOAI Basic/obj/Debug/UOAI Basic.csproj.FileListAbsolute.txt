@@ -5,3 +5,10 @@ C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI Basic\bin\Debug\UOAI Bas
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI Basic\bin\Debug\UOAI Basic.pdb
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI Basic\obj\Debug\UOAI Basic.dll
 C:\Users\WIM\Documents\Code\UOAI\UOAI Basic_NO SVN\UOAI Basic\obj\Debug\UOAI Basic.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Debug\Callibrations.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Debug\libdisasm.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Debug\UOAI Basic.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Debug\UOAI Basic.pdb
