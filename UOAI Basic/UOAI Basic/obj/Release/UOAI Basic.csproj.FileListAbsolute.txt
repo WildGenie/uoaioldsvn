@@ -1,0 +1,7 @@
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Release\Callibrations.xml
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Release\libdisasm.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Release\UOAI Basic.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\bin\Release\UOAI Basic.pdb
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Release\UOAI Basic.dll
+C:\Users\Eroc\Desktop\Projects\UOAI2\UOAI Basic\UOAI Basic\obj\Release\UOAI Basic.pdb

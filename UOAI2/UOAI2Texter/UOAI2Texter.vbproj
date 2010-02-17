@@ -131,7 +131,7 @@
   <ItemGroup>
     <ProjectReference Include="..\UOAI2\UOAI2.vbproj">
       <Project>{8C4C1C1B-0BED-4153-905D-3C7840B5EAF2}</Project>
-      <Name>UOAI2</Name>
+      <Name>UOAI2 %28UOAI2\UOAI2%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

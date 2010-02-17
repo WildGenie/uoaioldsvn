@@ -1,0 +1,3 @@
+2/11/2010 9:20:30 PM:	-Item deletion failed due to: Object variable or With block variable not set.
+2/11/2010 9:20:30 PM:	-Item deletion failed due to: Object variable or With block variable not set.
+2/11/2010 9:30:11 PM:	-Item deletion failed due to: Object variable or With block variable not set.
