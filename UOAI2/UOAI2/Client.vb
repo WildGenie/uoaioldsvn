@@ -32,6 +32,7 @@ Partial Class UOAI
         Friend _TargetUID As UInteger
         Friend _TargetType As Byte
         Friend _TargetFlag As Byte
+        Private _BasicClient As UOAIBasic.Client
 
         ''' <summary>
         ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.

@@ -1,18 +1,22 @@
 ﻿Imports System.Diagnostics, Microsoft.Win32
 Imports System.IO, System.Runtime.InteropServices
+Imports UOAIBasic
 
 Partial Class UOAI
+
 
 #If DEBUG Then
     ''' <summary>A list of Ultima Online clients.</summary>
     Public Class ClientList
         Implements Collections.Generic.ICollection(Of Client)
+        Private cl As UOAIBasic.ClientList
 
 #Else
     ''' <summary>A list of Ultima Online clients.</summary>
     <System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)> _
     Public Class ClientList
         Implements Collections.Generic.ICollection(Of Client)
+        Private cl As UOAIBasic.ClientList
 #End If
 
 #Region "Statements"
@@ -123,14 +127,12 @@ Partial Class UOAI
             ClientHash.Remove(PID)
         End Sub
 
-        ''' <summary>Forces update of client list then returns a count of the clients.</summary>
-        ''' <returns>An integer value representing the current number of UO clients running.</returns>
-        Public ReadOnly Property Count() As Integer Implements System.Collections.Generic.ICollection(Of Client).Count
+        Public ReadOnly Property Count() As Integer Implements ICollection(Of UOAI2.UOAI.Client).Count
             Get
-                ForceUpdateClientList()
-                Return ClientHash.Count
+                Return cl.count
             End Get
         End Property
+
 
         ''' <summary>Returns the UOAI.Client at the specified index.</summary>
         Default Public ReadOnly Property Client(ByVal Index As UInteger) As Client
