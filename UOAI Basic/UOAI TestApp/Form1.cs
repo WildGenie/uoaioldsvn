@@ -21,14 +21,17 @@ namespace UOAI_TestApp
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            //so client events is the remoted object?
             ClientEvents cures;
+
+            //this is setting up the events i take it?
             foreach (Client curclient in ClientList.Default)
             {
-                curclient.PatchEncryption();
-                cures = new ClientEvents(curclient);
+                curclient.PatchEncryption(); //patching encryption
+                cures = new ClientEvents(curclient); //making a new client event for the client.
                 cures.ASynchronous = false;//we don't need to filter packets so we can receive them asynchronously (begininvoke rather then invoke is used)
                 cures.SynchronizationObject = this;//tell UOAI Basic to use this form's Invoke function to invoke events
-                cures.OnPacketHandled += curclient_OnPacketHandled;
+                cures.OnPacketHandled += curclient_OnPacketHandled;//setting up the packet handled void to handle events
                 cures.OnPacketReceive += curclient_OnPacketReceive;
                 cures.OnPacketSend += curclient_OnPacketSend;
                 cures.OnKeyDown += new ClientEvents.OnKeyDownDelegate(cures_OnKeyDown);

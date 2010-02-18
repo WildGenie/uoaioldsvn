@@ -1,4 +1,4 @@
-﻿Imports System.Diagnostics, Microsoft.Win32, System.IO, System.Runtime.InteropServices
+﻿Imports System.Diagnostics, Microsoft.Win32, System.IO, System.Runtime.InteropServices, UOAIBasic
 
 Public Class UOAI
 
