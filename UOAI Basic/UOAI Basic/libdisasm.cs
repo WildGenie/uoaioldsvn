@@ -557,6 +557,16 @@ namespace libdisasm
             return 0;
         }
 
+        public override string ToString()
+        {
+            byte[] buffer=new byte[256];
+            IntPtr ubuff = Marshal.AllocHGlobal(Marshal.SizeOf(m_insn));
+            Marshal.StructureToPtr(m_insn, ubuff, true);
+            disassembler.x86_format_insn(ubuff, buffer, 256, x86_asm_format.intel_syntax);
+            Marshal.FreeHGlobal(ubuff);
+            return System.Text.ASCIIEncoding.ASCII.GetString(buffer);
+        }
+
         public x86_insn_t Instruction { get { return m_insn; } }
 
         public long Address { get { return m_addr; } }
@@ -891,7 +901,7 @@ namespace libdisasm
         [DllImport("libdisasm.dll")]
         internal static extern uint x86_disasm([MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 1)] byte[] buf, [MarshalAs(UnmanagedType.I4)] int buf_len, [MarshalAs(UnmanagedType.U4)] uint buf_rva, [MarshalAs(UnmanagedType.U4)] uint offset, out x86_insn_t insn);
         [DllImport("libdisasm.dll")]
-        internal static extern int x86_format_insn(ref x86_insn_t insn, ref byte[] buf, int len, x86_asm_format format);
+        internal static extern int x86_format_insn(IntPtr insn, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 2)] byte[] buf, int len, x86_asm_format format);
         [DllImport("libdisasm.dll")]
         internal static extern int x86_cleanup();
 
