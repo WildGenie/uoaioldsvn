@@ -101,8 +101,6 @@ Partial Class UOAI
 
         Friend Sub New(ByVal PID As Integer, ByVal BaseClient As UOAIBasic.Client)
 
-
-
             'assign process id
             ProcessID = PID
 
@@ -135,6 +133,8 @@ Partial Class UOAI
             'End If
 
             '--------------End of old injection code.------------------------
+
+            'TODO: add all of the stuff to setup stuff for uoai basic.
 
             'set up the events 
             _BasicClientEvents = New UOAIBasic.ClientEvents(BaseClient)
@@ -172,13 +172,6 @@ Partial Class UOAI
 
         End Sub
 
-        Private Sub EventTimerProc(ByVal state As Object)
-            'Handle Packets (needs to be a seperate function to allow for recursivity!)
-            If HandlePackets() And Not m_ShutdownEventTimer Then
-                'set the timer again
-                m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
-            End If
-        End Sub
 
 
         Public Sub HandlePacket(ByVal Origin As Enums.PacketOrigin)
@@ -674,13 +667,13 @@ Partial Class UOAI
 
         End Function
 
-        Private Sub _BasicClientEvents_OnPacketHandled() Handles _BasicClientEvents.OnPacketHandled
-
-        End Sub
-
         Private Function _BasicClientEvents_OnPacketReceive(ByVal packet As ProcessInjection.UnmanagedBuffer) As Boolean Handles _BasicClientEvents.OnPacketReceive
 
         End Function
+
+        Private Sub _BasicClientEvents_OnPacketHandled() Handles _BasicClientEvents.OnPacketHandled
+
+        End Sub
 
         Private Function _BasicClientEvents_OnPacketSend(ByVal packet As ProcessInjection.UnmanagedBuffer) As Boolean Handles _BasicClientEvents.OnPacketSend
 
