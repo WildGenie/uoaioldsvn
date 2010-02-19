@@ -9,11 +9,74 @@ using System.Threading;
 using Assembler;
 using libdisasm;
 
+using Microsoft.Win32;//registry stuff
+
 namespace UOAIBasic
 {
     public static class UOAI
     {
+        private static string m_ClientPath;
+        private static string m_ClientExe;
+
         public static Internal.ClientList Clients { get { return Internal.ClientList.Default; } }
+
+        public static IClient LaunchClient()
+        {
+            string workingpath = System.IO.Path.GetFullPath(m_ClientPath);
+            string clientpath = System.IO.Path.Combine(workingpath, m_ClientExe);
+
+            if (System.IO.File.Exists(clientpath))
+            {
+                //launch client suspended
+                Imports.PROCESS_INFORMATION pi = new Imports.PROCESS_INFORMATION();
+                Imports.STARTUPINFO si = new Imports.STARTUPINFO();
+                Imports.SECURITY_ATTRIBUTES psa = new Imports.SECURITY_ATTRIBUTES();
+                Imports.SECURITY_ATTRIBUTES tsa = new Imports.SECURITY_ATTRIBUTES();
+                psa.nLength = System.Runtime.InteropServices.Marshal.SizeOf(psa);
+                tsa.nLength = System.Runtime.InteropServices.Marshal.SizeOf(tsa);
+
+                if (Imports.CreateProcess(clientpath, "", ref psa, ref tsa, false, Imports.CreationFlags.CREATE_SUSPENDED | Imports.CreationFlags.CREATE_NEW_CONSOLE, IntPtr.Zero, workingpath, ref si, out pi))
+                {
+                    Imports.ResumeThread(pi.hThread);
+                    return Clients.byPID(pi.dwProcessId);
+                }
+            }
+
+            return null;
+        }
+
+        static UOAI()
+        {
+            try
+            {
+                RegistryKey hklm = Registry.LocalMachine;
+                RegistryKey originkey = hklm.OpenSubKey("SOFTWARE\\Origin Worlds Online\\Ultima Online\\1.0");
+                if (originkey == null)
+                    originkey = hklm.OpenSubKey("SOFTWARE\\Origin Worlds Online\\Ultima Online Third Dawn\\1.0");
+
+                if (originkey != null)
+                {
+                    string instcdpath = (string)originkey.GetValue("InstCDPath");
+                    if (instcdpath != null)
+                    {
+                        m_ClientPath = instcdpath + "\\";
+                        m_ClientExe = "client.exe";
+                        originkey.Close();
+                        return;
+                    }
+                    originkey.Close();
+                }
+            }
+            catch
+            {
+            }
+
+            //use default values
+            m_ClientPath = "C:\\Program Files\\EA Games\\Ultima Online Mondain's Legacy";
+            m_ClientExe = "client.exe";
+
+            return;
+        }
     }
 
     //wrapper for cross AppDomain (remoted) ISynchronizeInvoke calls
@@ -150,7 +213,7 @@ namespace UOAIBasic.Internal
                 return null;
         }
 
-        private IClient byPID(int pid)
+        public IClient byPID(int pid)
         {
             Client curclient = (Client)Server.GetObject(typeof(Client), pid);
             if (IsValid(curclient))
@@ -355,18 +418,15 @@ namespace UOAIBasic.Internal
         {
             m_Client = this;//keep us alive
 
-            
             /*
-             * 
+            
             //for debugging purposes, this object is on the client app (injected code)
             //the VS debugger has no access to it...
             //...so a console is our only source of debugging info (or attaching IDA to the client would work too ofc)
-             * 
-             Imports.AllocConsole();
-             * 
-             */
 
+             Imports.AllocConsole();
             
+             */
 
             //create IClient proxy
             //this is what we will return to the user app
@@ -454,51 +514,57 @@ namespace UOAIBasic.Internal
             Imports.MSG msg = msgbuff.Read<Imports.MSG>();
             bool drop = false;
 
-            //invoke general message handlers (don't use these unless really necessary.. the WILL slow down the client)
-            foreach (OnWindowsMessageDelegate del in Client.windowsmessage_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
+            lock (windowsmessage_handlers)
             {
-                try
-                {
-                    if (m_InvokationTarget != null)
-                    {
-                        if (m_AsyncInvokation)
-                            m_InvokationTarget.BeginInvoke(del, new object[] { msg });
-                        else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg }))
-                            drop = true;
-                    }
-                    else if (!del.Invoke(ref msg))
-                        drop = true;
-                }
-                catch
-                {
-                    windowsmessage_handlers.Remove(del);
-                }
-            }
-            if(drop)
-                msg.message = drop_msg_message;
-
-            if (msg.message == (uint)WindowHandler.Messages.WM_QUIT)
-            {
-                m_ShuttingDown = true;
-                
-                //invoke on quit
-                foreach (SimpleDelegate del in Client.quit_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
+                //invoke general message handlers (don't use these unless really necessary.. the WILL slow down the client)
+                foreach (OnWindowsMessageDelegate del in Client.windowsmessage_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
                 {
                     try
                     {
                         if (m_InvokationTarget != null)
                         {
                             if (m_AsyncInvokation)
-                                m_InvokationTarget.BeginInvoke(del, new object[] { });
-                            else
-                                m_InvokationTarget.Invoke(del, new object[] { });
+                                m_InvokationTarget.BeginInvoke(del, new object[] { msg });
+                            else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg }))
+                                drop = true;
                         }
-                        else
-                            del.Invoke();
+                        else if (!del.Invoke(ref msg))
+                            drop = true;
                     }
                     catch
                     {
-                        quit_handlers.Remove(del);
+                        windowsmessage_handlers.Remove(del);
+                    }
+                }
+                if (drop)
+                    msg.message = drop_msg_message;
+            }
+
+            if (msg.message == (uint)WindowHandler.Messages.WM_QUIT)
+            {
+                m_ShuttingDown = true;
+
+                lock (quit_handlers)
+                {
+                    //invoke on quit
+                    foreach (SimpleDelegate del in Client.quit_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
+                    {
+                        try
+                        {
+                            if (m_InvokationTarget != null)
+                            {
+                                if (m_AsyncInvokation)
+                                    m_InvokationTarget.BeginInvoke(del, new object[] { });
+                                else
+                                    m_InvokationTarget.Invoke(del, new object[] { });
+                            }
+                            else
+                                del.Invoke();
+                        }
+                        catch
+                        {
+                            quit_handlers.Remove(del);
+                        }
                     }
                 }
 
@@ -510,30 +576,33 @@ namespace UOAIBasic.Internal
                 bool dropkey = false;
                 bool repeated = (msg.lParam & (2 ^ 30)) != 0;
 
-                //invoke onkeydown
-                foreach (OnKeyDownDelegate del in Client.keydown_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
+                lock (keydown_handlers)
                 {
-                    try
+                    //invoke onkeydown
+                    foreach (OnKeyDownDelegate del in Client.keydown_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
                     {
-                        if(m_InvokationTarget!=null)
+                        try
                         {
-                            if (m_AsyncInvokation)
-                                m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam, repeated });
-                            else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam, repeated }))
+                            if (m_InvokationTarget != null)
+                            {
+                                if (m_AsyncInvokation)
+                                    m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam, repeated });
+                                else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam, repeated }))
+                                {
+                                    dropkey = true;
+                                    break;
+                                }
+                            }
+                            else if (!del.Invoke(msg.wParam, repeated))
                             {
                                 dropkey = true;
                                 break;
                             }
                         }
-                        else if (!del.Invoke(msg.wParam, repeated))
+                        catch
                         {
-                            dropkey = true;
-                            break;
+                            keydown_handlers.Remove(del);
                         }
-                    }
-                    catch
-                    {
-                        keydown_handlers.Remove(del);
                     }
                 }
 
@@ -544,30 +613,33 @@ namespace UOAIBasic.Internal
             {
                 bool dropkey = false;
 
-                //invoke onkeyup
-                foreach (OnKeyUpDelegate del in Client.keyup_handlers.ToArray())//use of toarray is needed to be able to remove handlers while enumerating
+                lock (keyup_handlers)
                 {
-                    try
+                    //invoke onkeyup
+                    foreach (OnKeyUpDelegate del in Client.keyup_handlers.ToArray())//use of toarray is needed to be able to remove handlers while enumerating
                     {
-                        if (m_InvokationTarget != null)
+                        try
                         {
-                            if (m_AsyncInvokation)
-                                m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam });
-                            else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam }))
+                            if (m_InvokationTarget != null)
+                            {
+                                if (m_AsyncInvokation)
+                                    m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam });
+                                else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam }))
+                                {
+                                    dropkey = true;
+                                    break;
+                                }
+                            }
+                            else if (!del.Invoke(msg.wParam))
                             {
                                 dropkey = true;
                                 break;
                             }
                         }
-                        else if (!del.Invoke(msg.wParam))
+                        catch
                         {
-                            dropkey = true;
-                            break;
+                            keyup_handlers.Remove(del);
                         }
-                    }
-                    catch
-                    {
-                        keyup_handlers.Remove(del);
                     }
                 }
 
@@ -719,42 +791,66 @@ namespace UOAIBasic.Internal
         #region Add/Remove Handler for forwarded events
         public static void Add_OnKeyUp(OnKeyUpDelegate toadd)
         {
-            keyup_handlers.Add(toadd);
+            lock (keyup_handlers)
+            {
+                keyup_handlers.Add(toadd);
+            }
         }
 
         public static void Remove_OnKeyUp(OnKeyUpDelegate toremove)
         {
-            keyup_handlers.Remove(toremove);
+            lock (keyup_handlers)
+            {
+                keyup_handlers.Remove(toremove);
+            }
         }
 
         public static void Add_OnKeyDown(OnKeyDownDelegate toadd)
         {
-            keydown_handlers.Add(toadd);
+            lock (keydown_handlers)
+            {
+                keydown_handlers.Add(toadd);
+            }
         }
 
         public static void Remove_OnKeyDown(OnKeyDownDelegate toremove)
         {
-            keydown_handlers.Remove(toremove);
+            lock (keydown_handlers)
+            {
+                keydown_handlers.Remove(toremove);
+            }
         }
 
         public static void Add_OnWindowsMessage(OnWindowsMessageDelegate toadd)
         {
-            windowsmessage_handlers.Add(toadd);
+            lock (windowsmessage_handlers)
+            {
+                windowsmessage_handlers.Add(toadd);
+            }
         }
 
         public static void Remove_OnWindowsMessage(OnWindowsMessageDelegate toremove)
         {
-            windowsmessage_handlers.Remove(toremove);
+            lock (windowsmessage_handlers)
+            {
+                windowsmessage_handlers.Remove(toremove);
+            }
         }
 
         public static void Add_OnQuit(SimpleDelegate toadd)
         {
-            quit_handlers.Add(toadd);
+            lock (quit_handlers)
+            {
+                quit_handlers.Add(toadd);
+            }
         }
 
         public static void Remove_OnQuit(SimpleDelegate toremove)
         {
-            quit_handlers.Remove(toremove);
+            lock (quit_handlers)
+            {
+                quit_handlers.Remove(toremove);
+            }
         }
         #endregion
 

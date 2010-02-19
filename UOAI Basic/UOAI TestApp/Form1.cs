@@ -29,8 +29,6 @@ namespace UOAI_TestApp
                 //TAKE CARE THAT ALL EVENT HANDLERS ARE """PUBLIC""" FUNCTIONS !!!
                 //IF THEY ARE NOT PUBLIC, EVENTS FAIL SILENTLY !!!
 
-                /*
-                 * event detachment is still bugged
                 if (curclient != null)
                 {
                     curclient.OnKeyUp -= new OnKeyUpDelegate(cures_OnKeyUp);
@@ -41,8 +39,6 @@ namespace UOAI_TestApp
                     NetworkObject.onPacketSend -= new OnPacketDelegate(NetworkObject_onPacketSend);
                     //curclient.OnWindowsMessage -= new OnWindowsMessageDelegate(curclient_OnWindowsMessage);
                 }
-                 * 
-                 */
                 
                 curclient = UOAI.Clients[0];
 
@@ -116,12 +112,17 @@ namespace UOAI_TestApp
             {
                 string[] buffs = textBox2.Text.Split(new char[] { ' ' });
                 byte[] bytes = new byte[buffs.Length];
+                uint j=0;
+                byte curbyte;
                 for (uint i = 0; i < buffs.Length; i++)
                 {
-                    bytes[i] = byte.Parse(buffs[i], System.Globalization.NumberStyles.HexNumber);
+                    while (!byte.TryParse(buffs[j], System.Globalization.NumberStyles.HexNumber, null, out curbyte))
+                        j++;
+                    bytes[i] = curbyte;
+                    j++;
                 }
                 asmInstruction curins = disassembler.disassemble(bytes);
-                MessageBox.Show(Filter.GetOpDataAsUInt(curins.Operands[1]).ToString());
+                MessageBox.Show(curins.ToString());
             }
             catch(Exception ex)
             {
@@ -215,6 +216,11 @@ namespace UOAI_TestApp
         {
             if (curclient != null)
                 curclient.PatchEncryption();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            UOAI.LaunchClient().SysMessage(0x21, 3, "wow!");
         }
     }
 }

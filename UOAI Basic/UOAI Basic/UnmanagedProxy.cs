@@ -10,6 +10,7 @@ using System.Security.Permissions;
 using System.Collections.Generic;
 using ProcessInjection;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Lifetime;
 
 namespace UOAIBasic.Internal
 {
@@ -133,6 +134,7 @@ namespace UOAIBasic.Internal
 
     public class UnmanagedProxy : MarshalByRefObject
     {
+        private UnmanagedObject m_ToKeepAlive;
         private Type m_Interface;
         private IntPtr m_Address;
         private List<UnmanagedBuffer> tofree=new List<UnmanagedBuffer>();
@@ -281,8 +283,9 @@ namespace UOAIBasic.Internal
             }
         }
 
-        public UnmanagedProxy(Type unmanagedinterface, IntPtr address)
+        public UnmanagedProxy(Type unmanagedinterface, IntPtr address, UnmanagedObject tokeepalive)
         {
+            m_ToKeepAlive = tokeepalive;
             m_Interface = unmanagedinterface;
             m_Address = address;
             EventInfo[] events=unmanagedinterface.GetEvents();
@@ -518,7 +521,7 @@ namespace UOAIBasic.Internal
         private UnmanagedObject(Type unmanagedinterface, IntPtr address)
         {
             addr = address;
-            LocalProxy = new UnmanagedProxy(unmanagedinterface, address);
+            LocalProxy = new UnmanagedProxy(unmanagedinterface, address, this);
         }
 
         ~UnmanagedObject()
@@ -620,13 +623,45 @@ namespace UOAIBasic.Internal
         }
     }
 
+    public class UnmanagedProxySponsor : MarshalByRefObject, ISponsor
+    {
+        public UnmanagedProxySponsor()
+        {
+        }
+
+        #region ISponsor Members
+
+        public TimeSpan Renewal(ILease lease)
+        {
+            return TimeSpan.FromMinutes(2);
+        }
+
+        #endregion
+    }
+
     public class UnmanagedObjectProxy : RealProxy, IRemotingTypeInfo
     {
         public UnmanagedProxy m_Proxy;
+        public UnmanagedProxySponsor m_ProxySponsor;
 
         public UnmanagedObjectProxy(Type oftype, string chURI, string objURI) : base(oftype)
         {
             m_Proxy = (UnmanagedProxy)Activator.GetObject(typeof(UnmanagedProxy), chURI + "/" + objURI + "_LOCALPROXY");
+            m_ProxySponsor = new UnmanagedProxySponsor();
+            ILease lease = (ILease)RemotingServices.GetLifetimeService(m_Proxy);
+            lease.Register(m_ProxySponsor);
+        }
+
+        ~UnmanagedObjectProxy()
+        {
+            try
+            {
+                ILease lease = (ILease)RemotingServices.GetLifetimeService(m_Proxy);
+                lease.Unregister(m_ProxySponsor);
+            }
+            catch
+            {
+            }
         }
 
         public override IMessage Invoke(IMessage msg)
