@@ -32,7 +32,9 @@ Partial Class UOAI
         Friend _TargetUID As UInteger
         Friend _TargetType As Byte
         Friend _TargetFlag As Byte
-        Private _BasicClient As UOAIBasic.Client
+
+        Friend _BasicClient As UOAIBasic.Client
+        Friend WithEvents _BasicClientEvents As UOAIBasic.ClientEvents
 
         ''' <summary>
         ''' Gets the windows process ID of the client. This is used as the unique identifier for each client running.
@@ -97,39 +99,46 @@ Partial Class UOAI
 
 #Region "Constructor and InjectedDll Communication"
 
-        Friend Sub New(ByVal PID As Integer)
-            Dim PID_COPY As Integer
-            Dim TID As Integer
+        Friend Sub New(ByVal PID As Integer, ByVal BaseClient As UOAIBasic.Client)
 
-            'Gives _SyncForm a hWnd so that way it can be used as a syncobject.
-            '_SyncForm.Show()
-            '_SyncForm.Hide()
+
 
             'assign process id
             ProcessID = PID
 
+            '----------------------Old injection code--------------------
+            'Dim PID_COPY As Integer
+            'Dim TID As Integer
+
             'setup process stream
-            PStream = New ProcessStream(PID)
+            'PStream = New ProcessStream(PID)
 
             'get main window thread of the client process
-            TID = [Imports].GetWindowThreadProcessId(Process.GetProcessById(PID).MainWindowHandle, PID_COPY)
+            'TID = [Imports].GetWindowThreadProcessId(Process.GetProcessById(PID).MainWindowHandle, PID_COPY)
 
             'if there is no window yet, the first thread is probably the best guess
-            If TID = 0 Then TID = Process.GetProcessById(PID).Threads(0).Id
+            'If TID = 0 Then TID = Process.GetProcessById(PID).Threads(0).Id
 
             'inject the UOClientDll on this thread
-            InjectedDll = New UOClientDll(PStream, TID)
+            'InjectedDll = New UOClientDll(PStream, TID)
 
             'get callibration info from the injected dll
-            _CallibrationInfo = InjectedDll.GetCallibrations()
+            '_CallibrationInfo = InjectedDll.GetCallibrations()
+
 
             'lock the client's state... this means the itemlists, etc. can not change since the client isn't handling packets
-            If InjectedDll.Lock() Then
-                InitializeState() 'we get the itemlist and setup our event system
-                InjectedDll.Unlock() 'we now unlock, all subsequent packets should be handled and our itemlist is therefore synchronized
-            Else
-                Throw New Exception("Client Initialization failed: Couldn't lock the client's state!")
-            End If
+            'If InjectedDll.Lock() Then
+            '    InitializeState() 'we get the itemlist and setup our event system
+            '    InjectedDll.Unlock() 'we now unlock, all subsequent packets should be handled and our itemlist is therefore synchronized
+            'Else
+            '    Throw New Exception("Client Initialization failed: Couldn't lock the client's state!")
+            'End If
+
+            '--------------End of old injection code.------------------------
+
+            'set up the events 
+            _BasicClientEvents = New UOAIBasic.ClientEvents(BaseClient)
+
         End Sub
 
         Protected Overloads Overrides Sub Finalize()
@@ -170,6 +179,7 @@ Partial Class UOAI
                 m_EventTimer = New System.Threading.Timer(AddressOf EventTimerProc, Nothing, 0, Timeout.Infinite)
             End If
         End Sub
+
 
         Public Sub HandlePacket(ByVal Origin As Enums.PacketOrigin)
             Dim backup As Packet
@@ -650,6 +660,34 @@ Partial Class UOAI
         ''' </summary>
         Public Sub Close()
             Process.GetProcessById(PID).Kill()
+        End Sub
+
+#End Region
+
+#Region "UOAI Basic Client Events"
+
+        Private Function _BasicClientEvents_OnKeyDown(ByVal VirtualKeyCode As UInteger, ByVal repeated As Boolean) As Boolean Handles _BasicClientEvents.OnKeyDown
+
+        End Function
+
+        Private Function _BasicClientEvents_OnKeyUp(ByVal VirtualKeyCode As UInteger) As Boolean Handles _BasicClientEvents.OnKeyUp
+
+        End Function
+
+        Private Sub _BasicClientEvents_OnPacketHandled() Handles _BasicClientEvents.OnPacketHandled
+
+        End Sub
+
+        Private Function _BasicClientEvents_OnPacketReceive(ByVal packet As ProcessInjection.UnmanagedBuffer) As Boolean Handles _BasicClientEvents.OnPacketReceive
+
+        End Function
+
+        Private Function _BasicClientEvents_OnPacketSend(ByVal packet As ProcessInjection.UnmanagedBuffer) As Boolean Handles _BasicClientEvents.OnPacketSend
+
+        End Function
+
+        Private Sub _BasicClientEvents_OnQuit() Handles _BasicClientEvents.OnQuit
+
         End Sub
 
 #End Region
