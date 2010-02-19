@@ -84,6 +84,10 @@ namespace RemoteObjects
         {
             return Activator.GetObject(objecttype, "ipc://REMOTING_IPC_CHANNEL_0x"+processid.ToString("X")+"/" + objecttype.Name);
         }
+        public static object GetObject(Type objecttype)
+        {
+            return GetObject(objecttype, (int)Win32API.ProcessHandler.CurrentProcess.PID);
+        }
 
         public static bool TypesRegistered { get { return m_TypesRegistered; } }
     }

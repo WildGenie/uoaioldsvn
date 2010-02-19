@@ -259,6 +259,8 @@ namespace Tools
             get { return true; }
         }
 
+        public byte[] AsByteArray { get { return m_Buffer; } }
+
         public override bool CanSeek
         {
             get { return true; }
@@ -366,6 +368,12 @@ namespace Tools
             SwapByteOrder = swapbyteorder;
         }
 
+        public bool NetworkOrder
+        {
+            get { return SwapByteOrder; }
+            set { SwapByteOrder = value; }
+        }
+
         public T Read<T>()
         {
             int toread=Marshal.SizeOf(default(T));
@@ -420,37 +428,23 @@ namespace Tools
 
         public string ReadUnicodeString()
         {
-            List<byte> thebytes = new List<byte>();
-            byte curbyte;
-            
-            bool old_byte_order = SwapByteOrder;
-            SwapByteOrder = false;
+            List<char> chars = new List<char>();
+            char curchar;
 
-            while ((curbyte = Read<byte>()) != 0)
-            {
-                thebytes.Add(curbyte);
-                thebytes.Add(Read<byte>());
-            }
-            thebytes.Add(Read<byte>());
+            while ((curchar = (char)Read<ushort>()) != 0)
+                chars.Add(curchar);
 
-            SwapByteOrder = old_byte_order;
-
-            return UnicodeEncoding.Unicode.GetString(thebytes.ToArray());
+            return new string(chars.ToArray());
         }
 
         public string ReadUnicodeString(int length)
         {
-            byte[] characters=new byte[length];
+            char[] chars = new char[length];
 
-            bool old_byte_order = SwapByteOrder;
-            SwapByteOrder = false;
+            for (int i = 0; i < length; i++)
+                chars[i] = (char)Read<ushort>();
 
-            for (int i = 0; i < (length*2); i++)
-                characters[i] = Read<byte>();
-
-            SwapByteOrder = old_byte_order;
-
-            return UnicodeEncoding.Unicode.GetString(characters);
+            return new string(chars);
         }
 
         public void WriteString(string towrite)
@@ -463,10 +457,15 @@ namespace Tools
 
         public void WriteUnicodeString(string towrite)
         {
-            byte[] unicodebytes = UnicodeEncoding.Unicode.GetBytes(towrite);
+            /*byte[] unicodebytes = UnicodeEncoding.Unicode.GetBytes(towrite);
             Write(unicodebytes, 0, unicodebytes.Length);
             if (!((unicodebytes[unicodebytes.Length - 2] == 0)&&(unicodebytes[unicodebytes.Length - 1]==0)))
-                Write<ushort>(0);
+                Write<ushort>(0);*/
+            char[] chars = towrite.ToCharArray();
+            foreach (char curchar in chars)
+                Write<ushort>((ushort)curchar);
+            if (chars[chars.Length - 1] != 0)
+                Write<ushort>((ushort)0);
         }
 
         public void WriteBSTR(string towrite)

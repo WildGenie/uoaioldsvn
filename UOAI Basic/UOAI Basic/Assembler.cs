@@ -26,6 +26,17 @@ namespace Assembler
             m_Instructions = instructions;
         }
 
+        public int Size
+        {
+            get
+            {
+                int toreturn = 0;
+                foreach (AsmInstructionBuilder insn in m_Instructions)
+                    toreturn += insn.Size;
+                return toreturn;
+            }
+        }
+
         public List<AsmInstructionBuilder> Instructions { get { return m_Instructions; } }
 
         public void Write(Stream tostream, int address)
@@ -403,6 +414,50 @@ namespace Assembler
         }
     }
 
+    //8B 15
+    public class MovEdxMemory : AsmInstructionBuilder
+    {
+        private byte[] m_instruction = { 0x8B, 0x15, 0, 0, 0, 0 };
+
+        public MovEdxMemory(uint address)
+        {
+            BitConverter.GetBytes(address).CopyTo(m_instruction, 2);
+        }
+
+        public override int Size
+        {
+            get { return 6; }
+        }
+
+        public override void Write(Stream tostream, int address)
+        {
+            tostream.Seek(address, SeekOrigin.Begin);
+            tostream.Write(m_instruction, 0, 6);
+        }
+    }
+
+    //8B C2
+    public class MovEaxEdx : AsmInstructionBuilder
+    {
+        private byte[] m_instruction = { 0x8B, 0xC2 };
+
+        public MovEaxEdx()
+        {
+        }
+
+        public override int Size
+        {
+            get { return 2; }
+        }
+
+        public override void Write(Stream tostream, int address)
+        {
+            tostream.Seek(address, SeekOrigin.Begin);
+            tostream.Write(m_instruction, 0, 2);
+        }
+    }
+
+
     public class JzRelativeShort : AsmInstructionBuilder
     {
         private int m_targetaddress;
@@ -485,6 +540,70 @@ namespace Assembler
         {
             tostream.Seek(address, SeekOrigin.Begin);
             tostream.Write(m_instruction, 0, 3);
+        }
+    }
+
+    public class AddEdx : AsmInstructionBuilder
+    {
+        private byte[] m_instruction = { 0x83, 0xC2, 0 };
+
+        public AddEdx(byte toadd)
+        {
+            m_instruction[2] = toadd;
+        }
+
+        public override int Size
+        {
+            get { return 3; }
+        }
+
+        public override void Write(Stream tostream, int address)
+        {
+            tostream.Seek(address, SeekOrigin.Begin);
+            tostream.Write(m_instruction, 0, 3);
+        }
+    }
+
+    public class DecEcx : AsmInstructionBuilder
+    {
+        private byte[] m_instruction = { 0x49 };
+
+        public DecEcx()
+        {
+        }
+
+        public override int Size
+        {
+            get { return 1; }
+        }
+
+        public override void Write(Stream tostream, int address)
+        {
+            tostream.Seek(address, SeekOrigin.Begin);
+            tostream.Write(m_instruction, 0, 1);
+        }
+    }
+
+    public class JnzRelativeShort : AsmInstructionBuilder
+    {
+        private int m_targetaddress;
+        private byte[] m_instruction = { 0x75, 0 };
+
+        public JnzRelativeShort(int targetaddress)
+        {
+            m_targetaddress = targetaddress;
+        }
+
+        public override int Size
+        {
+            get { return 2; }
+        }
+
+        public override void Write(Stream tostream, int address)
+        {
+            tostream.Seek(address, SeekOrigin.Begin);
+            m_instruction[1] = (byte)(sbyte)(m_targetaddress - (address + 2));
+            tostream.Write(m_instruction, 0, 2);
         }
     }
 }

@@ -11,7 +11,15 @@ using libdisasm;
 
 namespace UOAIBasic
 {
-    public class ClientList:IEnumerable<Client>
+    public static class UOAI
+    {
+        public static Internal.ClientList Clients { get { return Internal.ClientList.Default; } }
+    }
+}
+
+namespace UOAIBasic.Internal
+{
+    public class ClientList:IEnumerable<IClient>
     {
         private static ClientList m_DefaultInstance=new ClientList();
         
@@ -20,7 +28,7 @@ namespace UOAIBasic
             get { return m_DefaultInstance; }
         }
         
-        public Client this[int idx]
+        public IClient this[int idx]
         {
             get
             {
@@ -30,7 +38,7 @@ namespace UOAIBasic
         
         public int Count { get { return Clients.Count; } }
 
-        private Client BuildClient(ProcessHandler onprocess, ThreadHandler onthread)
+        private IClient BuildClient(ProcessHandler onprocess, ThreadHandler onthread)
         {
             Client curclient;
 
@@ -48,12 +56,21 @@ namespace UOAIBasic
             sw.Stop();
 
             if (IsValid(curclient))
-                return curclient;
+                return curclient.ActualClient;
             else
                 return null;
         }
 
-        public static bool IsValid(Client tocheck)
+        private IClient byPID(int pid)
+        {
+            Client curclient = (Client)Server.GetObject(typeof(Client), pid);
+            if (IsValid(curclient))
+                return curclient.ActualClient;
+            else
+                return null;
+        }
+
+        private static bool IsValid(Client tocheck)
         {
             if (tocheck == null)
                 return false;
@@ -71,29 +88,32 @@ namespace UOAIBasic
             }
         }
 
-        public List<Client> Clients
+        public List<IClient> Clients
         {
             get
             {
                 Client curclient;
-                List<Client> Toreturn = new List<Client>();
+                IClient curiclient;
+                List<IClient> Toreturn = new List<IClient>();
                 List<WindowHandler> UOWINs = WindowHandler.FindWindow("Ultima Online", -1, -1);
                 foreach (WindowHandler UOWIN in UOWINs)
                 {
                     curclient = (Client)Server.GetObject(typeof(Client), (int)UOWIN.onProcess.PID);
-                    if(!IsValid(curclient))//new client
-                        curclient = BuildClient(UOWIN.onProcess, UOWIN.onThread);
-                    if(IsValid(curclient))
-                        Toreturn.Add(curclient);
+                    if (!IsValid(curclient))//new client
+                        curiclient = BuildClient(UOWIN.onProcess, UOWIN.onThread);
+                    else
+                        curiclient = curclient.ActualClient;
+                    if(curiclient!=null)
+                        Toreturn.Add(curiclient);
                 }
                 //- return
                 return Toreturn;
             }
         }
 
-        #region IEnumerable<Client> Members
+        #region IEnumerable<IClient> Members
 
-        public IEnumerator<Client> GetEnumerator()
+        public IEnumerator<IClient> GetEnumerator()
         {
             return Clients.GetEnumerator();
         }
@@ -111,6 +131,10 @@ namespace UOAIBasic
     }
 
     //don't use this class, it is supposed to be created only on the client's address space
+    //This serves as an entrypoint for the injected code.
+    //On injection an instance of this class is created.
+    //All it will do is register the Client class (or all RemoteObject() classes)
+    //with the remoting server, making it accessible through Server.GetObject from the user app.
     public class InjectedProcess
     {
         public InjectedProcess()
@@ -120,206 +144,126 @@ namespace UOAIBasic
         }
     }
 
-    //We need an extra (remoteable) class as an event proxy
-    //the problem is that the events need to be passed across process-boundaries
-    //attaching to an event accross process boundaries only works if the class
-    //containing the handler function(s) is known to both processes.
-    //An intermediate eventhandler class (initiated at the handler site) solves this.
-    public class ClientEvents : MarshalByRefObject
+    //class used for the client's internal SyncInvoke implementation
+    //... maybe it should inherit from MarshalByRefObject...
+    //... cause right now ISynchronizeInvoke on the Client class will work only
+    //... if used form the injected code, simply because this DelegateRequest can't be remoted
+    public class DelegateRequest : IAsyncResult
     {
-        private bool m_Async;
-        private Client m_Client;
-        private System.ComponentModel.ISynchronizeInvoke m_Invoker = null;
+        private object[] m_Parameters;
+        private Delegate m_Delegate;
+        private object m_Response;
+        private ManualResetEvent m_Event=new ManualResetEvent(false);
+        private bool m_CompletedSynchronously = false;
+        private int m_CreationThread;
 
-        public System.ComponentModel.ISynchronizeInvoke SynchronizationObject
+        public object Parameters { get { return m_Parameters; } }
+        public Delegate fromDelegate { get { return m_Delegate; } }
+        public DelegateRequest(Delegate _fromdelegate, object[] _parameters)
         {
-            get { return m_Invoker; }
-            set { m_Invoker = value; }
-        }
-
-        public bool ASynchronous
-        {
-            get { return m_Async; }
-            set { m_Async = value; }
-        }
-
-        public delegate bool OnPacketReceiveDelegate(UnmanagedBuffer packet);
-        public event OnPacketReceiveDelegate OnPacketReceive;
-        public bool InvokeOnPacketReceive(UnmanagedBuffer packet)
-        {
-            if (OnPacketReceive != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnPacketReceive, new object[] { packet });
-                    else
-                        return (bool)m_Invoker.Invoke(OnPacketReceive, new object[] { packet });
-                }
-                else if (m_Async)
-                    OnPacketReceive.BeginInvoke(packet, null, null);
-                else
-                    return OnPacketReceive(packet);                    
-            }
-            return true;
+            m_Parameters = _parameters;
+            m_Delegate = _fromdelegate;
+            m_CreationThread = Thread.CurrentThread.ManagedThreadId;
         }
 
-        public delegate void OnPacketHandledDelegate();
-        public event OnPacketHandledDelegate OnPacketHandled;
-        public void InvokeOnPacketHandled()
+        public void DoInvoke()
         {
-            if (OnPacketHandled != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnPacketHandled, new object[] { });
-                    else
-                        m_Invoker.Invoke(OnPacketHandled, new object[] { });
-                }
-                else if (m_Async)
-                    OnPacketHandled.BeginInvoke(null, null);
-                else
-                    OnPacketHandled();
-            }
-            return;
+            m_Response = m_Delegate.DynamicInvoke(m_Parameters);
+            Complete();
         }
 
-        public delegate bool OnKeyUpDelegate(uint VirtualKeyCode);
-        public delegate bool OnKeyDownDelegate(uint VirtualKeyCode, bool repeated);
-        public event OnKeyDownDelegate OnKeyDown;
-        public event OnKeyUpDelegate OnKeyUp;
-        public bool InvokeOnKeyDown(uint VirtualKeyCode, bool repeated)
+        public void Complete()
         {
-            if (OnKeyDown != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnKeyDown, new object[] { VirtualKeyCode, repeated });
-                    else
-                        return (bool)m_Invoker.Invoke(OnKeyDown, new object[] { VirtualKeyCode, repeated });
-                }
-                else if (m_Async)
-                    OnKeyDown.BeginInvoke(VirtualKeyCode, repeated, null, null);
-                else
-                    return OnKeyDown(VirtualKeyCode, repeated);
-            }
-            return true;
-        }
-        public bool InvokeOnKeyUp(uint VirtualKeyCode)
-        {
-            if (OnKeyUp != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnKeyUp, new object[] { VirtualKeyCode });
-                    else
-                        return (bool)m_Invoker.Invoke(OnKeyUp, new object[] { VirtualKeyCode });
-                }
-                else if (m_Async)
-                    OnKeyUp.BeginInvoke(VirtualKeyCode, null, null);
-                else
-                    return OnKeyUp(VirtualKeyCode);
-            }
-            return true;
+            if (m_CreationThread == Thread.CurrentThread.ManagedThreadId)
+                m_CompletedSynchronously = true;
+            m_Event.Set();
         }
 
-        public delegate bool OnPacketSendDelegate(UnmanagedBuffer packet);
-        public event OnPacketSendDelegate OnPacketSend;
-        public bool InvokeOnPacketSend(UnmanagedBuffer packet)
+        public object Response { get { return m_Response; } set { m_Response = value; } }
+
+        #region IAsyncResult Members
+
+        public object AsyncState
         {
-            if (OnPacketSend != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnPacketSend, new object[] { packet });
-                    else
-                        return (bool)m_Invoker.Invoke(OnPacketSend, new object[] { packet });
-                }
-                else if (m_Async)
-                    OnPacketSend.BeginInvoke(packet, null, null);
-                else
-                    return OnPacketSend(packet);
-            }
-            return true;
+            get { return Response; }
         }
 
-        public delegate void SimpleDelegate();
-        
-        public event SimpleDelegate OnTick;
-        public void InvokeOnTick()
+        public WaitHandle AsyncWaitHandle
         {
-            if (OnTick != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnTick, new object[] { });
-                    else
-                        m_Invoker.Invoke(OnTick, new object[] { });
-                }
-                else if (m_Async)
-                    OnTick.BeginInvoke(null, null);
-                else
-                    OnTick();
-            }
+            get { return m_Event; }
         }
 
-        public event SimpleDelegate OnQuit;
-        public void InvokeOnQuit()
+        public bool CompletedSynchronously
         {
-            if (OnQuit != null)
-            {
-                if (m_Invoker != null)
-                {
-                    if (m_Async)
-                        m_Invoker.BeginInvoke(OnQuit, new object[] { });
-                    else
-                        m_Invoker.Invoke(OnQuit, new object[] { });
-                }
-                else if (m_Async)
-                    OnQuit.BeginInvoke(null, null);
-                else
-                    OnQuit();
-            }
+            get { return m_CompletedSynchronously; }
         }
 
-        public void Release()
+        public bool IsCompleted
         {
-            m_Client.RemoveEventSink(this);
-            m_Client = null;
+            get { return m_Event.WaitOne(0); }
         }
 
-        public ClientEvents(Client onclient)
-        {
-            m_Client = onclient;
-            m_Client.AddEventSink(this);
-        }
-
-        ~ClientEvents()
-        {
-        }
+        #endregion
     }
 
     //this object is created on the client process, then marshalled back through remoting
-    [RemoteObject()]//the remote object attribute on a marshalbyref class will cause the server to share this object through remoting as a singleton, you will need at least one singleton to use remoting
-    public class Client : MarshalByRefObject
+    //the remote object attribute on a marshalbyref class will cause the server to share this object through remoting as a singleton, you will need at least one singleton to use remoting
+    //from the user app we get hold of a single instance of this object
+    //through Server.GetObject specifying the client's pid and type info for the client class
+    //the first call to Server.GetObject will cause an instance of this Client class to be created on the injected code
+    //subsequent calls will just return that same instance. (since this is remoted as a singleton)
+    [RemoteObject()]
+    public class Client : MarshalByRefObject, System.ComponentModel.ISynchronizeInvoke
     {
         private static Client m_Client;
         private Exception m_CallibrationException;
         private List<LocalHook> m_Hooks = new List<LocalHook>();
         private UnmanagedBuffer m_PacketInfo;
-        private BinaryTree<int,ClientEvents> m_EventSinks=new BinaryTree<int,ClientEvents>();
         private Imports.HookProc m_HookProc;
         private bool m_ShuttingDown = false;
         private uint drop_msg_message = 0;
+        private IClient m_ActualClient;
+        private Queue<DelegateRequest> DelegateQueue = new Queue<DelegateRequest>();
+        private int m_ClientThread;
 
+        //dynamic event implementation
+        //events don't play nicely across remoting boundaries
+        //so instead we use a custom implementation here...
+        //there is an event on the IClient interface (or other interface)... but without implementation
+        //the AddHandler/RemoveHandler calls are intercepted on our proxy objects
+        //and forwarded to fake add/remove handler functions here that add the
+        //specified handlers to these lists.
+        //We then just invoke anything in theses lists whenever the event occurs.
+        private static List<OnKeyUpDelegate> keyup_handlers = new List<OnKeyUpDelegate>();
+        private static List<OnKeyDownDelegate> keydown_handlers = new List<OnKeyDownDelegate>();
+        private static List<OnWindowsMessageDelegate> windowsmessage_handlers = new List<OnWindowsMessageDelegate>();
+        private static List<SimpleDelegate> quit_handlers = new List<SimpleDelegate>();
+
+        //returned to the user app
+        //the proxy that dynamically implements IClient will forward some of it's functionality to static (shared) functions on this class though
+        public IClient ActualClient { get { return m_ActualClient; } }
+
+        //required for Synchronized Invokation of unmanaged functions
+        //we need to be able to find the Client instance in use
+        //from the proxy that forwards IClient (or other) calls to unamanged code
+        public static Client Default { get { return m_Client; } }
+
+        //only one instance is ever created; when requesting a reference (proxy)
+        //through remoting from the user app
         public Client()
         {
             m_Client = this;//keep us alive
+
+            //for debugging purposes, this object is on the client app (injected code)
+            //the VS debugger has no access to it...
+            //...so a console is our only source of debugging info (or attaching IDA to the client would work too ofc)
+            Imports.AllocConsole();
+
+            //create IClient proxy
+            //this is what we will return to the user app
+            //the UnmanagedObject has all calls intercepted on a proxy
+            //which allows us to forward calls to unmanaged functions (actual client functions)
+            m_ActualClient = (IClient)UnmanagedObject.Create(typeof(IClient), IntPtr.Zero);
 
             drop_msg_message = Imports.RegisterWindowMessage("drop_msg_message");//dummy message.. changing an msg.message to this will make sure the client doesn't handle it
 
@@ -335,21 +279,25 @@ namespace UOAIBasic
 
             m_PacketInfo = new UnmanagedBuffer((IntPtr)UOCallibration.Callibrations[(uint)UOCallibration.CallibratedFeatures.pPacketInfo]);
 
-            m_Hooks.Add(LocalHook.Hook((uint)UOCallibration.Callibrations[(uint)UOCallibration.CallibratedFeatures.pSendPacket], 4, false));
-            m_Hooks.Add(LocalHook.Hook((uint)UOCallibration.Callibrations[(uint)UOCallibration.CallibratedFeatures.NetworkObjectVtbl] + 4 * 8, 4, true));
             m_Hooks.Add(LocalHook.Hook((uint)UOCallibration.Callibrations[(uint)UOCallibration.CallibratedFeatures.GeneralPurposeHookAddress],0,false));
-
-            m_Hooks[0].onCall+=new LocalHook.OnCallDelegate(Client_onSend);
-            m_Hooks[1].onCall += new LocalHook.OnCallDelegate(Client_onReceive);
-            m_Hooks[1].afterCall+=new LocalHook.OnCallDelegate(Client_packetHandled);
-            m_Hooks[2].onCall+=new LocalHook.OnCallDelegate(Client_onTick);
+            m_Hooks[0].onCall+=new LocalHook.OnCallDelegate(Client_onTick);
         }
 
         ~Client()
         {
         }
 
-        public void Quit()
+        //new UnmanagedBuffer on a user app would fail as the buffer would be
+        //allocated in the unmanaged part of that app (so not on the client app).
+        //Instead this function will cause a buffer to be allocated on the client.
+        //(forwarded form IClient)
+        public static UnmanagedBuffer AllocateBuffer(uint size)
+        {
+            return Allocator.DefAllocateBuffer(size);
+        }
+
+        //Causes the client to Quit (forwarded form IClient)
+        public static void Quit()
         {
             
             List<WindowHandler> wins = WindowHandler.FindWindow("Ultima Online", (int)ProcessHandler.CurrentProcess.PID, -1);
@@ -359,94 +307,123 @@ namespace UOAIBasic
             //ProcessHandler.CurrentProcess.MainWindow.PostMessage((uint)WindowHandler.Messages.WM_QUIT, 0, 0);//<-simpler version?
         }
 
+        //Internal Event Handler
+        //-> onTick is just a name, it's not really a timer and ticks are not necessarily well spaced
+        //-> This is basically a function called from a hook of the client's "general-purpose" function
+        //-> this is a function called by the client whenever it has no windows messages to handle.
+        //-> from this function it does everything else it needs to do: send packets that are in the packet queue
+        //-> receive/handle packets, perform pathfinding/following/.... etc.
+        //-> In this hook we can do our own things at that time... completely synchronized with the client.
+        //-> So onTick = synchronized stuff.
+        //-> The invokation for the ISynchronizeInvoke of the client also goes here.
         private bool Client_onTick(UnmanagedContext ctx, UnmanagedStack stck)
         {
             if (m_HookProc == null)
             {
                 //install message hook if not installed yet (must be done here as we need the correct threadid, and this tick event gets handled on the client's main thread)
+                m_ClientThread = Thread.CurrentThread.ManagedThreadId;
                 m_HookProc = new Imports.HookProc(MessageHook);
                 Imports.SetWindowsHookEx(Imports.HookType.WH_GETMESSAGE, System.Runtime.InteropServices.Marshal.GetFunctionPointerForDelegate(m_HookProc), IntPtr.Zero, Imports.GetCurrentThreadId());
             }
 
             if (!m_ShuttingDown)
             {
-                //invoke on Tick
-
-                    foreach (ClientEvents ce in m_EventSinks)
-                    {
-                        try
-                        {
-                            ce.InvokeOnTick();
-                        }
-                        catch
-                        {
-                            m_EventSinks.Remove(ce.GetHashCode());
-                        }
-                    }
-                //sync's go here
+                while (DelegateQueue.Count > 0)
+                    DelegateQueue.Dequeue().DoInvoke();
             }
          
             return true;
         }
 
+        //Hooks for Windows Messages
+        //-> currently for the WM_QUIT, WM_KEYDOWN, WM_KEYUP messages
+        //-> i could add a general onMessage(MSG msg) hook
+        //-> but that would have the potential of slowing the client down enormously
         private int MessageHook(int code, IntPtr wParam, IntPtr lParam)
         {
             UnmanagedBuffer msgbuff=new UnmanagedBuffer(lParam);
             Imports.MSG msg = msgbuff.Read<Imports.MSG>();
+            bool drop = false;
+
+            //invoke general message handlers (don't use these unless really necessary.. the WILL slow down the client)
+            foreach (OnWindowsMessageDelegate del in Client.windowsmessage_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
+            {
+                try
+                {
+                    if (!del.Invoke(ref msg))
+                        drop = true;
+                }
+                catch
+                {
+                    windowsmessage_handlers.Remove(del);
+                }
+            }
+            if(drop)
+                msg.message = drop_msg_message;
+
             if (msg.message == (uint)WindowHandler.Messages.WM_QUIT)
             {
                 m_ShuttingDown = true;
-
-                foreach (ClientEvents ce in m_EventSinks)
+                
+                //invoke on quit
+                foreach (SimpleDelegate del in Client.quit_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
                 {
                     try
                     {
-                        ce.InvokeOnQuit();
+                        del.Invoke();
                     }
                     catch
                     {
-                        m_EventSinks.Remove(ce.GetHashCode());                        
+                        quit_handlers.Remove(del);
                     }
                 }
 
-                m_EventSinks.Clear();
-                
                 foreach (LocalHook lh in m_Hooks)
                     lh.UnHook();
             }
             else if (msg.message == (uint)WindowHandler.Messages.WM_KEYDOWN)
             {
                 bool dropkey = false;
-                foreach (ClientEvents ce in m_EventSinks)
+                bool repeated = (msg.lParam & (2 ^ 30)) != 0;
+
+                //invoke onkeydown
+                foreach (OnKeyDownDelegate del in Client.keydown_handlers.ToArray())//toarray is needed to ensure we can remove handlers while enumerating (list can't change while enumerating it, so we enumerate a copy (the array) of it.
                 {
                     try
                     {
-                        if (!ce.InvokeOnKeyDown(msg.wParam, ((msg.lParam & 0x40000000) == 0)))
+                        if (!del.Invoke(msg.wParam, repeated))
                             dropkey = true;
                     }
                     catch
                     {
-                        m_EventSinks.Remove(ce.GetHashCode());
+                        keydown_handlers.Remove(del);
                     }
                 }
+
                 if (dropkey)
                     msg.message = drop_msg_message;
             }
             else if (msg.message == (uint)WindowHandler.Messages.WM_KEYUP)
             {
                 bool dropkey = false;
-                foreach (ClientEvents ce in m_EventSinks)
+
+                //invoke onkeyup
+                foreach (OnKeyUpDelegate del in Client.keyup_handlers.ToArray())//use of toarray is needed to be able to remove handlers while enumerating
                 {
                     try
                     {
-                        if (!ce.InvokeOnKeyUp(msg.wParam))
+                        if (!del.Invoke(msg.wParam))
+                        {
                             dropkey = true;
+                            break;
+                        }
                     }
                     catch
                     {
-                        m_EventSinks.Remove(ce.GetHashCode());
+                        keyup_handlers.Remove(del);
                     }
                 }
+
                 if (dropkey)
                     msg.message = drop_msg_message;
             }
@@ -454,18 +431,10 @@ namespace UOAIBasic
             return Imports.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
         }
 
-        public void AddEventSink(ClientEvents toadd)
-        {
-            if (!m_EventSinks.ContainsKey(toadd.GetHashCode()))
-                m_EventSinks.Add(toadd.GetHashCode(),toadd);
-        }
-
-        public void RemoveEventSink(ClientEvents toremove)
-        {
-            if(m_EventSinks.ContainsKey(toremove.GetHashCode()))
-                m_EventSinks.Remove(toremove.GetHashCode());
-        }
-
+        //currently unused
+        //looks up the packet size in the client's internal packetinfo table... 
+        //if it's fixed size true is returned and size is the size; 
+        //for dynamic size packets false is returned
         private bool GetPacketSize(byte packetnumber, out ushort size)
         {
             size=m_PacketInfo.ReadAt<ushort>(packetnumber * 3 * 4);
@@ -475,85 +444,13 @@ namespace UOAIBasic
                 return true;
         }
 
-        private bool Client_packetHandled(UnmanagedContext ctx, UnmanagedStack stck)
-        {
-            if (!m_ShuttingDown)
-            {
-                foreach (ClientEvents ce in m_EventSinks)
-                {
-                    try
-                    {
-                        ce.InvokeOnPacketHandled();
-                    }
-                    catch
-                    {
-                        m_EventSinks.Remove(ce.GetHashCode());
-                    }
-                }
-            }
-            return true;
-        }
-        private bool Client_onSend(UnmanagedContext ctx, UnmanagedStack stck)
-        {
-            ushort size;
-            UnmanagedBuffer packet = new UnmanagedBuffer((IntPtr)stck[0]);
-            if (!GetPacketSize(packet.ReadAt<byte>(0), out size))
-                packet.SwapBreakPoint = 3;
-            packet.SwapByteOrder = true;
-
-            bool toreturn = true;
-            if (!m_ShuttingDown)
-            {
-                foreach (ClientEvents ce in m_EventSinks)
-                {
-                    try
-                    {
-                        if (!ce.InvokeOnPacketSend(packet))
-                        {
-                            toreturn = false;
-                            break;
-                        }
-                    }
-                    catch
-                    {
-                        m_EventSinks.Remove(ce.GetHashCode());
-                    }
-                }
-            }
-            return toreturn;
-        }
-        private bool Client_onReceive(UnmanagedContext ctx, UnmanagedStack stck)
-        {
-            ushort size;
-            UnmanagedBuffer packet = new UnmanagedBuffer((IntPtr)stck[0]);
-            
-            if (!GetPacketSize(packet.ReadAt<byte>(0), out size))
-                packet.SwapBreakPoint = 3;
-            packet.SwapByteOrder = true;
-
-            bool toreturn = true;
-            if (!m_ShuttingDown)
-            {
-                foreach (ClientEvents ce in m_EventSinks)
-                {
-                    try
-                    {
-                        if (!ce.InvokeOnPacketReceive(packet))
-                        {
-                            toreturn = false;
-                            break;
-                        }
-                    }
-                    catch
-                    {
-                        m_EventSinks.Remove(ce.GetHashCode());
-                    }
-                }
-            }
-
-            return toreturn;
-        }
-
+        //Feature check, looksup the named offset in the callibration tree.
+        //If all specified features are present (callibrated) it returns true.
+        //Otherwise false.
+        //I will add fixed arrays of features for specific functionality...
+        //... like: the NetworkFeatures array will contain all named offsets required
+        //... for network functions like send/receive/packet events, etc.
+        //... so an app that needs network features can check HasFeatures(NetworkFeatures)
         public bool HasFeatures(UOCallibration.CallibratedFeatures[] tocheck)
         {
             foreach (UOCallibration.CallibratedFeatures feature in tocheck)
@@ -563,10 +460,15 @@ namespace UOAIBasic
             }
             return true;
         }
+
+        //Feature check, looksup the named offset in the callibration tree.
+        //If not present it returns false, otherwise true.
         public bool HasFeature(UOCallibration.CallibratedFeatures tocheck)
         {
             return UOCallibration.Callibrations.ContainsKey((uint)tocheck);
         }
+
+        //Feature check, looksup the named offset in the callibration tree.
         public long this[UOCallibration.CallibratedFeatures feature]
         {
             get
@@ -584,12 +486,17 @@ namespace UOAIBasic
             }
         }
 
-        public bool Validate()//dummy, trying to call this when the client is unavailable will throw a remoting error, we catch this error to detect an invalid client
+        //Dummy, trying to call this when the client is unavailable will throw a remoting error (so actually you can't call it).
+        //We catch this error to detect an invalid client.
+        //If you can call it then remoting is ok and it will return true.
+        //So it's a dummy because it only serves it's purpose when you can't actually call it. :)
+        public bool Validate()
         {
             return true;
         }
 
-        public void PatchEncryption()
+        //encryption patch
+        public static void PatchEncryption()
         {
             ProcessHandler us = ProcessHandler.CurrentProcess;
             int curtarget;
@@ -620,5 +527,75 @@ namespace UOAIBasic
             jrel = new JmpRelative(curtarget);
             jrel.Write(us, (int)curins.Address);
         }
+
+        #region Add/Remove Handler for forwarded events
+        public static void Add_OnKeyUp(OnKeyUpDelegate toadd)
+        {
+            keyup_handlers.Add(toadd);
+        }
+
+        public static void Remove_OnKeyUp(OnKeyUpDelegate toremove)
+        {
+            keyup_handlers.Remove(toremove);
+        }
+
+        public static void Add_OnKeyDown(OnKeyDownDelegate toadd)
+        {
+            keydown_handlers.Add(toadd);
+        }
+
+        public static void Remove_OnKeyDown(OnKeyDownDelegate toremove)
+        {
+            keydown_handlers.Remove(toremove);
+        }
+
+        public static void Add_OnWindowsMessage(OnWindowsMessageDelegate toadd)
+        {
+            windowsmessage_handlers.Add(toadd);
+        }
+
+        public static void Remove_OnWindowsMessage(OnWindowsMessageDelegate toremove)
+        {
+            windowsmessage_handlers.Remove(toremove);
+        }
+
+        public static void Add_OnQuit(SimpleDelegate toadd)
+        {
+            quit_handlers.Add(toadd);
+        }
+
+        public static void Remove_OnQuit(SimpleDelegate toremove)
+        {
+            quit_handlers.Remove(toremove);
+        }
+        #endregion
+
+        #region ISynchronizeInvoke Members : invokation occurs on the Client's main thread, which is often necessary to ensure correct synchronization
+
+        public IAsyncResult BeginInvoke(Delegate method, object[] args)
+        {
+            DelegateRequest request = new DelegateRequest(method, args);
+            DelegateQueue.Enqueue(request);
+            return (IAsyncResult)request;
+        }
+
+        public object EndInvoke(IAsyncResult result)
+        {
+            DelegateRequest request = (DelegateRequest)result;
+            request.AsyncWaitHandle.WaitOne();
+            return request.Response;
+        }
+
+        public object Invoke(Delegate method, object[] args)
+        {
+            return EndInvoke(BeginInvoke(method, args));
+        }
+
+        public bool InvokeRequired
+        {
+            get { return (m_ClientThread != Thread.CurrentThread.ManagedThreadId); }
+        }
+
+        #endregion
     }
 }

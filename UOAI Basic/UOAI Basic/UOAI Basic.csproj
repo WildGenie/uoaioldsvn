@@ -52,6 +52,8 @@
     <Compile Include="Callibration.cs" />
     <Compile Include="CallibrationFile.cs" />
     <Compile Include="DataStructures.cs" />
+    <Compile Include="UnmanagedInterfaces.cs" />
+    <Compile Include="UnmanagedProxy.cs" />
     <Compile Include="UOAIBasic.cs" />
     <Compile Include="Imports.cs" />
     <Compile Include="Injection.cs" />

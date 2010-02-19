@@ -6,15 +6,15 @@ using System.Runtime.InteropServices;
 
 namespace Win32API
 {
-    static internal class Imports
+    static public class Imports
     {
         #region user32_imports
 
         [DllImport("user32.dll")]
         internal static extern int CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
-        [StructLayout(LayoutKind.Sequential)]
-        internal struct MSG
+        [StructLayout(LayoutKind.Sequential), Serializable()]
+        public struct MSG
         {
             public uint hwnd;
             public uint message;
@@ -85,6 +85,9 @@ namespace Win32API
         #endregion
 
         #region kernel32_imports
+
+        [DllImport("kernel32.dll")]
+        internal static extern IntPtr GetProcessHeap();
 
         [DllImport("kernel32.dll")]
         internal static extern uint GetCurrentThreadId();

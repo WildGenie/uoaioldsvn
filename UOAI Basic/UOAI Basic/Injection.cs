@@ -10,6 +10,7 @@ using libdisasm;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UOAIBasic;
 
 namespace ProcessInjection
 {
@@ -285,460 +286,96 @@ namespace ProcessInjection
         }
     }
 
-    //Unmanaged Allocator; by using our own heap we can ensure allocated code has execution permissions (needed for code injection)
-    public class Allocator
+    public class UnmanagedCall
     {
-        public static IntPtr m_Heap;
+        private delegate void SimpleCallDelegate();
+        private static SimpleCallDelegate m_Call;
+        private static UnmanagedBuffer m_Parameters;
+        private static UnmanagedBuffer m_Code;
+        private static uint data_alignment;
 
-        static Allocator()
+        //static constructor: inject code required to perform the call once
+        static UnmanagedCall()
         {
-            m_Heap = Imports.HeapCreate(Imports.HeapCreationOptions.HEAP_CREATE_ENABLE_EXECUTE, 0, 0);
+                uint loopaddress;
+                uint code_alignment;
+
+                uint pAddress;
+                uint pStacksize;
+                uint ppStack;
+                uint pThisPar;
+                uint pRetVal;
+                uint pStackPointerBackup;
+
+                AsmBuilder asm = new AsmBuilder();
+
+                //should use our own heap, not the default heap; since the code buffer needs execution rights
+                m_Parameters = Allocator.AllocateBuffer(7 * 4);
+                m_Code = Allocator.AllocateBuffer(61);
+
+                data_alignment = ((uint)m_Parameters.Address) % 4;
+                code_alignment = ((uint)m_Code.Address) % 4;
+                
+                pAddress = (uint)m_Parameters.Address + data_alignment + 4 * 0;
+                pStacksize = (uint)m_Parameters.Address + data_alignment + 4 * 1;
+                ppStack = (uint)m_Parameters.Address + data_alignment + 4 * 2;
+                pThisPar = (uint)m_Parameters.Address + data_alignment + 4 * 3;
+                pRetVal = (uint)m_Parameters.Address + data_alignment + 4 * 4;
+                pStackPointerBackup = (uint)m_Parameters.Address + data_alignment + 4 * 5;
+
+                //backup context
+                asm.Instructions.Add(new PushAll());
+                asm.Instructions.Add(new BackupEsp(pStackPointerBackup));
+                //build stack
+                asm.Instructions.Add(new MovEcxMemory(pStacksize));
+                asm.Instructions.Add(new MovEdxMemory(ppStack));
+                //store current position for the stack push loop
+                loopaddress = code_alignment + (uint)asm.Size;//relative
+                //build stack builder loop
+                asm.Instructions.Add(new MovEaxEdx());
+                asm.Instructions.Add(new DereferEax());
+                asm.Instructions.Add(new PushEax());
+                asm.Instructions.Add(new AddEdx(4));
+                asm.Instructions.Add(new DecEcx());
+                asm.Instructions.Add(new JnzRelativeShort((int)loopaddress));
+                //build call
+                asm.Instructions.Add(new MovEcxMemory(pThisPar));
+                asm.Instructions.Add(new CallFunctionPointer(pAddress));
+                //store return value
+                asm.Instructions.Add(new MovMemoryEax(pRetVal));
+                //restore context
+                asm.Instructions.Add(new RestoreEsp(pStackPointerBackup));
+                asm.Instructions.Add(new PopAll());
+                //return
+                asm.Instructions.Add(new Rtn());
+
+                //write code
+                asm.Write(m_Code, (int)code_alignment);
+
+                //build function pointer
+                m_Call = (SimpleCallDelegate)Marshal.GetDelegateForFunctionPointer((IntPtr)((uint)m_Code.Address + code_alignment), typeof(SimpleCallDelegate));
         }
 
-        public static UnmanagedBuffer AllocateBuffer(uint size)
+        //perform unmanaged call
+        public static uint Call(uint tocall, uint[] stack, uint thispar)
         {
-            UnmanagedBuffer toreturn = new UnmanagedBuffer(Imports.HeapAlloc(m_Heap, 0, size), (long)size);
-            toreturn.FreeOnDestruction = true;
+            uint toreturn = 0;
+
+            UnmanagedBuffer stackbuffer = new UnmanagedBuffer((uint)stack.Length * 4);
+            for (uint i = 0; i < stack.Length; i++)//write reversed stack array
+                stackbuffer.WriteAt<uint>(stack[stack.Length - 1 - i], i * 4);
+            m_Parameters.WriteAt<uint>(tocall, data_alignment + 0 * 4);
+            m_Parameters.WriteAt<uint>((uint)stack.Length, data_alignment + 1 * 4);
+            m_Parameters.WriteAt<uint>((uint)stackbuffer.Address, data_alignment + 2 * 4);
+            m_Parameters.WriteAt<uint>(thispar, data_alignment + 3 * 4);
+
+            m_Call.DynamicInvoke(new object[] { });
+
+            toreturn = m_Parameters.ReadAt<uint>(data_alignment + 4 * 4);
+
+            stackbuffer.Free();
+
             return toreturn;
-        }
-
-        public static IntPtr Allocate(uint size)
-        {
-            return Imports.HeapAlloc(m_Heap, 0, size);
-        }
-
-        public static IntPtr ReAllocate(IntPtr torealloc, uint newsize)
-        {
-            return Imports.HeapReAlloc(m_Heap, 0, torealloc, newsize);
-        }
-
-        public static void Free(IntPtr tofree)
-        {
-            Imports.HeapFree(m_Heap, 0, tofree);
-        }
-    }
-
-    //faster then process stream for local unmanaged buffers
-    //... but with little error-checks, so be carefull
-    //... also, don't use the streamhandler for this stream, 
-    //... but use the included generic read/write instead... 
-    //... they are slightly faster then the streamhandler's generic fucntions
-    public class UnmanagedBuffer : Stream
-    {
-        private IntPtr m_Address;
-        private long m_Position;
-        private long m_Size;
-        private bool m_SwapByteOrder = false;
-        private bool m_AutoFree = false;
-        private long m_SwapBreakPoint=0;
-
-        private static T SwapBytes<T>(T toswap)
-        {
-            T toreturn;
-
-            int size = Marshal.SizeOf(toswap);
-
-            //-> copy to unmanaged memory
-            IntPtr unmanagedPointer = Marshal.AllocHGlobal(size);
-            Marshal.StructureToPtr(toswap, unmanagedPointer, true);
-
-            //-> copy unmanaged memory to a byte[] buffer
-            byte[] tempbuffer = new byte[size];
-            Marshal.Copy(unmanagedPointer, tempbuffer, 0, size);
-
-            //-> swap the byte buffer
-            Array.Reverse(tempbuffer);
-
-            //-> copy back to unmanaged
-            Marshal.Copy(tempbuffer, 0, unmanagedPointer, size);
-
-            //-> copy to managed, it should now be swapped
-            toreturn = (T)Marshal.PtrToStructure(unmanagedPointer, toswap.GetType());
-
-            //free unmanaged memory
-            Marshal.FreeHGlobal(unmanagedPointer);
-
-            return toreturn;
-        }
-
-        ~UnmanagedBuffer()
-        {
-            if (m_AutoFree)
-                Allocator.Free(m_Address);
-        }
-
-        public bool FreeOnDestruction
-        {
-            get { return m_AutoFree; }
-            set { m_AutoFree = value; }
-        }
-
-        public UnmanagedBuffer(IntPtr Address)
-        {
-            m_Address = Address;
-            m_Size = 0;//unknown size
-            m_Position = 0;
-        }
-        public UnmanagedBuffer(IntPtr Address, long size)
-        {
-            m_Address = Address;
-            m_Size = size;
-            m_Position = 0;
-        }
-
-        public bool SwapByteOrder
-        {
-            get { return m_SwapByteOrder; }
-            set { m_SwapByteOrder = value; }
-        }
-        public IntPtr Address
-        {
-            get { return m_Address; }
-        }
-
-        public override bool CanRead
-        {
-            get { return true; }
-        }
-        public override bool CanSeek
-        {
-            get { return true; }
-        }
-        public override bool CanWrite
-        {
-            get { return true; }
-        }
-        public override void Flush()
-        {
-            return;
-        }
-        public override long Length
-        {
-            get {
-                if (m_Size == 0)
-                    throw new NotImplementedException();
-                else
-                    return m_Size;
-            }
-        }
-        public override long Position
-        {
-            get
-            {
-                return m_Position;
-            }
-            set
-            {
-                lock (this)
-                {
-                    m_Position = value;
-                }
-            }
-        }
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            lock (this)
-            {
-                Marshal.Copy((IntPtr)((long)m_Address + m_Position), buffer, offset, count);
-                if (m_SwapByteOrder && (m_Position >= m_SwapBreakPoint))
-                    Array.Reverse(buffer, offset, count);
-                m_Position += count;
-                return count;
-            }
-        }
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            lock (this)
-            {
-                switch (origin)
-                {
-                    case SeekOrigin.Begin:
-                        m_Position = offset;
-                        break;
-                    case SeekOrigin.Current:
-                        m_Position += offset;
-                        break;
-                    case SeekOrigin.End:
-                        m_Position = Length - offset;
-                        break;
-                    default:
-                        break;
-                }
-                return m_Position;
-            }
-        }
-        public override void SetLength(long value)
-        {
-            lock (this)
-            {
-                if(m_AutoFree)
-                    m_Address = Allocator.ReAllocate(m_Address, (uint)value);
-            }
-        }
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            lock (this)
-            {
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    Array.Reverse(buffer, offset, count);
-                Marshal.Copy(buffer, offset, (IntPtr)((long)m_Address + m_Position), count);
-                m_Position += count;
-            }
-        }
-
-        public T Read<T>()
-        {
-            lock (this)
-            {
-                T toreturn = (T)Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), typeof(T));
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    toreturn = SwapBytes<T>(toreturn);//relatively expensive operation :(
-                m_Position += Marshal.SizeOf(toreturn);
-                return toreturn;
-            }
-        }
-        public void Write<T>(T towrite)
-        {
-            lock (this)
-            {
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    towrite = SwapBytes<T>(towrite);
-                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
-                m_Position += Marshal.SizeOf(towrite);
-            }
-        }
-        public T ReadAt<T>(long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                T toreturn = (T)Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), typeof(T));
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    toreturn = SwapBytes<T>(toreturn);
-                m_Position += Marshal.SizeOf(toreturn);
-                return toreturn;
-            }
-        }
-        public void WriteAt<T>(T towrite, long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    towrite = SwapBytes<T>(towrite);
-                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
-                m_Position += Marshal.SizeOf(towrite);
-            }
-        }
-        public int ReadAt(byte[] buffer, long Position, int offset, int count)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                Marshal.Copy((IntPtr)((long)m_Address + m_Position), buffer, offset, count);
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    Array.Reverse(buffer, offset, count);
-                m_Position += count;
-                return count;
-            }
-        }
-        public void WriteAt(byte[] buffer, long Position, int offset, int count)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
-                    Array.Reverse(buffer, offset, count);
-                Marshal.Copy(buffer, offset, (IntPtr)((long)m_Address + m_Position), count);
-                m_Position += count;
-            }
-        }
-
-        public string ReadString()
-        {
-            lock (this)
-            {
-                string toreturn = Marshal.PtrToStringAnsi((IntPtr)((long)m_Address + m_Position));
-                m_Position += toreturn.Length + 1;
-                return toreturn;
-            }
-        }
-        public string ReadStringAt(long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                return ReadString();
-            }
-        }
-
-        public string ReadString(int length)
-        {
-            lock (this)
-            {
-                string toreturn = Marshal.PtrToStringAnsi((IntPtr)((long)m_Address + m_Position), length);
-                m_Position += length;
-                return toreturn;
-            }
-        }
-        public string ReadStringAt(long Position, int length)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                return ReadString(length);
-            }
-        }
-
-        public string ReadUnicodeString()
-        {
-            lock (this)
-            {
-                string toreturn = Marshal.PtrToStringUni((IntPtr)((long)m_Address + m_Position));
-                m_Position += (toreturn.Length + 1) * 2;
-                return toreturn;
-            }
-        }
-        public string ReadUnicodeStringAt(long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                return ReadUnicodeString();
-            }
-        }
-
-        public string ReadUnicodeString(int length)
-        {
-            lock (this)
-            {
-                string toreturn = Marshal.PtrToStringUni((IntPtr)((long)m_Address + m_Position), length);
-                m_Position += (toreturn.Length + 1) * 2;
-                return toreturn;
-            }
-        }
-        public string ReadUnicodeStringAt(long Position, int length)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                return ReadUnicodeString(length);
-            }
-        }
-
-        public string ReadBSTR()
-        {
-            lock (this)
-            {
-                string toreturn = Marshal.PtrToStringBSTR((IntPtr)((long)m_Address + m_Position));
-                m_Position += toreturn.Length + 1;
-                return toreturn;
-            }
-        }
-        public string ReadBSTRAt(long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                return ReadBSTR();
-            }
-        }
-
-        public void WriteString(string towrite)
-        {
-            lock (this)
-            {
-                byte[] asciibytes = ASCIIEncoding.ASCII.GetBytes(towrite);
-                Write(asciibytes, 0, asciibytes.Length);
-                if (asciibytes[asciibytes.Length - 1] != 0)
-                    Write<byte>(0);
-            }
-        }
-        public void WriteStringAt(string towrite, long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                WriteString(towrite);
-            }
-        }
-        public void WriteString(string towrite, int length)
-        {
-            lock (this)
-            {
-                byte[] asciibytes = ASCIIEncoding.ASCII.GetBytes(towrite);
-                Write(asciibytes, 0, Math.Min(length,asciibytes.Length));
-                for (int i = asciibytes.Length; i < length; i++)
-                    Write<byte>(0);
-            }
-        }
-        public void WriteStringAt(string towrite, long Position, int length)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                WriteString(towrite, length);
-            }
-        }
-
-        public void WriteUnicodeString(string towrite)
-        {
-            lock (this)
-            {
-                byte[] unicodebytes = UnicodeEncoding.Unicode.GetBytes(towrite);
-                Write(unicodebytes, 0, unicodebytes.Length);
-                if (!((unicodebytes[unicodebytes.Length - 2] == 0) && (unicodebytes[unicodebytes.Length - 1] == 0)))
-                    Write<ushort>(0);
-            }
-        }
-        public void WriteUnicodeStringAt(string towrite, long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                WriteUnicodeString(towrite);
-            }
-        }
-        public void WriteUnicodeString(string towrite, int length)
-        {
-            lock (this)
-            {
-                byte[] unicodebytes = UnicodeEncoding.Unicode.GetBytes(towrite);
-                Write(unicodebytes, 0, Math.Min(unicodebytes.Length, length * 2));
-                for(int i=unicodebytes.Length;i<(length*2);i++)
-                    Write<byte>(0);
-            }
-        }
-        public void WriteUnicodeStringAt(string towrite, long Position, int length)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                WriteUnicodeString(towrite, length);
-            }
-        }
-
-        public void WriteBSTR(string towrite)
-        {
-            lock (this)
-            {
-                Write<uint>((uint)(towrite.Length * 2));
-                WriteUnicodeString(towrite);
-            }
-        }
-        public void WriteBSTRAt(string towrite, long Position)
-        {
-            lock (this)
-            {
-                m_Position = Position;
-                WriteBSTR(towrite);
-            }
-        }
-
-        public long SwapBreakPoint
-        {
-            get { return m_SwapBreakPoint; }
-            set { m_SwapBreakPoint = value; }
         }
     }
 
@@ -823,7 +460,7 @@ namespace ProcessInjection
             }
         }
 
-        internal LocalHook(uint address, ushort stack_cleanup_size, bool IsVtblEntry)
+        private LocalHook(uint address, ushort stack_cleanup_size, bool IsVtblEntry)
         {
             uint skip_call_address;
             asmInstruction curinsn = null;
@@ -957,23 +594,23 @@ namespace ProcessInjection
         private delegate bool InternalHookDelegate(uint pAddress);
         private static bool ActualHook(uint pAddress)
         {
-            LocalHook curhook;
-            UnmanagedBuffer buff;
-            UnmanagedContext ctx;
-            UnmanagedStack stck;
-            uint esp;
-            if (m_Hooks.ContainsKey(pAddress))
-            {
-                curhook = m_Hooks[pAddress];
-                esp = curhook.m_EspBackup.ReadAt<uint>(0);
-                buff = new UnmanagedBuffer((IntPtr)esp);
-                ctx = buff.ReadAt<UnmanagedContext>(0);
-                stck = new UnmanagedStack(esp + 40);
-                curhook.m_ReturnAddresses.Push(buff.ReadAt<uint>(36));
-                buff.WriteAt<uint>(curhook.m_LateHookAddress, 36);
-                return curhook.InvokeOnCall(ctx, stck);
-            }
-            return true;
+                LocalHook curhook;
+                UnmanagedBuffer buff;
+                UnmanagedContext ctx;
+                UnmanagedStack stck;
+                uint esp;
+                if (m_Hooks.ContainsKey(pAddress))
+                {
+                    curhook = m_Hooks[pAddress];
+                    esp = curhook.m_EspBackup.ReadAt<uint>(0);
+                    buff = new UnmanagedBuffer((IntPtr)esp);
+                    ctx = buff.ReadAt<UnmanagedContext>(0);
+                    stck = new UnmanagedStack(esp + 40);
+                    curhook.m_ReturnAddresses.Push(buff.ReadAt<uint>(36));
+                    buff.WriteAt<uint>(curhook.m_LateHookAddress, 36);
+                    return curhook.InvokeOnCall(ctx, stck);
+                }
+                return true;
         }
         private static bool ActualLateHook(uint pAddress)
         {
@@ -1003,7 +640,7 @@ namespace ProcessInjection
         }
         public bool InvokeAfterCall(UnmanagedContext ctx, UnmanagedStack stck)
         {
-            if (afterCall != null)
+            if(afterCall!=null)
                 return afterCall(ctx, stck);
             return true;
         }
@@ -1011,5 +648,614 @@ namespace ProcessInjection
         public delegate bool OnCallDelegate(UnmanagedContext ctx, UnmanagedStack stck);
         public event OnCallDelegate onCall;
         public event OnCallDelegate afterCall;
+    }
+}
+namespace UOAIBasic
+{
+    //Unmanaged Allocator; by using our own heap we can ensure allocated code has execution permissions (needed for code injection)
+    public class Allocator
+    {
+        public static IntPtr m_Heap;
+        public static IntPtr m_DefaultHeap;
+
+        static Allocator()
+        {
+            m_DefaultHeap = Imports.GetProcessHeap();
+            m_Heap = Imports.HeapCreate(Imports.HeapCreationOptions.HEAP_CREATE_ENABLE_EXECUTE, 0, 0);
+        }
+
+        public static UnmanagedBuffer AllocateBuffer(uint size)
+        {
+            UnmanagedBuffer toreturn = new UnmanagedBuffer(Imports.HeapAlloc(m_Heap, 0, size), (long)size);
+            toreturn.FreeOnDestruction = true;
+            return toreturn;
+        }
+
+        public static UnmanagedBuffer DefAllocateBuffer(uint size)
+        {
+            UnmanagedBuffer toreturn = new UnmanagedBuffer(Imports.HeapAlloc(m_DefaultHeap, 0, size), (long)size);
+            toreturn.OnDefaultHeap = true;
+            toreturn.FreeOnDestruction = true;
+            return toreturn;
+        }
+
+        public static IntPtr DefAllocate(uint size)
+        {
+            return Imports.HeapAlloc(m_DefaultHeap , 0, size);
+        }
+
+        public static IntPtr DefReAllocate(IntPtr torealloc, uint newsize)
+        {
+            return Imports.HeapReAlloc(m_DefaultHeap, 0, torealloc, newsize);
+        }
+
+        public static void DefFree(IntPtr tofree)
+        {
+            Imports.HeapFree(m_DefaultHeap, 0, tofree);
+        }
+
+        public static IntPtr Allocate(uint size)
+        {
+            return Imports.HeapAlloc(m_Heap, 0, size);
+        }
+
+        public static IntPtr ReAllocate(IntPtr torealloc, uint newsize)
+        {
+            return Imports.HeapReAlloc(m_Heap, 0, torealloc, newsize);
+        }
+
+        public static void Free(IntPtr tofree)
+        {
+            Imports.HeapFree(m_Heap, 0, tofree);
+        }
+    }
+
+    //faster then process stream for local unmanaged buffers
+    //... but with little error-checks, so be carefull
+    //... also, don't use the streamhandler for this stream, 
+    //... but use the included generic read/write instead... 
+    //... they are slightly faster then the streamhandler's generic fucntions
+    public class UnmanagedBuffer : Stream
+    {
+        private IntPtr m_Address;
+        private long m_Position;
+        private long m_Size;
+        private bool m_SwapByteOrder = false;
+        private bool m_AutoFree = false;
+        private long m_SwapBreakPoint = 0;
+        private bool m_Valid = true;
+        private bool m_OnDefHeap = false;
+
+        public void Free()
+        {
+            m_Valid = false;
+            if (m_OnDefHeap)
+                Allocator.DefFree(m_Address);
+            else
+                Allocator.Free(m_Address);
+        }
+
+        private static T SwapBytes<T>(T toswap)
+        {
+            T toreturn;
+
+            int size = Marshal.SizeOf(toswap);
+
+            //-> copy to unmanaged memory
+            IntPtr unmanagedPointer = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(toswap, unmanagedPointer, true);
+
+            //-> copy unmanaged memory to a byte[] buffer
+            byte[] tempbuffer = new byte[size];
+            Marshal.Copy(unmanagedPointer, tempbuffer, 0, size);
+
+            //-> swap the byte buffer
+            Array.Reverse(tempbuffer);
+
+            //-> copy back to unmanaged
+            Marshal.Copy(tempbuffer, 0, unmanagedPointer, size);
+
+            //-> copy to managed, it should now be swapped
+            toreturn = (T)Marshal.PtrToStructure(unmanagedPointer, toswap.GetType());
+
+            //free unmanaged memory
+            Marshal.FreeHGlobal(unmanagedPointer);
+
+            return toreturn;
+        }
+
+        private static object SwapBytes(object toswap, Type type)
+        {
+            object toreturn;
+
+            int size = Marshal.SizeOf(toswap);
+
+            //-> copy to unmanaged memory
+            IntPtr unmanagedPointer = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(toswap, unmanagedPointer, true);
+
+            //-> copy unmanaged memory to a byte[] buffer
+            byte[] tempbuffer = new byte[size];
+            Marshal.Copy(unmanagedPointer, tempbuffer, 0, size);
+
+            //-> swap the byte buffer
+            Array.Reverse(tempbuffer);
+
+            //-> copy back to unmanaged
+            Marshal.Copy(tempbuffer, 0, unmanagedPointer, size);
+
+            //-> copy to managed, it should now be swapped
+            toreturn = Marshal.PtrToStructure(unmanagedPointer, type);
+
+            //free unmanaged memory
+            Marshal.FreeHGlobal(unmanagedPointer);
+
+            return toreturn;
+        }
+
+        ~UnmanagedBuffer()
+        {
+            if ((m_AutoFree) && (m_Valid))
+                Free();
+        }
+
+        public bool OnDefaultHeap
+        {
+            get { return m_OnDefHeap; }
+            set { m_OnDefHeap = value; }
+        }
+
+        public bool FreeOnDestruction
+        {
+            get { return m_AutoFree; }
+            set { m_AutoFree = value; }
+        }
+
+        internal UnmanagedBuffer(IntPtr Address)
+        {
+            m_Address = Address;
+            m_Size = 0;//unknown size
+            m_Position = 0;
+            m_AutoFree = false;
+        }
+        public UnmanagedBuffer(IntPtr Address, long size)
+        {
+            m_Address = Address;
+            m_Size = size;
+            m_Position = 0;
+            m_AutoFree = false;
+        }
+
+        public UnmanagedBuffer(uint size)
+        {
+            m_Address = Allocator.DefAllocate(size);
+            m_Size = size;
+            m_Position = 0;
+            m_OnDefHeap = true;
+            m_AutoFree = true;
+        }
+
+        public bool SwapByteOrder
+        {
+            get { return m_SwapByteOrder; }
+            set { m_SwapByteOrder = value; }
+        }
+        public IntPtr Address
+        {
+            get { return m_Address; }
+        }
+
+        public override bool CanRead
+        {
+            get { return true; }
+        }
+        public override bool CanSeek
+        {
+            get { return true; }
+        }
+        public override bool CanWrite
+        {
+            get { return true; }
+        }
+        public override void Flush()
+        {
+            return;
+        }
+        public override long Length
+        {
+            get
+            {
+                if (m_Size == 0)
+                    throw new NotImplementedException();
+                else
+                    return m_Size;
+            }
+        }
+        public override long Position
+        {
+            get
+            {
+                return m_Position;
+            }
+            set
+            {
+                lock (this)
+                {
+                    m_Position = value;
+                }
+            }
+        }
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            lock (this)
+            {
+                Marshal.Copy((IntPtr)((long)m_Address + m_Position), buffer, offset, count);
+                if (m_SwapByteOrder && (m_Position >= m_SwapBreakPoint))
+                    Array.Reverse(buffer, offset, count);
+                m_Position += count;
+                return count;
+            }
+        }
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            lock (this)
+            {
+                switch (origin)
+                {
+                    case SeekOrigin.Begin:
+                        m_Position = offset;
+                        break;
+                    case SeekOrigin.Current:
+                        m_Position += offset;
+                        break;
+                    case SeekOrigin.End:
+                        m_Position = Length - offset;
+                        break;
+                    default:
+                        break;
+                }
+                return m_Position;
+            }
+        }
+        public override void SetLength(long value)
+        {
+            lock (this)
+            {
+                if (m_AutoFree)
+                    m_Address = Allocator.ReAllocate(m_Address, (uint)value);
+            }
+        }
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            lock (this)
+            {
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    Array.Reverse(buffer, offset, count);
+                Marshal.Copy(buffer, offset, (IntPtr)((long)m_Address + m_Position), count);
+                m_Position += count;
+            }
+        }
+
+        public T Read<T>()
+        {
+            lock (this)
+            {
+                T toreturn = (T)Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), typeof(T));
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    toreturn = SwapBytes<T>(toreturn);//relatively expensive operation :(
+                m_Position += Marshal.SizeOf(toreturn);
+                return toreturn;
+            }
+        }
+
+        public void Write(object towrite)
+        {
+            lock (this)
+            {
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    towrite = SwapBytes(towrite, towrite.GetType());
+                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
+                m_Position += Marshal.SizeOf(towrite);
+            }
+        }
+
+        public void WriteAt(object towrite, long position)
+        {
+            lock (this)
+            {
+                m_Position = position;
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    towrite = SwapBytes(towrite, towrite.GetType());
+                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
+                m_Position += Marshal.SizeOf(towrite);
+            }
+        }
+
+        public void Write<T>(T towrite)
+        {
+            lock (this)
+            {
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    towrite = SwapBytes<T>(towrite);
+                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
+                m_Position += Marshal.SizeOf(towrite);
+            }
+        }
+
+        public object Read(Type type)
+        {
+            lock (this)
+            {
+                object toreturn = Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), type);
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    toreturn = SwapBytes(toreturn, type);
+                m_Position += Marshal.SizeOf(toreturn);
+                return toreturn;
+            }
+        }
+
+        public object ReadAt(long Position, Type type)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                object toreturn = Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), type);
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    toreturn = SwapBytes(toreturn, type);
+                m_Position += Marshal.SizeOf(toreturn);
+                return toreturn;
+            }
+        }
+
+        public T ReadAt<T>(long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                T toreturn = (T)Marshal.PtrToStructure((IntPtr)((long)m_Address + m_Position), typeof(T));
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    toreturn = SwapBytes<T>(toreturn);
+                m_Position += Marshal.SizeOf(toreturn);
+                return toreturn;
+            }
+        }
+
+        public void WriteAt<T>(T towrite, long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    towrite = SwapBytes<T>(towrite);
+                Marshal.StructureToPtr(towrite, (IntPtr)((long)m_Address + m_Position), false);
+                m_Position += Marshal.SizeOf(towrite);
+            }
+        }
+        public int ReadAt(byte[] buffer, long Position, int offset, int count)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                Marshal.Copy((IntPtr)((long)m_Address + m_Position), buffer, offset, count);
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    Array.Reverse(buffer, offset, count);
+                m_Position += count;
+                return count;
+            }
+        }
+        public void WriteAt(byte[] buffer, long Position, int offset, int count)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                if ((m_SwapByteOrder) && (m_Position >= m_SwapBreakPoint))
+                    Array.Reverse(buffer, offset, count);
+                Marshal.Copy(buffer, offset, (IntPtr)((long)m_Address + m_Position), count);
+                m_Position += count;
+            }
+        }
+
+        public string ReadString()
+        {
+            lock (this)
+            {
+                string toreturn = Marshal.PtrToStringAnsi((IntPtr)((long)m_Address + m_Position));
+                m_Position += toreturn.Length + 1;
+                return toreturn;
+            }
+        }
+        public string ReadStringAt(long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                return ReadString();
+            }
+        }
+
+        public string ReadString(int length)
+        {
+            lock (this)
+            {
+                string toreturn = Marshal.PtrToStringAnsi((IntPtr)((long)m_Address + m_Position), length);
+                m_Position += length;
+                return toreturn;
+            }
+        }
+        public string ReadStringAt(long Position, int length)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                return ReadString(length);
+            }
+        }
+
+        public string ReadUnicodeString()
+        {
+            lock (this)
+            {
+                char curchar;
+                List<char> chars = new List<char>();
+                
+                while ((curchar = (char)Read<ushort>()) != 0)
+                    chars.Add(curchar);
+
+                return new string(chars.ToArray());
+            }
+        }
+        public string ReadUnicodeStringAt(long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                return ReadUnicodeString();
+            }
+        }
+
+        public string ReadUnicodeString(int length)
+        {
+            lock (this)
+            {
+                char[] chars = new char[length];
+                for (int i = 0; i < length; i++)
+                    chars[i] = (char)Read<ushort>();
+                return new string(chars);
+            }
+        }
+        public string ReadUnicodeStringAt(long Position, int length)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                return ReadUnicodeString(length);
+            }
+        }
+
+        public string ReadBSTR()
+        {
+            lock (this)
+            {
+                string toreturn = Marshal.PtrToStringBSTR((IntPtr)((long)m_Address + m_Position));
+                m_Position += toreturn.Length + 1;
+                return toreturn;
+            }
+        }
+        public string ReadBSTRAt(long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                return ReadBSTR();
+            }
+        }
+
+        public void WriteString(string towrite)
+        {
+            lock (this)
+            {
+                byte[] asciibytes = ASCIIEncoding.ASCII.GetBytes(towrite);
+                Write(asciibytes, 0, asciibytes.Length);
+                if (asciibytes[asciibytes.Length - 1] != 0)
+                    Write<byte>(0);
+            }
+        }
+        public void WriteStringAt(string towrite, long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                WriteString(towrite);
+            }
+        }
+        public void WriteString(string towrite, int length)
+        {
+            lock (this)
+            {
+                byte[] asciibytes = ASCIIEncoding.ASCII.GetBytes(towrite);
+                Write(asciibytes, 0, Math.Min(length, asciibytes.Length));
+                for (int i = asciibytes.Length; i < length; i++)
+                    Write<byte>(0);
+            }
+        }
+        public void WriteStringAt(string towrite, long Position, int length)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                WriteString(towrite, length);
+            }
+        }
+
+        public void WriteUnicodeString(string towrite)
+        {
+            lock (this)
+            {
+                char[] unicodechars = towrite.ToCharArray() ;
+                foreach (char curchar in unicodechars)
+                    Write<ushort>((ushort)curchar);
+
+                if (unicodechars[unicodechars.Length-1]!=0)
+                    Write<ushort>(0);
+            }
+        }
+        public void WriteUnicodeStringAt(string towrite, long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                WriteUnicodeString(towrite);
+            }
+        }
+        public void WriteUnicodeString(string towrite, int length)
+        {
+            lock (this)
+            {
+                int i;
+                char[] unicodechars = towrite.ToCharArray();
+                for (i = 0; i < Math.Max(length, unicodechars.Length); i++)
+                    Write<ushort>((ushort)unicodechars[i]);
+
+                if (i < length)
+                {
+                    while (i < length)
+                    {
+                        Write<ushort>(0);
+                        i++;
+                    }
+                }
+            }
+        }
+        public void WriteUnicodeStringAt(string towrite, long Position, int length)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                WriteUnicodeString(towrite, length);
+            }
+        }
+
+        public void WriteBSTR(string towrite)
+        {
+            lock (this)
+            {
+                Write<uint>((uint)(towrite.Length * 2));
+                WriteUnicodeString(towrite);
+            }
+        }
+        public void WriteBSTRAt(string towrite, long Position)
+        {
+            lock (this)
+            {
+                m_Position = Position;
+                WriteBSTR(towrite);
+            }
+        }
+
+        public long SwapBreakPoint
+        {
+            get { return m_SwapBreakPoint; }
+            set { m_SwapBreakPoint = value; }
+        }
     }
 }
