@@ -50,15 +50,8 @@ namespace UOAIBasic
     public delegate bool OnWindowsMessageDelegate(ref Win32API.Imports.MSG msg);
 
     public interface IClient
-    {
-        [UForward(typeof(Client), "PatchEncryption")]
-        void PatchEncryption();
-
-        [UForward(typeof(Client), "Quit")]
-        void Quit();
-
-        [UForward(typeof(Client), "AllocateBuffer")]
-        UnmanagedBuffer AllocateBuffer(uint size);
+    {      
+        //Unmanaged Methods and Globals
 
         [UMethod(UOCallibration.CallibratedFeatures.MacroFunction), Sync()]
         void Macro([MarshalAs(UnmanagedType.LPStruct)] MacroTable macro, uint index);
@@ -71,7 +64,14 @@ namespace UOAIBasic
             get;
         }
 
-        [UForward(typeof(Client),"Add_OnKeyUp","Remove_OnKeyUp")]
+        //Forwards
+        [UForward(typeof(Client), "SetAsync")]
+        void SetAsync(string typename, string methodname, bool value);
+
+        [UForward(typeof(Client), "SetInvokationTarget")]
+        void SetInvokationTarget(InvokationTarget target, bool bInvokeAsynchronously);
+
+        [UForward(typeof(Client), "Add_OnKeyUp", "Remove_OnKeyUp")]
         event OnKeyUpDelegate OnKeyUp;
 
         [UForward(typeof(Client), "Add_OnKeyDown", "Remove_OnKeyDown")]
@@ -82,6 +82,15 @@ namespace UOAIBasic
 
         [UForward(typeof(Client), "Add_OnWindowsMessage", "Remove_OnWindowsMessage")]
         event OnWindowsMessageDelegate OnWindowsMessage;
+
+        [UForward(typeof(Client), "PatchEncryption")]
+        void PatchEncryption();
+
+        [UForward(typeof(Client), "Quit")]
+        void Quit();
+
+        [UForward(typeof(Client), "AllocateBuffer")]
+        UnmanagedBuffer AllocateBuffer(uint size);
     }
 
     public delegate bool OnPacketDelegate([UPar(UnmanagedType.Interface,typeof(UnmanagedBuffer))] UnmanagedBuffer packet);
@@ -89,10 +98,10 @@ namespace UOAIBasic
     public interface INetworkObject
     {
         [UMethod(UOCallibration.CallibratedFeatures.pSendPacket), Sync()]
-        void SendPacketToServer(UnmanagedBuffer buffer);
+        void SendPacket(UnmanagedBuffer buffer);
 
         [UVtblMethod(8), Sync()]
-        void SendPacketToClient(UnmanagedBuffer buffer);
+        void HandlePacket(UnmanagedBuffer buffer);
 
         [UHook((uint)8,4,true,true)]
         event OnPacketDelegate onPacketRecieve;

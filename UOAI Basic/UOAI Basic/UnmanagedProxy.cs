@@ -78,7 +78,15 @@ namespace UOAIBasic.Internal
                     {
                         try
                         {
-                            retval &= (bool)del.DynamicInvoke(parameters);
+                            if (Client.InvokationTarget != null)
+                            {
+                                if (Client.AsyncInvokation)
+                                    Client.InvokationTarget.BeginInvoke(del, parameters);
+                                else
+                                    retval &= (bool)Client.InvokationTarget.Invoke(del, parameters);
+                            }
+                            else
+                                retval &= (bool)del.DynamicInvoke(parameters);
                         }
                         catch
                         {
@@ -129,6 +137,8 @@ namespace UOAIBasic.Internal
         private IntPtr m_Address;
         private List<UnmanagedBuffer> tofree=new List<UnmanagedBuffer>();
         public static RuntimeMethodHandle GetTypeMethodHandle;
+
+        public static Dictionary<int, bool> m_Async = new Dictionary<int, bool>();
 
         private Dictionary<int, UnmanagedEvent> m_EventsByRemoveHandler;
         private Dictionary<int, UnmanagedEvent> m_EventsByAddHandler;
@@ -357,7 +367,30 @@ namespace UOAIBasic.Internal
             }
             else if (((attribs = method.GetCustomAttributes(typeof(SyncAttribute), true)).Length > 0)&&(Client.Default.InvokeRequired))
             {
-                return (IMessage)Client.Default.Invoke(new InvokeDelegate(Invoke), new object[] { message });
+                //m_Async value overrides Sync.Async
+                if (m_Async.ContainsKey((int)method.MethodHandle.Value))
+                {
+                    if ((m_Async[(int)method.MethodHandle.Value]))//async override
+                    {
+                        Client.Default.BeginInvoke(new InvokeDelegate(Invoke), new object[] { message });
+                        return new ReturnMessage(null, methodMessage.Args,
+                          methodMessage.ArgCount, methodMessage.LogicalCallContext,
+                          methodMessage);
+                    }
+                    else//sync override
+                        return (IMessage)Client.Default.Invoke(new InvokeDelegate(Invoke), new object[] { message });
+                }
+                else if(((SyncAttribute)attribs[0]).Async)//preconfigured async
+                {
+                    Client.Default.BeginInvoke(new InvokeDelegate(Invoke), new object[] { message });
+                    return new ReturnMessage(null, methodMessage.Args,
+                      methodMessage.ArgCount, methodMessage.LogicalCallContext,
+                      methodMessage);
+                }
+                else//preconfigured sync
+                {
+                    return (IMessage)Client.Default.Invoke(new InvokeDelegate(Invoke), new object[] { message });
+                }
             }
             else
             {
@@ -365,7 +398,7 @@ namespace UOAIBasic.Internal
                 {
                     UMethodAttribute mattrib = (UMethodAttribute)attribs[0];
                     addr = (uint)UOCallibration.Callibrations[(uint)mattrib.CallibratedOffsetFeature];
-                    retval=PerformCall(addr, methodMessage);
+                    retval = PerformCall(addr, methodMessage);
                     if (mattrib.HasReturnValue)
                         returnValue = MarshalFromUnmanaged(retval, mattrib.ReturnType, mattrib.SizeConstant, mattrib.KnownType);
                     else
@@ -373,7 +406,7 @@ namespace UOAIBasic.Internal
                 }
                 else if ((attribs = method.GetCustomAttributes(typeof(UFieldAttribute), true)).Length > 0)
                 {
-                    UFieldAttribute fattrib=(UFieldAttribute)attribs[0];
+                    UFieldAttribute fattrib = (UFieldAttribute)attribs[0];
                     UnmanagedBuffer buff = new UnmanagedBuffer((IntPtr)((uint)m_Address + (uint)UOCallibration.Callibrations[(uint)fattrib.CallibratedOffsetFeature]));
                     retval = buff.Read<uint>();
                     returnValue = MarshalFromUnmanaged(retval, fattrib.ReturnType, fattrib.SizeConstant, fattrib.KnownType);
@@ -381,7 +414,7 @@ namespace UOAIBasic.Internal
                 else if ((attribs = method.GetCustomAttributes(typeof(UGlobalAttribute), true)).Length > 0)
                 {
                     UGlobalAttribute gattrib = (UGlobalAttribute)attribs[0];
-                    UnmanagedBuffer buff=new UnmanagedBuffer((IntPtr)UOCallibration.Callibrations[(uint)gattrib.CallibratedOffsetFeature]);
+                    UnmanagedBuffer buff = new UnmanagedBuffer((IntPtr)UOCallibration.Callibrations[(uint)gattrib.CallibratedOffsetFeature]);
                     retval = buff.Read<uint>();
                     returnValue = MarshalFromUnmanaged(retval, gattrib.ReturnType, gattrib.SizeConstant, gattrib.KnownType);
                 }
@@ -413,19 +446,19 @@ namespace UOAIBasic.Internal
                             returnValue = null;
                     }
                     else*/
-                        returnValue = fattrib.Target.Invoke(null, methodMessage.Args);
+                    returnValue = fattrib.Target.Invoke(null, methodMessage.Args);
                 }
                 else if ((methodMessage.ArgCount == 1) && (methodMessage.Args[0] is Delegate))
                 {
                     returnValue = null;
-                        if (m_EventsByAddHandler.ContainsKey((int)method.MethodHandle.Value))
-                        {
-                            m_EventsByAddHandler[(int)method.MethodHandle.Value].Add((Delegate)methodMessage.Args[0]);
-                        }
-                        else if (m_EventsByRemoveHandler.ContainsKey((int)method.MethodHandle.Value))
-                        {
-                            m_EventsByRemoveHandler[(int)method.MethodHandle.Value].Remove((Delegate)methodMessage.Args[0]);
-                        }
+                    if (m_EventsByAddHandler.ContainsKey((int)method.MethodHandle.Value))
+                    {
+                        m_EventsByAddHandler[(int)method.MethodHandle.Value].Add((Delegate)methodMessage.Args[0]);
+                    }
+                    else if (m_EventsByRemoveHandler.ContainsKey((int)method.MethodHandle.Value))
+                    {
+                        m_EventsByRemoveHandler[(int)method.MethodHandle.Value].Remove((Delegate)methodMessage.Args[0]);
+                    }
                 }
             }
             returnMessage =
@@ -509,6 +542,13 @@ namespace UOAIBasic.Internal
 
         public void SysMessage(uint color, uint font, string message)
         {
+            //dummy event executions to get rid of the annoying 'is never used' messages
+            OnKeyDown(0, true);
+            OnKeyUp(0);
+            OnQuit();
+            Win32API.Imports.MSG msg=new Win32API.Imports.MSG();
+            OnWindowsMessage(ref msg);
+
             throw new NotImplementedException();
         }
 
@@ -544,6 +584,16 @@ namespace UOAIBasic.Internal
         public event SimpleDelegate OnQuit;
 
         public event OnWindowsMessageDelegate OnWindowsMessage;
+
+        public void SetInvokationTarget(InvokationTarget target, bool bInvokeAsynchronously)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetAsync(string typename, string methodname, bool value)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
@@ -787,9 +837,17 @@ namespace UOAIBasic.Internal
         }
     }
 
+    //Synchronize with the client's main thread
     [AttributeUsage(AttributeTargets.Method)]
     public class SyncAttribute : Attribute
     {
+        public bool Async = false;//tricky: Async=true still means the method this attribute applies to
+                                  // gets executed synchronously with the client's main thread...
+                                  // however BeginInvoke is used, without waiting for a result.
+                                  // So from the caller's point of view this method gets
+                                  // executed synchronously if async=false and asynchronously if async=true
+                                  // but in both cases the call is syncrhonized with the client's main thread.
+
         public SyncAttribute()
         {
         }

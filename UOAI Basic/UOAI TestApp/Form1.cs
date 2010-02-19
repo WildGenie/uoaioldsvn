@@ -29,6 +29,8 @@ namespace UOAI_TestApp
                 //TAKE CARE THAT ALL EVENT HANDLERS ARE """PUBLIC""" FUNCTIONS !!!
                 //IF THEY ARE NOT PUBLIC, EVENTS FAIL SILENTLY !!!
 
+                /*
+                 * event detachment is still bugged
                 if (curclient != null)
                 {
                     curclient.OnKeyUp -= new OnKeyUpDelegate(cures_OnKeyUp);
@@ -39,8 +41,21 @@ namespace UOAI_TestApp
                     NetworkObject.onPacketSend -= new OnPacketDelegate(NetworkObject_onPacketSend);
                     //curclient.OnWindowsMessage -= new OnWindowsMessageDelegate(curclient_OnWindowsMessage);
                 }
+                 * 
+                 */
                 
                 curclient = UOAI.Clients[0];
+
+                //synchronize all events with this form's main thread
+                curclient.SetInvokationTarget(new InvokationTarget(this), false);
+                
+                //prevent deadlocks by telling UOAIBasic to execute all methods that might trigger an event asynchronously
+                curclient.SetAsync("IClient", "Macro", true);
+                curclient.SetAsync("IClient", "SysMessage", true);
+                curclient.SetAsync("INetworkObject", "SendPacket", true);
+                curclient.SetAsync("INetworkObject", "HandlePacket", true);
+
+                //install eventhandlers
                 curclient.OnKeyUp += new OnKeyUpDelegate(cures_OnKeyUp);
                 curclient.OnKeyDown += new OnKeyDownDelegate(cures_OnKeyDown);
                 curclient.OnQuit += new SimpleDelegate(curclient_OnQuit);
@@ -60,57 +75,34 @@ namespace UOAI_TestApp
 
         public bool curclient_OnWindowsMessage(ref Win32API.Imports.MSG msg)
         {
-            if (!InvokeRequired)
-            {
-                Win32API.WindowHandler.Messages message = (Win32API.WindowHandler.Messages)msg.message;
-                AddToListBox(message.ToString());
-                return true;
-            }
-            else
-            {
-                BeginInvoke(new OnWindowsMessageDelegate(curclient_OnWindowsMessage), new object[] { msg });
-                return true;
-            }
+            Win32API.WindowHandler.Messages message = (Win32API.WindowHandler.Messages)msg.message;
+            AddToListBox(message.ToString());
+            return true;                
         }
 
         public bool curclient_OnQuit()
         {
-            if (!InvokeRequired)
-            {
-                AddToListBox("Client Quit!");
-                return true;
-            }
-            else
-                return (bool)Invoke(new SimpleDelegate(curclient_OnQuit), new object[] { });
+            AddToListBox("Client Quit!");
+            return true;
         }
 
         public bool cures_OnKeyUp(uint VirtualKeyCode)
         {
-            if (!InvokeRequired)
-            {
-                Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
-                label1.Text = "Last Key Pressed: " + thekey.ToString();
-                if ((thekey >= Key.F1) && (thekey <= Key.F24))
-                    return false;//don't pass function keys
-                return true;
-            }
-            else
-                return (bool)Invoke(new OnKeyUpDelegate(cures_OnKeyUp), new object[] { VirtualKeyCode });
+            Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
+            label1.Text = "Last Key Pressed: " + thekey.ToString();
+            if ((thekey >= Key.F1) && (thekey <= Key.F24))
+                return false;//don't pass function keys
+            return true;
         }
 
         public bool cures_OnKeyDown(uint VirtualKeyCode, bool repeated)
         {
-            if (!InvokeRequired)
-            {
-                Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
-                if (!repeated)
-                    label1.Text = "Key Down: " + thekey.ToString();
-                if ((thekey >= Key.F1) && (thekey <= Key.F24))
-                    return false;//don't pass function keys
-                return true;
-            }
-            else
-                return (bool)Invoke(new OnKeyDownDelegate(cures_OnKeyDown), new object[] { VirtualKeyCode, repeated });
+            Key thekey = KeyInterop.KeyFromVirtualKey((int)VirtualKeyCode);
+            if (!repeated)
+                label1.Text = "Key Down: " + thekey.ToString();
+            if ((thekey >= Key.F1) && (thekey <= Key.F24))
+                return false;//don't pass function keys
+            return true;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -157,7 +149,7 @@ namespace UOAI_TestApp
                 packet.WriteString("ENU");
                 packet.WriteUnicodeString(speech);
 
-                curclient.NetworkObject.SendPacketToServer(packet);
+                curclient.NetworkObject.SendPacket(packet);
             }
         }
 
@@ -165,14 +157,9 @@ namespace UOAI_TestApp
 
         private void AddToListBox(string toadd)
         {
-            if (!InvokeRequired)
-            {
-                if (listBox1.Items.Count == 11)
-                    listBox1.Items.RemoveAt(10);
-                listBox1.Items.Insert(0, toadd);
-            }
-            else
-                BeginInvoke(new AddToListBoxDelegate(AddToListBox), new object[]{toadd});
+            if (listBox1.Items.Count == 11)
+                listBox1.Items.RemoveAt(10);
+            listBox1.Items.Insert(0, toadd);
         }
 
         public bool NetworkObject_OnPacketHandled()

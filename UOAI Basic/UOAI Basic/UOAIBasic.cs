@@ -15,6 +15,95 @@ namespace UOAIBasic
     {
         public static Internal.ClientList Clients { get { return Internal.ClientList.Default; } }
     }
+
+    //wrapper for cross AppDomain (remoted) ISynchronizeInvoke calls
+    //<- if the actual IAsyncResult object is serializable then this might be unnecessary
+    //<- but since we could end up using custom ISynchronizeInvoke implementations
+    //<- so there is no garantue that IAsyncResult will be serializable
+    public class InvokationResult : MarshalByRefObject, IAsyncResult
+    {
+        private IAsyncResult m_Result;
+
+        public InvokationResult(IAsyncResult fromresult)
+        {
+            m_Result = fromresult;
+        }
+
+        public IAsyncResult Result { get { return m_Result; } }
+
+        #region IAsyncResult Members
+
+        public object AsyncState
+        {
+            get { return m_Result.AsyncState; }
+        }
+
+        public WaitHandle AsyncWaitHandle
+        {
+            get { return m_Result.AsyncWaitHandle; }
+        }
+
+        public bool CompletedSynchronously
+        {
+            get { return m_Result.CompletedSynchronously; }
+        }
+
+        public bool IsCompleted
+        {
+            get { return m_Result.IsCompleted; }
+        }
+
+        #endregion
+    }
+
+    //wrapper for cross AppDomain (remoted) ISynchronizeInvoke calls
+    public class InvokationTarget : MarshalByRefObject, System.ComponentModel.ISynchronizeInvoke
+    {
+        private System.ComponentModel.ISynchronizeInvoke m_Target;
+
+        public InvokationTarget(System.ComponentModel.ISynchronizeInvoke target)
+        {
+            m_Target = target;
+        }
+
+        #region ISynchronizeInvoke Members
+
+        public IAsyncResult BeginInvoke(Delegate method, object[] args)
+        {
+            return new InvokationResult(m_Target.BeginInvoke(method, args));
+        }
+
+        public object EndInvoke(IAsyncResult result)
+        {
+            try
+            {
+                return m_Target.EndInvoke(result);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public object Invoke(Delegate method, object[] args)
+        {
+            try
+            {
+                return m_Target.Invoke(method, args);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public bool InvokeRequired
+        {
+            get { return m_Target.InvokeRequired; }
+        }
+
+        #endregion
+    }
 }
 
 namespace UOAIBasic.Internal
@@ -226,6 +315,12 @@ namespace UOAIBasic.Internal
         private Queue<DelegateRequest> DelegateQueue = new Queue<DelegateRequest>();
         private int m_ClientThread;
 
+        private static bool m_AsyncInvokation = false;
+        private static InvokationTarget m_InvokationTarget = null;
+
+        public static bool AsyncInvokation { get { return m_AsyncInvokation; } }
+        public static InvokationTarget InvokationTarget { get { return m_InvokationTarget; } }
+
         //dynamic event implementation
         //events don't play nicely across remoting boundaries
         //so instead we use a custom implementation here...
@@ -248,16 +343,30 @@ namespace UOAIBasic.Internal
         //from the proxy that forwards IClient (or other) calls to unamanged code
         public static Client Default { get { return m_Client; } }
 
+        public static void SetInvokationTarget(InvokationTarget target, bool bInvokeAsynchronously)
+        {
+            m_InvokationTarget = target;
+            m_AsyncInvokation = bInvokeAsynchronously;
+        }
+
         //only one instance is ever created; when requesting a reference (proxy)
         //through remoting from the user app
         public Client()
         {
             m_Client = this;//keep us alive
 
+            
+            /*
+             * 
             //for debugging purposes, this object is on the client app (injected code)
             //the VS debugger has no access to it...
             //...so a console is our only source of debugging info (or attaching IDA to the client would work too ofc)
-            Imports.AllocConsole();
+             * 
+             Imports.AllocConsole();
+             * 
+             */
+
+            
 
             //create IClient proxy
             //this is what we will return to the user app
@@ -350,7 +459,14 @@ namespace UOAIBasic.Internal
             {
                 try
                 {
-                    if (!del.Invoke(ref msg))
+                    if (m_InvokationTarget != null)
+                    {
+                        if (m_AsyncInvokation)
+                            m_InvokationTarget.BeginInvoke(del, new object[] { msg });
+                        else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg }))
+                            drop = true;
+                    }
+                    else if (!del.Invoke(ref msg))
                         drop = true;
                 }
                 catch
@@ -370,7 +486,15 @@ namespace UOAIBasic.Internal
                 {
                     try
                     {
-                        del.Invoke();
+                        if (m_InvokationTarget != null)
+                        {
+                            if (m_AsyncInvokation)
+                                m_InvokationTarget.BeginInvoke(del, new object[] { });
+                            else
+                                m_InvokationTarget.Invoke(del, new object[] { });
+                        }
+                        else
+                            del.Invoke();
                     }
                     catch
                     {
@@ -391,8 +515,21 @@ namespace UOAIBasic.Internal
                 {
                     try
                     {
-                        if (!del.Invoke(msg.wParam, repeated))
+                        if(m_InvokationTarget!=null)
+                        {
+                            if (m_AsyncInvokation)
+                                m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam, repeated });
+                            else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam, repeated }))
+                            {
+                                dropkey = true;
+                                break;
+                            }
+                        }
+                        else if (!del.Invoke(msg.wParam, repeated))
+                        {
                             dropkey = true;
+                            break;
+                        }
                     }
                     catch
                     {
@@ -412,7 +549,17 @@ namespace UOAIBasic.Internal
                 {
                     try
                     {
-                        if (!del.Invoke(msg.wParam))
+                        if (m_InvokationTarget != null)
+                        {
+                            if (m_AsyncInvokation)
+                                m_InvokationTarget.BeginInvoke(del, new object[] { msg.wParam });
+                            else if (!(bool)m_InvokationTarget.Invoke(del, new object[] { msg.wParam }))
+                            {
+                                dropkey = true;
+                                break;
+                            }
+                        }
+                        else if (!del.Invoke(msg.wParam))
                         {
                             dropkey = true;
                             break;
@@ -493,6 +640,47 @@ namespace UOAIBasic.Internal
         public bool Validate()
         {
             return true;
+        }
+
+        //set the SyncAttribute.Async boolean for the specified method
+        //if SyncAttribute.Async = true the method gets executed asynchronously relative to the caller, but synchronously relative to the client
+        //...
+        //this means if f.e. SendPacket has Async=true on its SyncAttribute then it
+        //will return immediately, not waiting until the packet is actually sent.
+        //Still, the sendpacket call gets posted to a queue on the client's main thread, so it's executed synchronised with the client's main thread.
+        //...
+        //This is important in the following situation:
+        // - if you use SetInvokationTarget to ensure events get synchronized with your windows form main thread (or other main thread)
+        // - and then also handle packet events
+        // - and also send packets (directly through SendPacket or indirectly: Macro, SysMessage, ... all send packets)
+        // -> then there would be a problem if you couldn't set all those packet-sending functions to async
+        // -> cause while you are sending a packet from your main thread, the packet event can't be invoked cause your main thread is blocked
+        // -> so basically without setting async on all methods that might send a packet everything would get blocked
+        // -> you send a packet -> in the packet send the onPacketSend event is invoked, but never returns, since it waits until your main thread invokes it, but your main thread is blocked waiting for the packet send to return
+        // -> with async set, the packet send returns immediately and just 'posts' the action to a queue; as a result the main thread block is lifted
+        //
+        // so in summary: SetInvokationTarget + direct/indirect packet sending + packet events = SetAsync on all methods that might send a packet!
+        public static void SetAsync(string typename, string methodname, bool value)
+        {
+            object[] attribs;
+            MethodInfo mi;
+
+            Type type = Assembly.GetExecutingAssembly().GetType(typename);
+            if (type == null)
+                type = Assembly.GetExecutingAssembly().GetType("UOAIBasic." + typename);
+
+            if (type != null)
+            {
+                if ((mi = type.GetMethod(methodname)) != null)
+                {
+                    if ((attribs = mi.GetCustomAttributes(typeof(SyncAttribute), true)).Length > 0)
+                    {
+                        if (UnmanagedProxy.m_Async.ContainsKey((int)mi.MethodHandle.Value))
+                            UnmanagedProxy.m_Async.Remove((int)mi.MethodHandle.Value);
+                        UnmanagedProxy.m_Async.Add((int)mi.MethodHandle.Value, value);
+                    }
+                }
+            }
         }
 
         //encryption patch
