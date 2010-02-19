@@ -116,7 +116,8 @@ Partial Class UOAI
         ''' <summary>Adds clients to the Clients arraylist, based on PID</summary>
         ''' <param name="PID">The process ID of the client you want to add.</param>
         Friend Shadows Sub Add(ByVal PID As Integer)
-            Dim c As New UOAI.Client(PID)
+            Dim bc As UOAIBasic.Client = cl.Clients(cl.Count - 1)
+            Dim c As New UOAI.Client(PID, bc)
             ClientHash.Add(PID, c)
         End Sub
 
