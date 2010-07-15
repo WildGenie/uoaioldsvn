@@ -6,6 +6,47 @@ UOLite
 </name>
 </assembly>
 <members>
-
+<member name="P:UOLite.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:UOLite.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="T:UOLite.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="F:UOLite.LiteClient.GameServerInfo.Address">
+	<summary>The IP address of the server.</summary>
+</member><member name="F:UOLite.LiteClient.GameServerInfo.Name">
+	<summary>The name of the server, as provided by the login server.</summary>
+</member><member name="P:UOLite.LiteClient.GameServerInfo.Latency">
+	<summary>The latency from the client to the server and back in milliseconds (ms). This is retrieved by sending a ping to the server when this property is called.</summary>
+</member><member name="T:UOLite.LiteClient.GameServerInfo">
+ Hide this class from the user, there is no reason from him/her to see it.
+ <summary>Simply a class to hold information about game servers when recieved from the login server.</summary>
+</member><member name="M:UOLite.LiteClient.ConnectToLoginServer(System.String,System.String,System.String,System.UInt16)">
+	<summary>Connects to the specified login server and populates the ServerList property.</summary>
+	<param name="Address">The address of the login server to connect to.</param>
+	<param name="Port">The port to connect to (default is 2593).</param>
+	<param name="Username">The username to connect with.</param>
+	<param name="Password">The cooresponding password for the supplied username.</param>
+</member><member name="M:UOLite.LiteClient.GetBytesFromString(System.Int32@,System.String@,System.Boolean@,System.Boolean@)">
+	<summary>Returns the given string as a byte array, padded as specified.</summary>
+	<param name="Length">The size of the array you want back.</param>
+	<param name="Text">The text you want encoded in bytes.</param>
+	<param name="Unicode">Whether or not you want unicode or not.</param>
+	<param name="NullTerminate">Whether to add the null bytes to the end of the string.</param>
+</member><member name="M:UOLite.LiteClient.InsertBytes(System.Byte[]@,System.Byte[]@,System.Int32@,System.Int32@,System.Int32@)">
+	<summary>Copies bytes from one array to another.</summary>
+	<param name="SourceArray">Where to get the bytes.</param>
+	<param name="TargetArray">Where to put the bytes.</param>
+	<param name="SourceStartIndex">The position in the source array to start reading.</param>
+	<param name="TargetStartIndex">The position in the target array to start writing.</param>
+	<param name="Size">The number of bytes to copy.</param>
+</member>
 </members>
 </doc>
