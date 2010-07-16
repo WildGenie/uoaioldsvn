@@ -90,12 +90,14 @@
     <Compile Include="ClientSocket.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ContextMenu.vb" />
     <Compile Include="dlgLogin.Designer.vb">
       <DependentUpon>dlgLogin.vb</DependentUpon>
     </Compile>
     <Compile Include="dlgLogin.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Enums.vb" />
     <Compile Include="Form1.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -109,7 +111,11 @@
     <Compile Include="frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Item.vb" />
+    <Compile Include="ItemList.vb" />
     <Compile Include="LiteClient.vb" />
+    <Compile Include="Mobile.vb" />
+    <Compile Include="MobileList.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -125,6 +131,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Packets.vb" />
+    <Compile Include="Serial.vb" />
+    <Compile Include="StringList.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">
