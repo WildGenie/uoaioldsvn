@@ -353,7 +353,7 @@ Public Class Form1
         Dim NameBytes() As Byte = Get30Bytes(TextBox1.Text)
         Dim PassBytes() As Byte = Get30Bytes(TextBox2.Text)
 
-        Dim LoginRequest(81) As Byte
+        Dim LoginRequest(82) As Byte
 
         'User Encryption seed, sent to unencrypted servers, usualy is the local ip of the client.
         LoginRequest(0) = 192

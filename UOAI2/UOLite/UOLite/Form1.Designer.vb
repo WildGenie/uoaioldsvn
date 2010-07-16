@@ -24,41 +24,41 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Dim ListViewItem1 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"UOGamers", "255.255.255.255", "52ms", "27%"}, -1)
         Dim ListViewItem2 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"Character Name", "Password"}, -1)
-        Me.TextBox1 = New System.Windows.Forms.TextBox
-        Me.TextBox2 = New System.Windows.Forms.TextBox
-        Me.TextBox3 = New System.Windows.Forms.TextBox
-        Me.TextBox4 = New System.Windows.Forms.TextBox
-        Me.Label1 = New System.Windows.Forms.Label
-        Me.Label2 = New System.Windows.Forms.Label
-        Me.Label3 = New System.Windows.Forms.Label
-        Me.Label4 = New System.Windows.Forms.Label
-        Me.Button1 = New System.Windows.Forms.Button
-        Me.Button2 = New System.Windows.Forms.Button
-        Me.GBConnection = New System.Windows.Forms.GroupBox
-        Me.GBSelectShard = New System.Windows.Forms.GroupBox
-        Me.ListView1 = New System.Windows.Forms.ListView
-        Me.ColumnHeader1 = New System.Windows.Forms.ColumnHeader
-        Me.ColumnHeader2 = New System.Windows.Forms.ColumnHeader
-        Me.ColumnHeader3 = New System.Windows.Forms.ColumnHeader
-        Me.ColumnHeader4 = New System.Windows.Forms.ColumnHeader
-        Me.GBSelectCharacter = New System.Windows.Forms.GroupBox
-        Me.ListView2 = New System.Windows.Forms.ListView
-        Me.ColumnHeader5 = New System.Windows.Forms.ColumnHeader
-        Me.ColumnHeader6 = New System.Windows.Forms.ColumnHeader
-        Me.Panel1 = New System.Windows.Forms.Panel
-        Me.PlayerHits = New System.Windows.Forms.ProgressBar
-        Me.Panel2 = New System.Windows.Forms.Panel
-        Me.Label11 = New System.Windows.Forms.Label
-        Me.Label8 = New System.Windows.Forms.Label
-        Me.Label9 = New System.Windows.Forms.Label
-        Me.Label10 = New System.Windows.Forms.Label
-        Me.Label7 = New System.Windows.Forms.Label
-        Me.PlayerStamina = New System.Windows.Forms.ProgressBar
-        Me.Label6 = New System.Windows.Forms.Label
-        Me.PlayerMana = New System.Windows.Forms.ProgressBar
-        Me.Label5 = New System.Windows.Forms.Label
-        Me.TextBox5 = New System.Windows.Forms.TextBox
-        Me.chk_logpackets = New System.Windows.Forms.CheckBox
+        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.TextBox3 = New System.Windows.Forms.TextBox()
+        Me.TextBox4 = New System.Windows.Forms.TextBox()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.Button1 = New System.Windows.Forms.Button()
+        Me.Button2 = New System.Windows.Forms.Button()
+        Me.GBConnection = New System.Windows.Forms.GroupBox()
+        Me.chk_logpackets = New System.Windows.Forms.CheckBox()
+        Me.GBSelectShard = New System.Windows.Forms.GroupBox()
+        Me.ListView1 = New System.Windows.Forms.ListView()
+        Me.ColumnHeader1 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.ColumnHeader2 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.ColumnHeader3 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.ColumnHeader4 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.GBSelectCharacter = New System.Windows.Forms.GroupBox()
+        Me.ListView2 = New System.Windows.Forms.ListView()
+        Me.ColumnHeader5 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.ColumnHeader6 = CType(New System.Windows.Forms.ColumnHeader(), System.Windows.Forms.ColumnHeader)
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.PlayerHits = New System.Windows.Forms.ProgressBar()
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Label11 = New System.Windows.Forms.Label()
+        Me.Label8 = New System.Windows.Forms.Label()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.Label10 = New System.Windows.Forms.Label()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.PlayerStamina = New System.Windows.Forms.ProgressBar()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.PlayerMana = New System.Windows.Forms.ProgressBar()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.TextBox5 = New System.Windows.Forms.TextBox()
         Me.GBConnection.SuspendLayout()
         Me.GBSelectShard.SuspendLayout()
         Me.GBSelectCharacter.SuspendLayout()
@@ -169,17 +169,28 @@ Partial Class Form1
         Me.GBConnection.Controls.Add(Me.Label4)
         Me.GBConnection.Controls.Add(Me.Label2)
         Me.GBConnection.Controls.Add(Me.Label3)
-        Me.GBConnection.Location = New System.Drawing.Point(0, 0)
+        Me.GBConnection.Location = New System.Drawing.Point(110, 90)
         Me.GBConnection.Name = "GBConnection"
         Me.GBConnection.Size = New System.Drawing.Size(436, 202)
         Me.GBConnection.TabIndex = 10
         Me.GBConnection.TabStop = False
         Me.GBConnection.Text = "Connect and Login"
         '
+        'chk_logpackets
+        '
+        Me.chk_logpackets.AutoSize = True
+        Me.chk_logpackets.Location = New System.Drawing.Point(102, 142)
+        Me.chk_logpackets.Name = "chk_logpackets"
+        Me.chk_logpackets.Size = New System.Drawing.Size(86, 17)
+        Me.chk_logpackets.TabIndex = 10
+        Me.chk_logpackets.Text = "Log Packets"
+        Me.chk_logpackets.UseVisualStyleBackColor = True
+        '
         'GBSelectShard
         '
+        Me.GBSelectShard.Controls.Add(Me.GBConnection)
         Me.GBSelectShard.Controls.Add(Me.ListView1)
-        Me.GBSelectShard.Location = New System.Drawing.Point(0, 0)
+        Me.GBSelectShard.Location = New System.Drawing.Point(107, 65)
         Me.GBSelectShard.Name = "GBSelectShard"
         Me.GBSelectShard.Size = New System.Drawing.Size(436, 202)
         Me.GBSelectShard.TabIndex = 11
@@ -223,6 +234,7 @@ Partial Class Form1
         '
         'GBSelectCharacter
         '
+        Me.GBSelectCharacter.Controls.Add(Me.GBSelectShard)
         Me.GBSelectCharacter.Controls.Add(Me.ListView2)
         Me.GBSelectCharacter.Location = New System.Drawing.Point(0, 0)
         Me.GBSelectCharacter.Name = "GBSelectCharacter"
@@ -257,8 +269,6 @@ Partial Class Form1
         '
         'Panel1
         '
-        Me.Panel1.Controls.Add(Me.GBConnection)
-        Me.Panel1.Controls.Add(Me.GBSelectShard)
         Me.Panel1.Controls.Add(Me.GBSelectCharacter)
         Me.Panel1.Location = New System.Drawing.Point(12, 12)
         Me.Panel1.Name = "Panel1"
@@ -380,16 +390,6 @@ Partial Class Form1
         Me.TextBox5.Name = "TextBox5"
         Me.TextBox5.Size = New System.Drawing.Size(435, 217)
         Me.TextBox5.TabIndex = 16
-        '
-        'chk_logpackets
-        '
-        Me.chk_logpackets.AutoSize = True
-        Me.chk_logpackets.Location = New System.Drawing.Point(102, 142)
-        Me.chk_logpackets.Name = "chk_logpackets"
-        Me.chk_logpackets.Size = New System.Drawing.Size(86, 17)
-        Me.chk_logpackets.TabIndex = 10
-        Me.chk_logpackets.Text = "Log Packets"
-        Me.chk_logpackets.UseVisualStyleBackColor = True
         '
         'Form1
         '
