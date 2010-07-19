@@ -22,8 +22,8 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Dim ListViewItem1 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"UOGamers", "255.255.255.255", "52ms", "27%"}, -1)
-        Dim ListViewItem2 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"Character Name", "Password"}, -1)
+        Dim ListViewItem3 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"UOGamers", "255.255.255.255", "52ms", "27%"}, -1)
+        Dim ListViewItem4 As System.Windows.Forms.ListViewItem = New System.Windows.Forms.ListViewItem(New String() {"Character Name", "Password"}, -1)
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.TextBox3 = New System.Windows.Forms.TextBox()
@@ -203,7 +203,7 @@ Partial Class Form1
         Me.ListView1.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader1, Me.ColumnHeader2, Me.ColumnHeader3, Me.ColumnHeader4})
         Me.ListView1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ListView1.FullRowSelect = True
-        Me.ListView1.Items.AddRange(New System.Windows.Forms.ListViewItem() {ListViewItem1})
+        Me.ListView1.Items.AddRange(New System.Windows.Forms.ListViewItem() {ListViewItem3})
         Me.ListView1.Location = New System.Drawing.Point(3, 16)
         Me.ListView1.MultiSelect = False
         Me.ListView1.Name = "ListView1"
@@ -236,7 +236,7 @@ Partial Class Form1
         '
         Me.GBSelectCharacter.Controls.Add(Me.GBSelectShard)
         Me.GBSelectCharacter.Controls.Add(Me.ListView2)
-        Me.GBSelectCharacter.Location = New System.Drawing.Point(0, 0)
+        Me.GBSelectCharacter.Location = New System.Drawing.Point(4, 3)
         Me.GBSelectCharacter.Name = "GBSelectCharacter"
         Me.GBSelectCharacter.Size = New System.Drawing.Size(436, 202)
         Me.GBSelectCharacter.TabIndex = 12
@@ -249,7 +249,7 @@ Partial Class Form1
         Me.ListView2.Columns.AddRange(New System.Windows.Forms.ColumnHeader() {Me.ColumnHeader5, Me.ColumnHeader6})
         Me.ListView2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ListView2.FullRowSelect = True
-        Me.ListView2.Items.AddRange(New System.Windows.Forms.ListViewItem() {ListViewItem2})
+        Me.ListView2.Items.AddRange(New System.Windows.Forms.ListViewItem() {ListViewItem4})
         Me.ListView2.Location = New System.Drawing.Point(3, 16)
         Me.ListView2.MultiSelect = False
         Me.ListView2.Name = "ListView2"

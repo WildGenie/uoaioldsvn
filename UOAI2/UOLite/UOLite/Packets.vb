@@ -2810,6 +2810,60 @@ Partial Class LiteClient
 #End Region
 
 #Region "Interface - Targeting, Single/Double Click, Hue Picker, etc..."
+
+        Public Class CharacterList
+            Inherits Packet
+
+            Private _CharList As New ArrayList
+
+            Public ReadOnly Property CharacterList As ArrayList
+                Get
+                    Return _CharList
+                End Get
+            End Property
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.CharacterList)
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 1
+
+                    Dim CharCount As Byte = bytes(3)
+
+                    Dim NameBytes(29) As Byte
+                    Dim PasswordBytes(29) As Byte
+
+                    Dim Character As New CharListEntry
+
+                    For i As Integer = 0 To CharCount - 1
+
+                        'Get The Name
+                        For s As Integer = i + 4 To i + 33
+                            NameBytes(s - (i + 4)) = bytes((i * 60) + s)
+                        Next
+
+                        For s As Integer = i + 34 To i + 63
+                            PasswordBytes(s - (i + 34)) = bytes((i * 60) + s)
+                        Next
+
+                        If NameBytes(0) = 0 Then
+                            Exit For
+                        Else
+                            Character.Name = System.Text.Encoding.ASCII.GetString(NameBytes).Replace(Chr(0), "")
+                            Character.Password = System.Text.Encoding.ASCII.GetString(PasswordBytes).Replace(Chr(0), "")
+                            Character.Slot = i
+                            _CharList.Add(Character)
+                            Character = New CharListEntry
+                        End If
+
+                    Next
+
+                End With
+            End Sub
+
+        End Class
+
         Public Class TakeObject
             Inherits Packet
 
@@ -3438,7 +3492,6 @@ Partial Class LiteClient
         ''' <summary>
         ''' Reason enumeration for "Get Item Failed" packet. (0x27)
         ''' </summary>
-        ''' <remarks></remarks>
         Public Enum GetItemFailedReason
             ''' <summary>Displays "You cannot pick that up."</summary>
             CannotPickup

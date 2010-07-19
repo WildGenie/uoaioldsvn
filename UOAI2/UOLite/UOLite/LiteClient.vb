@@ -1,11 +1,19 @@
 ﻿Imports System.Net, System.Net.Sockets, System.Text, System.IO, System.Net.NetworkInformation, Microsoft.Win32
 
+#Const LogPackets = False
+
 Public Class LiteClient
 
 #Region "Base Declarations"
     Protected Friend Shared ReadOnly WorldSerial = New Serial(Convert.ToUInt32(4294967295))
-    Const PacketSize As Integer = 8192
-    Const PacketReadInterval As Integer = 1
+    Const PacketSize As Integer = 1024 * 32
+
+    Const PacketReadInterval As Integer = 10
+
+#If LogPackets Then
+    Private PacketLog As System.IO.StreamWriter = File.CreateText(Application.StartupPath & "\packets.log")
+#End If
+
     Friend Shared StrLst As StringList
     Private WithEvents _LoginClient As TcpClient
     Private WithEvents _LoginStream As NetworkStream
@@ -13,8 +21,18 @@ Public Class LiteClient
     Private WithEvents _GameStream As NetworkStream
     Protected Friend Shared ClientPath As String
 
-    Protected Friend Items As ItemList
-    Protected Friend Mobiles As MobileList
+    Protected Friend _Items As New Item(Me, WorldSerial)
+
+    ''' <summary>
+    ''' Returns the client's itemlist.
+    ''' </summary>
+    Public ReadOnly Property Items() As ItemList
+        Get
+            Return _Items.Contents
+        End Get
+    End Property
+
+    Protected Friend Mobiles As New MobileList(Me)
     Protected Friend _AllItems As New Hashtable
     Protected Friend _ItemInHand As Serial
     Protected Friend _WaitingForTarget As Boolean
@@ -22,6 +40,21 @@ Public Class LiteClient
     Protected Friend _TargetUID As UInteger
     Protected Friend _TargetType As Byte
     Protected Friend _TargetFlag As Byte
+
+    Private Shared ProcessingPacket As Boolean = False
+
+    Protected Friend _CharacterList As New ArrayList
+    Public ReadOnly Property CharacterList As ArrayList
+        Get
+            Return _CharacterList
+        End Get
+    End Property
+
+    Public Structure CharListEntry
+        Public Name As String
+        Public Password As String
+        Public Slot As Byte
+    End Structure
 
     Protected Friend _Player As Mobile
 
@@ -89,21 +122,21 @@ Public Class LiteClient
     ''' <param name="Hue">The hue of the text.</param>
     ''' <param name="Language">The language code that applies to the text.</param>
     ''' <param name="SpeechType">The speech type as <see cref="Enums.SpeechTypes"/></param>
-    Public Event onClientSpeech(ByVal client As LiteClient, ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As Enums.SpeechTypes)
+    Public Event onClientSpeech(ByRef Client As LiteClient, ByVal Text As String, ByVal Font As Enums.Fonts, ByVal Hue As UShort, ByVal Language As String, ByVal SpeechType As Enums.SpeechTypes)
 
     ''' <summary>
     ''' Called when a mobile is created and added to the mobile list.
     ''' </summary>
     ''' <param name="Client">The client to which this applies.</param>
     ''' <param name="Mobile">The new mobile.</param>
-    Public Event onNewMobile(ByVal Client As LiteClient, ByVal Mobile As Mobile)
+    Public Event onNewMobile(ByRef Client As LiteClient, ByVal Mobile As Mobile)
 
     ''' <summary>
     ''' Called after a new item is created and added to the item list.
     ''' </summary>
     ''' <param name="Client">The client to which this applies.</param>
     ''' <param name="Item">The new item.</param>
-    Public Event onNewItem(ByVal Client As LiteClient, ByVal Item As Item)
+    Public Event onNewItem(ByRef Client As LiteClient, ByVal Item As Item)
 
     ''' <summary>
     ''' Called when the server sends the client a CliLoc speech packet. This is after the client processes the packet.
@@ -117,7 +150,7 @@ Public Class LiteClient
     ''' <param name="CliLocNumber">The cliloc number.</param>
     ''' <param name="Name">The name of the speaker. "SYSTEM" for System.</param>
     ''' <param name="ArgsString">The arguements string, for formatting the speech. Each arguement is seperated by a "\t".</param>
-    Public Event onCliLocSpeech(ByVal Client As LiteClient, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal CliLocNumber As UInteger, ByVal Name As String, ByVal ArgsString As String)
+    Public Event onCliLocSpeech(ByRef Client As LiteClient, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal CliLocNumber As UInteger, ByVal Name As String, ByVal ArgsString As String)
 
     ''' <summary>Called when the client recieves a "text" or "Unicode Text" packet from the server.</summary>
     ''' <param name="Client">The client to which this applies.</param>
@@ -128,14 +161,19 @@ Public Class LiteClient
     ''' <param name="Font">The font of the message.</param>
     ''' <param name="Text">The text to be displayed.</param>
     ''' <param name="Name">The name of the speaker. "SYSTEM" for System.</param>
-    Public Event onSpeech(ByVal Client As LiteClient, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal Text As String, ByVal Name As String)
+    Public Event onSpeech(ByRef Client As LiteClient, ByVal Serial As Serial, ByVal BodyType As UShort, ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal Text As String, ByVal Name As String)
 
+    ''' <summary>Called when the server sends the list of characters.</summary>
+    ''' <param name="Client">The client making the call</param>
+    ''' <param name="CharacterList">The list of characters as <see cref="LiteClient.CharListEntry">CharacterListEntry</see>'s.</param>
+    Public Event onCharacterListReceive(ByRef Client As LiteClient, ByVal CharacterList As ArrayList)
 
     Friend Sub NewItem(ByVal Item As Item)
         RaiseEvent onNewItem(Me, Item)
     End Sub
 
-    Private GameBuffer As New CircularBuffer(16000)
+    Private Shared BufferSize As UInteger = 1024 * 1024 * 5 '5 Megabytes
+    Private Shared GameBuffer As New CircularBuffer(BufferSize)
     Private WithEvents GameBufferTimer As New System.Timers.Timer(PacketReadInterval) With {.Enabled = False}
 
     Private _Username As String
@@ -292,11 +330,21 @@ Public Class LiteClient
 
     End Sub
 
-    Public Sub Send(ByRef Packet As Packet)
+    Public Overloads Sub Send(ByRef Packet As Packet)
         If _LoginClient.Connected Then
             _LoginStream.Write(Packet.Data, 0, Packet.Size)
         ElseIf _GameClient.Connected Then
             _GameStream.Write(Packet.Data, 0, Packet.Size)
+        Else
+            Throw New ApplicationException("Unable to send packet, you are not connected!")
+        End If
+    End Sub
+
+    Public Overloads Sub Send(ByRef Packet() As Byte)
+        If _LoginClient.Connected Then
+            _LoginStream.Write(Packet, 0, Packet.Length)
+        ElseIf _GameClient.Connected Then
+            _GameStream.Write(Packet, 0, Packet.Length)
         Else
             Throw New ApplicationException("Unable to send packet, you are not connected!")
         End If
@@ -424,7 +472,7 @@ Public Class LiteClient
                         Next
 
                         'Create the gameserverinfo object.
-                        svrlist(i) = New GameServerInfo(System.Text.Encoding.ASCII.GetString(NameBytes), bytes(i + 45) & "." & bytes(i + 44) & "." & bytes(i + 43) & "." & bytes(i + 42), bytes(i + 40))
+                        svrlist(i) = New GameServerInfo(System.Text.Encoding.ASCII.GetString(NameBytes).Replace(Chr(0), ""), bytes(i + 45) & "." & bytes(i + 44) & "." & bytes(i + 43) & "." & bytes(i + 42), bytes(i + 40))
 
                     Next
 
@@ -578,6 +626,7 @@ Public Class LiteClient
         Next
     End Sub
 
+    ''' <summary>Asynchronously recieves packets and writes them to the head of the packet buffer.</summary>
     Private Sub GameRecieve(ByVal ar As IAsyncResult)
         '--Retreive array of bytes
         Dim bytes() As Byte = ar.AsyncState
@@ -593,9 +642,17 @@ Public Class LiteClient
             'Disable the timer to pause handling packets.
             GameBufferTimer.Enabled = False
 
+            'just wait for the timer thread to come to a halt.
+            While ProcessingPacket
+                'do nothing...
+                Threading.Thread.Sleep(1)
+            End While
+
             'Decompress the bytes and add them to the GameBuffer.
-            bytes = DecompressHuffman(bytes)
-            GameBuffer.Write(bytes)
+            Dim buffbytes() As Byte = DecompressHuffman(bytes)
+            GameBuffer.Write(buffbytes)
+
+            If GameBuffer.Size > BufferSize - 1 Then Throw New ApplicationException("Game Buffer Overflow!")
 
             'Re-enable the timer, to resume handling packets.
             GameBufferTimer.Enabled = True
@@ -621,33 +678,56 @@ Public Class LiteClient
         End If
     End Sub
 
+    ''' <summary>Reads bytes from the tail of the packet buffer and parses them into actual game packets. Then calls the appropriet subroutine to handle them.</summary>
     Private Sub HandleGamePacket()
-        'Are we at the end of the stream?
-        If GameBuffer.Size = 0 Then Exit Sub
+        ProcessingPacket = True
+
+        'Is there any data in the buffer?
+        If GameBuffer.Size = 0 Then
+#If DEBUG Then
+            Debug.WriteLine("GameBuffer empty! Stopping Reading until next packet!")
+#End If
+            GameBufferTimer.Enabled = False
+            ProcessingPacket = False
+            Exit Sub
+        ElseIf GameBuffer.Size < 0 Then
+
+#If DEBUG Then
+            Debug.WriteLine("Oops! Read too far in the buffer! (Size: " & GameBuffer.Size & ")")
+#End If
+
+        ElseIf GameBuffer.PeekOne = 0 Then
+            'Skipping null byte.
+            GameBuffer.Skip(1)
+#If DEBUG Then
+            Debug.WriteLine("WARNING: Skipping null byte in buffer. This is probably a packet parsing issue!")
+#End If
+
+            GameBufferTimer.Enabled = False
+            ProcessingPacket = False
+            Exit Sub
+        End If
+
 
         'Read a byte from GameBuffer
-        Dim PacketType As Integer = GameBuffer.ReadByte
+        Dim PacketType As Integer = GameBuffer.PeekOne
 
         Dim PacketSize As Integer = 0
-        Dim HeaderSize As Integer = 1
-        Dim SizeBytes(1) As Byte
+        Dim SizeBytes() As Byte = {GameBuffer.Peek(2), GameBuffer.Peek(1)}
 
+        'Determin the size of the packet.
         Select Case PacketType
 
             Case &HB 'Damage http://docs.polserver.com/packets/index.php?Packet=0x0B
                 PacketSize = 7
 
-            Case &H11, &H16, &H17, &H1A, &H1C, &H36, &H3A, &H3C, &H74, &H78, &H7C, &H89, &H9E, &HA5, &HA6, &HA8, _
+            Case &H11, &H16, &H17, &H1A, &H1C, &H36, &H3A, &H3C, &H74, &H7C, &H89, &H9E, &HA5, &HA6, &HA8, _
                  &HA9, &HAB, &HAE, &HB0, &HB2, &HB7, &HC1, &HCC, &HD3, &HD8, &HDB, &HDD, &HDE, &HDF, &HF0, _
                  &HBF, &H46
-                'NOTE: No idea what 0xBF or 0x46 is for.
+                'NOTE: No idea what 0x46 is for.
 
                 'Get the packet size from the uo-added packet header.
-                SizeBytes(1) = GameBuffer.ReadByte
-                SizeBytes(0) = GameBuffer.ReadByte
                 PacketSize = BitConverter.ToUInt16(SizeBytes, 0)
-
-                HeaderSize = 3
 
             Case &H29, &H31, &H55, &HC6
                 PacketSize = 1
@@ -691,6 +771,24 @@ Public Class LiteClient
             Case &H6E
                 PacketSize = 14
 
+            Case &H78
+                'Copy the entire buffer in a byte array.
+                Dim buff() As Byte = GameBuffer.ToArray
+
+                For i As UInteger = 0 To buff.Length
+                    If buff(i) = 0 Then
+                        If buff(i + 1) = 0 Then
+                            If buff(i + 2) = 0 Then
+                                If buff(i + 3) = 0 Then
+                                    '4 zeroes in a row
+                                    PacketSize = i + 4
+                                    Exit For
+                                End If
+                            End If
+                        End If
+                    End If
+                Next
+
             Case &H2E
                 PacketSize = 15
 
@@ -699,6 +797,9 @@ Public Class LiteClient
 
             Case &H2D, &H77
                 PacketSize = 17
+
+            Case &H80 'Experimental to handle 80-00-00-0D-2A-02-00-ED-02-6E-03-D0-00-07-00-00-00-03 after DD packet.
+                PacketSize = 18
 
             Case &H20, &H90
                 PacketSize = 19
@@ -746,31 +847,76 @@ Public Class LiteClient
                 PacketSize = 304
 
             Case Else
-
-                Throw New ApplicationException("Unrecognized Packet Type: " & PacketType & "  ")
-                End
+                GameBuffer.Skip(1)
+#If DEBUG Then
+                Debug.WriteLine("WARNING: Unrecognized Packet Type: 0x" & PacketType.ToString("X") & ", skipping byte in attempt to make this work.")
+#End If
+                ProcessingPacket = False
+                Exit Sub
 
         End Select
 
-        Dim Packet(PacketSize - 1) As Byte
-
-        Packet(0) = PacketType
-
-        If HeaderSize = 3 Then
-            Packet(1) = SizeBytes(1)
-            Packet(2) = SizeBytes(0)
+        If GameBuffer.Size - PacketSize < 0 Then
+#If DEBUG Then
+            Debug.WriteLine("WARNING: Not enough data in the buffer for this whole packet! Waiting for next packet from the server!")
+#End If
+            ProcessingPacket = False
+            GameBufferTimer.Enabled = False
+            Exit Sub
         End If
 
-        InsertBytes(GameBuffer.Read(PacketSize - HeaderSize), Packet, 0, HeaderSize, PacketSize - HeaderSize)
+        'make the byte array to hold the individual packet.
+        Dim Packet(PacketSize - 1) As Byte
 
+        'Fill the packet byte array with the bytes from the packet.
+        InsertBytes(GameBuffer.Read(PacketSize), Packet, 0, 0, PacketSize)
+
+#If LogPackets Then
+        PacketLog.WriteLine("PACKET: " & BitConverter.ToString(Packet))
+#End If
+
+#If DEBUG Then
         Debug.WriteLine("PACKET: " & BitConverter.ToString(Packet))
+#End If
 
-        PacketHandling(BuildPacket(Packet, Enums.PacketOrigin.FROMSERVER), Enums.PacketOrigin.FROMSERVER)
+        'Build the actual packet object and send it to get handled.
+        PacketHandling(BuildPacket(Packet))
 
+        'Let everything else know that you finished handling this packet.
+        ProcessingPacket = False
     End Sub
 
-    Private Sub PacketHandling(ByRef currentpacket As Packet, ByVal Origin As Enums.PacketOrigin)
+    ''' <summary>Handles a packet however it needs to be handled.</summary>
+    ''' <param name="currentpacket">The packet to process.</param>
+    Private Sub PacketHandling(ByRef currentpacket As Packet)
         Select Case currentpacket.Type
+            Case Enums.PacketType.ClientVersion
+                'Respond with 0xBD packet.
+                Dim VerPacket(11) As Byte
+                VerPacket(0) = 189
+
+                'Packet Size
+                VerPacket(1) = 0
+                VerPacket(2) = 12
+
+                '6.0.13.0 Version string with Null terminator.
+                VerPacket(3) = 54 '6
+                VerPacket(4) = 46 '.
+                VerPacket(5) = 48 '0
+                VerPacket(6) = 46 '.
+                VerPacket(7) = 49 '1
+                VerPacket(8) = 51 '3
+                VerPacket(9) = 46 '.
+                VerPacket(10) = 48 '0
+                VerPacket(11) = 0 'Null Terminator
+
+                'Respond with version string.
+                _GameStream.Write(VerPacket, 0, VerPacket.Length)
+
+            Case Enums.PacketType.CharacterList
+                _CharacterList = DirectCast(currentpacket, Packets.CharacterList).CharacterList
+                RaiseEvent onCharacterListReceive(Me, _CharacterList)
+
             Case Enums.PacketType.MobileStats
                 'We already know now that the mobile exists, because this packet isnt sent until after the MOB is created
                 'So there is no need to check for the existance of the MOB. Just send the packet to the mobile for it to update itself.
@@ -878,8 +1024,7 @@ Public Class LiteClient
         End If
     End Sub
 
-
-    Private Function BuildPacket(ByRef packetbuffer As Byte(), ByVal origin As Enums.PacketOrigin) As Packet
+    Private Function BuildPacket(ByRef packetbuffer As Byte()) As Packet
 
 #If PacketLogging = True Then
             If origin = Enums.PacketOrigin.FROMCLIENT Then
@@ -945,14 +1090,7 @@ Public Class LiteClient
                     Dim k As Packets.Target = New Packets.Target(packetbuffer)
 
                     'Set the targeting variables.
-                    If origin = Enums.PacketOrigin.FROMSERVER Then
-                        _Targeting = True
-                        _TargetUID = k.Serial
-                        _TargetType = k.TargetType
-                        _TargetFlag = k.Flag
-                    Else
-                        _Targeting = False
-                    End If
+
 
                     Return k
                 Case Enums.PacketType.DoubleClick
@@ -996,6 +1134,9 @@ Public Class LiteClient
                 Case Enums.PacketType.LoginComplete
                     Return New Packets.LoginComplete(packetbuffer)
 
+                Case Enums.PacketType.CharacterList
+                    Return New Packets.CharacterList(packetbuffer)
+
                 Case Else
                     Dim j As New Packet(packetbuffer(0))
                     j._Data = packetbuffer
@@ -1014,6 +1155,50 @@ Public Class LiteClient
         End Try
 
     End Function
+
+    Public Sub ChooseCharacter(ByRef CharacterName As String, ByRef Password As String, ByVal Slot As Byte)
+        If Not _GameClient.Connected Then Exit Sub
+
+        Dim packet(72) As Byte
+        '0x5D Char Login Packet
+        packet(0) = 93
+
+        'Unknown 0xEDEDEDED
+        packet(1) = 237
+        packet(2) = 237
+        packet(3) = 237
+        packet(4) = 237
+
+        Dim CharBytes() As Byte = GetBytesFromString(30, CharacterName)
+        Dim PasswordBytes() As Byte = GetBytesFromString(30, Password)
+
+        'Character Name
+        For i As Integer = 5 To 34
+            packet(i) = CharBytes(i - 5)
+        Next
+
+        'Character Password
+        For i As Integer = 35 To 64
+            packet(i) = PasswordBytes(i - 35)
+        Next
+
+        'Character Slot
+        packet(65) = 0
+        packet(66) = 0
+        packet(67) = 0
+        packet(68) = Slot
+
+        'Dim EncBytes() As Byte = BitConverter.GetBytes(AccountUID)
+        'User's encryption key
+        packet(69) = 192
+        packet(70) = 168
+        packet(71) = 1
+        packet(72) = 120
+
+        'MsgBox(BitConverter.ToString(packet))
+        Send(packet)
+
+    End Sub
 
 #Region "Huffman Decompression Code"
 
@@ -1114,11 +1299,17 @@ Public Class LiteClient
 #End Region
 
     Private Sub GameBufferTimer_Elapsed(ByVal sender As Object, ByVal e As System.Timers.ElapsedEventArgs) Handles GameBufferTimer.Elapsed
-        HandleGamePacket()
+        If _GameClient.Connected Then
+            HandleGamePacket()
+        Else
+            GameBufferTimer.Enabled = False
+        End If
+
     End Sub
 
     Public Sub New()
         'Localize()
+        _AllItems.Add(WorldSerial, _Items)
     End Sub
 
     Public Sub Localize()
@@ -1173,14 +1364,16 @@ End Class
 
 Public Class CircularBuffer
     Private Bytes() As Byte
-    Private ReadPosition As Integer = 0
-    Private WritePosition As Integer = 0
+    Private ReadPosition As UInteger = 0
+    Private WritePosition As UInteger = 0
     Private _Size As Integer = 0
 
-    Public Sub New(ByRef Size As Integer)
+    Public Sub New(ByRef Size As UInteger)
         Dim b(Size) As Byte
         Bytes = b
     End Sub
+
+#Region "Read"
 
     Public Function ReadByte() As Byte
         Dim j As Byte = Bytes(ReadPosition)
@@ -1204,6 +1397,10 @@ Public Class CircularBuffer
         Return ReturnBytes
     End Function
 
+#End Region
+
+#Region "Write"
+
     Public Sub WriteByte(ByRef ByteToWrite As Byte)
         Bytes(WritePosition) = ByteToWrite
         WritePosition += 1
@@ -1223,9 +1420,62 @@ Public Class CircularBuffer
 
     End Sub
 
+#End Region
+
+#Region "Peek"
+
+    Public Function PeekBytes(ByRef Size As UInteger) As Byte()
+        Dim retbytes(Size - 1) As Byte
+        For i As UInteger = 0 To Size - 1
+            retbytes(i) = Bytes(ReadPosition + i)
+        Next
+        Return retbytes
+    End Function
+
+    Public Function Peek(ByRef Offset As UInteger) As Byte
+        Return Bytes(ReadPosition + Offset)
+    End Function
+
+    Public Function PeekOne() As Byte
+        Return Bytes(ReadPosition)
+    End Function
+
+#End Region
+
     Public ReadOnly Property Size As Integer
         Get
             Return _Size
+        End Get
+    End Property
+
+    Public Sub Skip(ByRef Amount As UInteger)
+        ReadPosition += Amount
+    End Sub
+
+    Public ReadOnly Property TailPosition As UInteger
+        Get
+            Return ReadPosition
+        End Get
+    End Property
+
+    Public ReadOnly Property HeadPosition As UInteger
+        Get
+            Return WritePosition
+        End Get
+    End Property
+
+    Public ReadOnly Property ToArray As Byte()
+        Get
+            Dim ReturnBytes(Size) As Byte
+            Dim CurrPos As UInteger = ReadPosition
+
+            For i As Integer = 0 To Size - 1
+                ReturnBytes(i) = Bytes(CurrPos)
+                CurrPos += 1
+                If CurrPos = Bytes.Length Then CurrPos = 0
+            Next
+
+            Return ReturnBytes
         End Get
     End Property
 

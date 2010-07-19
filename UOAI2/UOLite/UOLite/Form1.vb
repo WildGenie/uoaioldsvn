@@ -456,7 +456,7 @@ Public Class Form1
         packet(67) = 0
         packet(68) = ListView2.SelectedIndices(0)
 
-        Dim EncBytes() As Byte = BitConverter.GetBytes(AccountUID)
+        'Dim EncBytes() As Byte = BitConverter.GetBytes(AccountUID)
         'User's encryption key
         packet(69) = 192
         packet(70) = 168
@@ -1502,5 +1502,8 @@ Public Class Form1
         Return Size
     End Function
 
+    Private Sub ListView2_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListView2.SelectedIndexChanged
+
+    End Sub
 End Class
 
