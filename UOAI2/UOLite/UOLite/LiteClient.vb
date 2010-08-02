@@ -690,11 +690,6 @@ Public Class LiteClient
             GameBufferTimer.Enabled = False
             ProcessingPacket = False
             Exit Sub
-        ElseIf GameBuffer.Size < 0 Then
-
-#If DEBUG Then
-            Debug.WriteLine("Oops! Read too far in the buffer! (Size: " & GameBuffer.Size & ")")
-#End If
 
         ElseIf GameBuffer.PeekOne = 0 Then
             'Skipping null byte.
@@ -771,7 +766,7 @@ Public Class LiteClient
             Case &H6E
                 PacketSize = 14
 
-            Case &H78
+            Case &H78 'Should be 14, but for some reason isnt always 14...
                 'Copy the entire buffer in a byte array.
                 Dim buff() As Byte = GameBuffer.ToArray
 
@@ -789,6 +784,9 @@ Public Class LiteClient
                     End If
                 Next
 
+                'Something so high that it thinks that it has to wait to recieve the rest and waits to process.
+                If PacketSize = 0 Then PacketSize = BufferSize + 1
+
             Case &H2E
                 PacketSize = 15
 
@@ -798,7 +796,7 @@ Public Class LiteClient
             Case &H2D, &H77
                 PacketSize = 17
 
-            Case &H80 'Experimental to handle 80-00-00-0D-2A-02-00-ED-02-6E-03-D0-00-07-00-00-00-03 after DD packet.
+            Case &H80 'Experimental to handle 80-00-00-0D-2A-02-00-ED-02-6E-03-D0-00-07-00-00-00-03 after DD packet. idk what its for...
                 PacketSize = 18
 
             Case &H20, &H90
