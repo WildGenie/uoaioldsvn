@@ -64,6 +64,7 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="3DPosition.vb" />
     <Compile Include="ContextMenu.vb" />
     <Compile Include="Enums.vb" />
     <Compile Include="Item.vb" />

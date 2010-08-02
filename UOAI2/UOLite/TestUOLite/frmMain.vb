@@ -8,6 +8,7 @@ Public Class frmMain
         Dim ConnectResponse As String = Client.GetServerList(TextBox1.Text, TextBox2.Text, TextBox3.Text, TextBox4.Text)
         If ConnectResponse = "SUCCESS" Then
             Log("Connected to server: " & Client.LoginServerAddress & ":" & Client.LoginPort)
+            TabControl1.SelectTab(1)
             Me.AcceptButton = SendButton
             CmdBox.Select()
         Else
@@ -41,7 +42,7 @@ Public Class frmMain
     End Sub
 
     Private Sub Client_onSpeech(ByRef Client As UOLite2.LiteClient, ByVal Serial As UOLite2.LiteClient.Serial, ByVal BodyType As UShort, ByVal SpeechType As UOLite2.LiteClient.Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As UOLite2.LiteClient.Enums.Fonts, ByVal Text As String, ByVal Name As String) Handles Client.onSpeech
-        Debug.WriteLine(Text)
+        'Debug.WriteLine(Text)
         Log("SPEECH: " & Name & " : " & Text)
     End Sub
 
@@ -66,4 +67,16 @@ Public Class frmMain
     End Sub
 
 #End Region
+
+    Private Sub SendButton_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SendButton.Click
+        Select Case LCase(CmdBox.Text.Split(" ")(0))
+            Case "say"
+                Client.Speak(CmdBox.Text.Substring(CmdBox.Text.Split(" ")(0).Length + 1), LiteClient.Enums.SpeechTypes.Regular)
+                CmdBox.Clear()
+        End Select
+    End Sub
+
+    Private Sub frmMain_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        TabPage2.Hide()
+    End Sub
 End Class
