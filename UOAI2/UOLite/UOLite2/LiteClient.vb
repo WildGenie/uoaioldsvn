@@ -7,7 +7,7 @@
 #Const TrafficStats = False
 
 'Prints the packet contents to the debug output.
-#Const DebugPackets = True
+#Const DebugPackets = False
 
 'Debugging huffman decompression code. (not used for compressed buffer)
 #Const DebugHuffman = False
@@ -250,7 +250,9 @@ Public Class LiteClient
 
 #End Region
 
-#Region "Stupid BF-xx-xx-00-24 timer stuff"
+#Region "Low Level Connection stuff"
+
+#Region "Stupid BF-xx-xx-00-24 timer and emulation stuff"
     Public WithEvents BF24Ticker As New System.Timers.Timer(3800)
     Public BF24Packet() As Byte = {191, 0, 6, 0, 36, 38}
 
@@ -264,6 +266,10 @@ Public Class LiteClient
             _GameStream.Write(BF24Packet, 0, 6)
         End If
     End Sub
+
+    'dont know what this does... but the real client sends it.
+    Private specialpacket() As Byte = {&H3, &H0, &H32, &H20, &H2, &HB2, &H0, &H3, &HDB, &H13, &H14, &H3F, &H45, &H2C, &H68, &H38, &H3, &H4D, &H39, &H47, &H54, &H9C, &H7B, &H9, &HB5, &H76, &H51, &HF7, &H3C, &H35, &HFE, &H7A, &H9B, &H94, &H73, &H64, &HF0, &HEC, &H61, &HB0, &HE5, &H59, &H7F, &H4F, &H3F, &H3C, &H13, &H46, &H1F, &H28}
+
 #End Region
 
     '''<summary>Gets the working directory and location of client.exe from the registry.</summary>
@@ -1002,6 +1008,9 @@ Public Class LiteClient
             Case Enums.PacketType.LoginComplete
                 'Start sending keepalive packets.
                 BF24Ticker.Enabled = True
+
+                'send special packet??
+                _GameStream.Write(specialpacket, 0, specialpacket.Length)
 
                 RaiseEvent onLoginComplete()
 
@@ -1951,8 +1960,21 @@ Public Class LiteClient
 
 #End Region
 
-    Public Sub Walk(ByRef Direction As Enums.Direction, ByRef NumberOfSteps As UInteger)
+
+#End Region
+
+#Region "Actions: walk/talk/etc..."
+
+    Public Sub Speak(ByRef Text As String, ByRef Type As Enums.SpeechTypes)
+        Dim packet As New Packets.UnicodeSpeechPacket(Enums.SpeechTypes.Regular, CUShort(52), Enums.Fonts.Default, "ENU", Text)
+        Send(packet)
+    End Sub
+
+    Public Sub Walk(ByRef Direction As Enums.Direction, Optional ByRef NumberOfSteps As UInteger = 1)
 
     End Sub
+
+#End Region
+
 
 End Class

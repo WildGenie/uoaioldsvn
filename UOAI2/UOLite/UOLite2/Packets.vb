@@ -64,7 +64,7 @@ Partial Class LiteClient
 
             Friend Sub New(ByVal SpeechType As Enums.SpeechTypes, ByVal Hue As UShort, ByVal Font As Enums.Fonts, ByVal Language As String, ByVal Text As String)
                 MyBase.New(Enums.PacketType.SpeechUnicode)
-                Dim bytes(16 + (Text.Length * 2)) As Byte
+                Dim bytes(13 + (Text.Length * 2)) As Byte
                 bytes(0) = 173 '0xAD
 
                 buff = New BufferHandler(bytes, True)
@@ -72,9 +72,9 @@ Partial Class LiteClient
                 With buff
                     .Position = 1
 
-                    .networkorder = False
-                    .writeushort(bytes.Length)
                     .networkorder = True
+                    .writeushort(bytes.Length)
+                    '.networkorder = False
 
                     .writebyte(SpeechType)
                     .writeushort(Hue)
