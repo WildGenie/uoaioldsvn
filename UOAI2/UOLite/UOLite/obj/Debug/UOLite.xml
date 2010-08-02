@@ -383,6 +383,13 @@ UOLite
 	<param name="SourceStartIndex">The position in the source array to start reading.</param>
 	<param name="TargetStartIndex">The position in the target array to start writing.</param>
 	<param name="Size">The number of bytes to copy.</param>
+</member><member name="M:UOLite.LiteClient.GameRecieve(System.IAsyncResult)">
+	<summary>Asynchronously recieves packets and writes them to the head of the packet buffer.</summary>
+</member><member name="M:UOLite.LiteClient.HandleGamePacket">
+	<summary>Reads bytes from the tail of the packet buffer and parses them into actual game packets. Then calls the appropriet subroutine to handle them.</summary>
+</member><member name="M:UOLite.LiteClient.PacketHandling(UOLite.LiteClient.Packet@)">
+	<summary>Handles a packet however it needs to be handled.</summary>
+	<param name="currentpacket">The packet to process.</param>
 </member><member name="M:UOLite.LiteClient.MobileList.AddMobile(UOLite.LiteClient.Mobile)">
 	<summary>
  Adds the specified mobile to the mobile list.
