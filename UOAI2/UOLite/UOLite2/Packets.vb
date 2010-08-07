@@ -1,7 +1,6 @@
 ﻿Imports System.IO
 Imports System.Text
 
-
 #Const PacketLogging = False
 #Const DebugMobiles = False
 #Const DebugItems = False
@@ -2359,7 +2358,7 @@ Partial Class LiteClient
                     _BodyType = .readushort
 
                     If _Serial.Value >= 2147483648 Then
-                        _Serial.Value -= 2147483648
+                        _Serial = New Serial(_Serial.Value - 2147483648)
                         _AmountOrCorpse = .readushort
                     End If
 
@@ -2493,7 +2492,7 @@ Partial Class LiteClient
                 buff = New BufferHandler(bytes, True)
 
                 With buff
-                    .Position = 3
+                    .Position = 1
                     _Serial = .readuint
                     _BodyType = .readushort
                     _X = .readushort
@@ -2780,6 +2779,270 @@ Partial Class LiteClient
 
 #End Region
 
+#Region "Movement"
+        Public Class FastWalk
+            Inherits GenericCommand
+
+            Private _keys(5) As UInt32
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.BF_Sub_Commands.FastWalk)
+                _Data = bytes
+
+                buff = New BufferHandler(bytes, True)
+
+                buff.Position = 5
+                For i As Integer = 0 To _keys.Length - 1
+                    _keys(i) = buff.readuint
+                Next
+            End Sub
+
+            Public ReadOnly Property Keys() As UInt32()
+                Get
+                    Return _keys
+                End Get
+            End Property
+
+        End Class
+
+        Public Class AddWalkKey
+            Inherits GenericCommand
+
+            Private _key As UInt32
+
+            Friend Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.BF_Sub_Commands.AddWalkKey)
+                _Data = bytes
+
+                buff = New BufferHandler(bytes, True)
+
+                buff.Position = 5
+                _key = buff.readuint
+            End Sub
+
+            Public ReadOnly Property Key As UInt32
+                Get
+                    Return _key
+                End Get
+            End Property
+
+        End Class
+
+        Public Class BlockMovement
+            Inherits Packet
+
+#Region "Variables"
+            Private _sequence As Byte
+            Private _x As UShort
+            Private _y As UShort
+            Private _direction As Enums.Direction
+            Private _z As Byte
+#End Region
+
+#Region "Constructors/Packet Breakdown"
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.BlockMovement)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+                buff.Position = 1
+
+                '1
+                _sequence = buff.readbyte
+
+                '2-3
+                _x = buff.readushort
+
+                '4-5
+                _y = buff.readushort
+
+                '6
+                _direction = buff.readbyte
+
+                '7
+                _z = buff.readbyte
+
+            End Sub
+#End Region
+
+#Region "Publicly Accessable Properties"
+            Public ReadOnly Property Sequence As Byte
+                Get
+                    Return _sequence
+                End Get
+            End Property
+
+            Public ReadOnly Property X As UShort
+                Get
+                    Return _x
+                End Get
+            End Property
+
+            Public ReadOnly Property Y As UShort
+                Get
+                    Return _y
+                End Get
+            End Property
+
+            Public ReadOnly Property Z As Byte
+                Get
+                    Return _z
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction As Enums.Direction
+                Get
+                    Return _direction
+                End Get
+            End Property
+#End Region
+
+        End Class
+
+        Public Class AcceptMovement_ResyncRequest
+            Inherits Packet
+
+#Region "Variables"
+            Private _sequence As Byte
+            Private _Reputation As Enums.Reputation
+#End Region
+
+#Region "Constructor/Packet Breakdown"
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.AcceptMovement_ResyncRequest)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+                buff.Position = 1
+
+                '1
+                _sequence = buff.readbyte
+
+                '2
+                _Reputation = buff.readbyte
+
+            End Sub
+#End Region
+
+#Region "Publicly Accessable Properties"
+            Public ReadOnly Property Sequence As Byte
+                Get
+                    Return _sequence
+                End Get
+            End Property
+
+            Public ReadOnly Property Reputation As Enums.Reputation
+                Get
+                    Return _Reputation
+                End Get
+            End Property
+#End Region
+
+        End Class
+
+        Public Class Teleport
+            Inherits Packet
+
+#Region "Variables"
+            Private _serial As Serial
+            Private _artwork As UShort
+            Private _hue As UShort
+            Private _status As Enums.MobileStatus
+            Private _x As UShort
+            Private _y As UShort
+            Private _direction As Enums.Direction
+            Private _z As Byte
+#End Region
+
+#Region "Constructors/Packet Breakdown"
+            Sub New(ByVal bytes() As Byte)
+                MyBase.New(Enums.PacketType.Teleport)
+                _Data = bytes
+                _size = bytes.Length
+                buff = New BufferHandler(bytes, True)
+                buff.Position = 1
+
+                '1-4
+                _serial = buff.readuint
+
+                '5-6
+                _artwork = buff.readushort
+
+                '7-8
+                _hue = buff.readushort
+
+                '9
+                _status = buff.readbyte
+
+                '10-11
+                _x = buff.readushort
+
+                '11-12
+                _y = buff.readushort
+
+                '13
+                _direction = buff.readbyte
+
+                '14
+                _z = buff.readbyte
+
+            End Sub
+#End Region
+
+#Region "Publicly Accessable Properties"
+            Public ReadOnly Property Serial As Serial
+                Get
+                    Return _serial
+                End Get
+            End Property
+
+            Public ReadOnly Property Hue As UShort
+                Get
+                    Return _hue
+                End Get
+            End Property
+
+            Public ReadOnly Property Artwork As UShort
+                Get
+                    Return _artwork
+                End Get
+            End Property
+
+            Public ReadOnly Property Status As Enums.MobileStatus
+                Get
+                    Return _status
+                End Get
+            End Property
+
+            Public ReadOnly Property X As UShort
+                Get
+                    Return _x
+                End Get
+            End Property
+
+            Public ReadOnly Property Y As UShort
+                Get
+                    Return _y
+                End Get
+            End Property
+
+            Public ReadOnly Property Z As Byte
+                Get
+                    Return _z
+                End Get
+            End Property
+
+            Public ReadOnly Property Direction As Enums.Direction
+                Get
+                    Return _direction
+                End Get
+            End Property
+#End Region
+
+        End Class
+
+#End Region
+
 #Region "Items/Mobiles"
 
         Public Class Destroy
@@ -2805,6 +3068,81 @@ Partial Class LiteClient
                     Return _serial
                 End Get
             End Property
+
+        End Class
+
+#End Region
+
+#Region "Skills"
+        Public Class Skills
+            Inherits Packet
+
+            Private _skills(60) As Skill
+            Private _singleSkill As Skill
+            Private _listType As ListTypes
+
+            Friend Sub New(ByVal bytes() As Byte, ByRef Client As LiteClient)
+                MyBase.New(Enums.PacketType.Skills)
+                _size = bytes.Length
+                _Data = bytes
+                buff = New BufferHandler(bytes, True)
+
+                With buff
+                    .Position = 3
+                    _listType = .readbyte
+
+                    Select Case _listType
+                        Case &H2
+                            Dim skillnum As UShort
+                            For i As Integer = 4 To _Data.Length - 1 Step 9
+                                skillnum = buff.readushort
+                                _skills(skillnum) = New Skill(Client, skillnum) With {._Value = buff.readushort,
+                                                                                      ._BaseValue = buff.readushort,
+                                                                                      ._Lock = buff.readbyte,
+                                                                                      ._Cap = buff.readushort}
+                            Next
+                        Case &HDF
+                            _singleSkill = New Skill(Client, buff.readushort) With {._Value = buff.readushort,
+                                                                                  ._BaseValue = buff.readushort,
+                                                                                  ._Lock = buff.readbyte,
+                                                                                  ._Cap = buff.readushort}
+                        Case &HFF
+                            _singleSkill = New Skill(Client, buff.readushort) With {._Value = buff.readushort,
+                                                                                  ._BaseValue = buff.readushort,
+                                                                                  ._Lock = buff.readbyte}
+
+                    End Select
+
+                End With
+
+            End Sub
+
+            Public ReadOnly Property Skills As Skill()
+                Get
+                    Return _skills
+                End Get
+            End Property
+
+            Public ReadOnly Property SingleSkill As Skill
+                Get
+                    Return _singleSkill
+                End Get
+            End Property
+
+            Public ReadOnly Property ListType As ListTypes
+                Get
+                    Return _listType
+                End Get
+            End Property
+
+            Public Enum ListTypes As Byte
+                Basic = 0
+                GodView = 1
+                BasicWithSkillCap = 2
+                GodViewWithSkillCap = 3
+                SkillUpdateWithSkillCap = &HDF
+                SkillUpdate = &HFF
+            End Enum
 
         End Class
 #End Region

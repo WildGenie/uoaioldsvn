@@ -6,17 +6,17 @@
         Public Shared ReadOnly MinusOne As New Serial(Convert.ToUInt32(4294967295))
         Public Shared ReadOnly Zero As New Serial(Convert.ToUInt32(0))
 
-        Private m_IntValue As New UInt32
+        Friend m_IntValue As New UInteger
 
-        Public Sub New(ByVal val As UInt32)
+        Public Sub New(ByVal val As UInteger)
             m_IntValue = val
         End Sub
 
-        Public Property Value() As UInt32
+        Public Property Value() As UInteger
             Get
                 Return m_IntValue
             End Get
-            Friend Set(ByVal value As UInt32)
+            Friend Set(ByVal value As UInteger)
                 m_IntValue = value
             End Set
         End Property
@@ -93,11 +93,23 @@
         End Function
 
         Public Function ToRazorString() As String
-            Return BitConverter.ToString(BitConverter.GetBytes(m_IntValue)).Replace("-", "")
+            Return Value.ToString("X") 'BitConverter.ToString(BitConverter.GetBytes(m_IntValue)).Replace("-", "")
         End Function
 
         Public Overloads Overrides Function ToString() As String
             Return m_IntValue.ToString
+        End Function
+
+        Public Function GetBytes() As Byte()
+            Dim serbytes(3) As Byte
+            Dim wrongserbytes() As Byte = BitConverter.GetBytes(Value)
+
+            serbytes(0) = wrongserbytes(3)
+            serbytes(1) = wrongserbytes(2)
+            serbytes(2) = wrongserbytes(1)
+            serbytes(3) = wrongserbytes(0)
+
+            Return serbytes
         End Function
 
         Public Shared Widening Operator CType(ByVal a As Serial) As UInt32

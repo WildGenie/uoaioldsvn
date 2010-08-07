@@ -7,7 +7,6 @@ Partial Class LiteClient
     Public Class MobileList
         Implements IEnumerable
         Private _MobileHashBySerial As New Hashtable
-        Private _MobileHashByOffset As New Hashtable
         Private _Client As LiteClient
         Private _IsSearchResult As Boolean = False
 
@@ -101,10 +100,6 @@ Partial Class LiteClient
             AddMobile(NewMobile)
         End Sub
 
-        Friend Sub HashByOffset(ByVal Serial As Serial, ByVal Offset As UInt32)
-            _MobileHashByOffset.Add(Offset, Mobile(Serial))
-        End Sub
-
         ''' <summary>
         ''' Removes the specified mobile from the MobileList.
         ''' </summary>
@@ -134,24 +129,6 @@ Partial Class LiteClient
             Return True
         End Function
 
-        ''' <param name="Offset">The memory offset of the mobile to be removed.</param>
-        Public Function RemoveMobile(ByVal Offset As UInt32)
-            Try
-                _MobileHashBySerial.Remove(DirectCast(_MobileHashBySerial(Offset), Mobile).Serial)
-                _MobileHashByOffset.Remove(Offset)
-            Catch ex As Exception
-#If DebugMobileList Then
-                Console.WriteLine("-Remove Mobile by Offset Failed: " & Offset)
-                Console.WriteLine(" Failure Reason: " & ex.Message)
-#End If
-                Return False
-            End Try
-#If DebugMobileList Then
-            Console.WriteLine("-Removed Mobile by Offset: " & Offset)
-#End If
-            Return True
-        End Function
-
         Friend Sub RemoveMobile(ByVal DeathPacket As Packets.DeathAnimation)
             DirectCast(_MobileHashBySerial(DeathPacket.Serial), Mobile).HandleDeathPacket(DeathPacket)
             RemoveMobile(DeathPacket.Serial)
@@ -166,11 +143,6 @@ Partial Class LiteClient
         ''' <param name="Serial">The serial of the mobile to check for.</param>
         Public Function Exists(ByVal Serial As Serial) As Boolean
             Return _MobileHashBySerial.Contains(Serial)
-        End Function
-
-        ''' <param name="Offset">The memory offset of the mobile to check for.</param>
-        Public Function Exists(ByVal Offset As UInt32) As Boolean
-            Return _MobileHashByOffset.Contains(Offset)
         End Function
 
         ''' <summary>
@@ -200,15 +172,12 @@ Partial Class LiteClient
             End Get
         End Property
 
-        ''' <summary>
-        ''' Returns mobile specified by offset
-        ''' </summary>
-        ''' <param name="Offset">The offset of the mobile object in the client's memory.</param>
-        Friend ReadOnly Property Mobile(ByVal Offset As Int32) As Mobile
+        Public ReadOnly Property Count As UInteger
             Get
-                Return _MobileHashByOffset(Offset)
+                Return _MobileHashBySerial.Count
             End Get
         End Property
+
 
         Public Function GetEnumerator() As System.Collections.IEnumerator Implements System.Collections.IEnumerable.GetEnumerator
             Return _MobileHashBySerial.Values.GetEnumerator()

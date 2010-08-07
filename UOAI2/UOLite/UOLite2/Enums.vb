@@ -262,12 +262,6 @@
             Internal = &H7F
         End Enum
 
-        Public Enum SkillLock
-            Up
-            Down
-            Locked
-        End Enum
-
         Public Enum PacketOrigin
             FROMCLIENT
             FROMSERVER
@@ -316,6 +310,10 @@
             SouthWestRunning = &H85
             WestRunning = &H86
             NorthWestRunning = &H87
+
+            'custom, meaning no direction, used by 'following' algorithm.
+            None = &HFF
+
         End Enum
 
         Public Enum WarMode
@@ -404,70 +402,6 @@
             StairRight = 4294967295
         End Enum
 
-        Public Enum Skills
-            Alchemy = 1
-            Anatomy = 2
-            AnimalLore = 3
-            ItemIdentification = 4
-            ArmsLore = 5
-            Parrying = 6
-            Begging = 7
-            Blacksmithy = 8
-            BowcraftFletching = 9
-            Peacemaking = 10
-            Camping = 11
-            Carpentry = 12
-            Cartography = 13
-            Cooking = 14
-            DetectingHidden = 15
-            Discordance = 16
-            EvaluatingIntelligence = 17
-            Healing = 18
-            Fishing = 19
-            ForensicEvaluation = 20
-            Herding = 21
-            Hiding = 22
-            Provocation = 23
-            Inscription = 24
-            Lockpicking = 25
-            Magery = 26
-            ResistingSpells = 27
-            Tactics = 28
-            Snooping = 29
-            Musicianship = 30
-            Poisoning = 31
-            Archery = 32
-            SpiritSpeak = 33
-            Stealing = 34
-            Tailoring = 35
-            AnimalTaming = 36
-            TasteIdentification = 37
-            Tinkering = 38
-            Tracking = 39
-            Veterinary = 40
-            Swordsmanship = 41
-            MaceFighting = 42
-            Fencing = 43
-            Wrestling = 44
-            Lumberjacking = 45
-            Mining = 46
-            Meditation = 47
-            Stealth = 48
-            RemoveTrap = 49
-            Necromancy = 50
-            Focus = 51
-            Chivalry = 52
-            Bushido = 53
-            Ninjitsu = 54
-            Spellweaving = 55
-        End Enum
-
-        Public Enum Virtues
-            Honor
-            Sacrifice
-            Valor
-        End Enum
-
         Public Enum SpeechTypes
             Regular = &H0
             Broadcast = &H1
@@ -475,16 +409,6 @@
             System = &H6
             Whisper = &H8
             Yell = &H9
-        End Enum
-
-        Public Enum EventTypeConstants As UInt32
-            received_packet = 0
-            sent_packet = 1
-            key_down = 2
-            key_up = 3
-            connection_loss = 8
-            packet_handled = 16
-            object_destroyed = 32
         End Enum
 
         Public Enum EventTypes

@@ -106,6 +106,9 @@ Partial Class LiteClient
         ''' <param name="EquipmentLayers">The <see cref="Enums.Layers">layers</see> that were changed.</param>
         Public Event onEquipmentUpdate(ByVal Client As LiteClient, ByVal Mobile As Mobile, ByVal EquipmentLayers() As Enums.Layers)
 
+        ''' <summary>Fired when this mobile moves.</summary>
+        Public Event onMove(ByRef Client As LiteClient, ByRef Mobile As Mobile)
+
 #End Region
 
 #Region "Public Properties"
@@ -288,6 +291,12 @@ Partial Class LiteClient
         Public ReadOnly Property Weight() As UShort
             Get
                 Return _Weight
+            End Get
+        End Property
+
+        Public ReadOnly Property MaxWeight As UShort
+            Get
+                Return _Strength * 3
             End Get
         End Property
 
@@ -954,9 +963,15 @@ Partial Class LiteClient
 
             Me._Type = Packet.BodyType
             Me._Amount = Packet.Amount
-            Me._X = Packet.X
-            Me._Y = Packet.Y
-            Me._Z = Packet.Z
+
+            If Me._X <> Packet.X Or Me._Y <> Packet.Y Or Me._Z <> Packet.Z Then
+                Me._X = Packet.X
+                Me._Y = Packet.Y
+                Me._Z = Packet.Z
+
+                RaiseEvent onMove(_Client, Me)
+            End If
+
             Me._Direction = Packet.Direction
             Me._Hue = Packet.Hue
             Me._Notoriety = Packet.Notoriety
@@ -1103,9 +1118,15 @@ Partial Class LiteClient
 
         Friend Sub HandleUpdatePacket(ByVal Packet As Packets.NakedMobile)
             _Type = Packet.BodyType
-            _X = Packet.X
-            _Y = Packet.Y
-            _Z = Packet.Z
+
+            If Me._X <> Packet.X Or Me._Y <> Packet.Y Or Me._Z <> Packet.Z Then
+                Me._X = Packet.X
+                Me._Y = Packet.Y
+                Me._Z = Packet.Z
+
+                RaiseEvent onMove(_Client, Me)
+            End If
+
             _Direction = Packet.Direction
             _Hue = Packet.Hue
             _Notoriety = Packet.Notoriety

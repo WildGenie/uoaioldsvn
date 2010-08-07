@@ -5,6 +5,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestUOLite", "TestUOLite\Te
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "UOLite2", "UOLite2\UOLite2.vbproj", "{00DA43EC-1DC8-4E36-989C-DF34E7367060}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Packet Class Builder", "..\UOAI2\Packet Class Builder\Packet Class Builder.vbproj", "{3D980729-2477-426C-8EBC-C0B8C7F00C19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,14 @@ Global
 		{00DA43EC-1DC8-4E36-989C-DF34E7367060}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{00DA43EC-1DC8-4E36-989C-DF34E7367060}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{00DA43EC-1DC8-4E36-989C-DF34E7367060}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3D980729-2477-426C-8EBC-C0B8C7F00C19}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
