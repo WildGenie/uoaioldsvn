@@ -57,6 +57,21 @@ UOLite2
 	<summary>
  A list of the clients strings from the cliloc files.
  </summary>
+</member><member name="E:UOLite2.LiteClient.onPlayerMove">
+	<summary>When the player's position is updated, this is called.</summary>
+</member><member name="E:UOLite2.LiteClient.onMovementBlocked">
+	<summary>
+ Called when the player tries to walk and is prevented for whatever reason.
+ </summary>
+</member><member name="P:UOLite2.LiteClient.MovementPaused">
+	<summary>
+ Pauses player movement and prevents adding movements to the movement queue when set to false.
+ </summary>
+</member><member name="M:UOLite2.LiteClient.Follow(UOLite2.LiteClient.Serial@,System.Byte@,System.Byte@)">
+	<summary>Follows the target.</summary>
+	<param name="Target">The serial of the target to follow.</param>
+</member><member name="M:UOLite2.LiteClient.GetDirection(System.UInt16@,System.UInt16@,System.UInt16@,System.UInt16@)">
+	<summary>Returns the direction of Y, relative to X.</summary>
 </member><member name="T:UOLite2.LiteClient.Enums.LoginState">
 	<summary>Enumeration of Login state.</summary>
 </member><member name="T:UOLite2.LiteClient.Enums.EntityType">
@@ -132,6 +147,24 @@ UOLite2
 	<summary>
   A strongly-typed resource class, for looking up localized strings, etc.
 </summary>
+</member><member name="P:UOLite2.LiteClient.Skill.Lock">
+	<summary>Gets or sets the skill's lock status.</summary>
+</member><member name="P:UOLite2.LiteClient.Skill.Value">
+	<summary>
+ The skill's value.
+ </summary>
+</member><member name="P:UOLite2.LiteClient.Skill.BaseValue">
+	<summary>
+ What you see when you click "show real".
+ </summary>
+</member><member name="P:UOLite2.LiteClient.Skill.Cap">
+	<summary>
+ The cap of the skill.
+ </summary>
+</member><member name="M:UOLite2.LiteClient.Skill.Use">
+	<summary>
+ Attempt to use the skill, if the skill isn't a usable skill, nothing will happen.
+ </summary>
 </member><member name="E:UOLite2.LiteClient.onLoginConfirm">
 	<summary>
  Called when the client recieves a login confirm packets from the game server, and the player character is created.
@@ -142,12 +175,6 @@ UOLite2
 	<param name="Description">The description of the error and possibly extra details.</param>
 </member><member name="E:UOLite2.LiteClient.onLoginComplete">
 	<summary>Called when the clientis completely logged in, after all the items and everything loads completely.</summary>
-</member><member name="E:UOLite2.LiteClient.onPacketReceive">
-	<summary>
- Called when a Packet arrives on this client.
- </summary>
-	<param name="Client">Client on which the packet was received</param>
-	<param name="bytes">The received packet</param>
 </member><member name="E:UOLite2.LiteClient.onPacketSend">
 	<summary>
  Called when a Packet is sent formt he client to the server.
@@ -242,13 +269,62 @@ UOLite2
 	<param name="SourceStartIndex">The position in the source array to start reading.</param>
 	<param name="TargetStartIndex">The position in the target array to start writing.</param>
 	<param name="Size">The number of bytes to copy.</param>
-</member><member name="M:UOLite2.LiteClient.GameRecieve(System.IAsyncResult)">
-	<summary>Asynchronously recieves packets and writes them to the head of the packet buffer.</summary>
-</member><member name="M:UOLite2.LiteClient.HandleGamePacket">
-	<summary>Reads bytes from the tail of the packet buffer and parses them into actual game packets. Then calls the appropriet subroutine to handle them.</summary>
-</member><member name="M:UOLite2.LiteClient.PacketHandling(UOLite2.LiteClient.Packet@)">
-	<summary>Handles a packet however it needs to be handled.</summary>
-	<param name="currentpacket">The packet to process.</param>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.ReadSingle">
+	<summary>Returns the object at the tail of the buffer and advances the read position by 1.</summary>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.Read(System.UInt32@)">
+	<summary>Returns an array containing the number of objects requested, and advances the tail of the buffer.</summary>
+	<param name="Number">Number of objects to get from the tail of the buffer.</param>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.AdvanceTail(System.UInt32@)">
+	<summary>Advances the tail of the buffer, returns nothing, effectively skipping the specified number of objects.</summary>
+	<param name="NumberToSkip">The amount by which to advance.</param>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.WriteSingle(`0@)">
+	<summary>
+ Writes a single object to the buffer, then advances the head position by 1.
+ </summary>
+	<param name="ObjectToWrite">The object to insert into the buffer.</param>
+	<remarks></remarks>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.Write(`0[]@)">
+	<summary>
+ Writes the array of objects to the buffer and advances the head position by that number of objects.
+ </summary>
+	<param name="ObjectsToWrite">An array of the objects to write to the buffer.</param>
+	<remarks></remarks>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.Clear">
+	<summary>
+ Empties the buffer.
+ </summary>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.PeekMultiple(System.UInt32@,System.UInt32@)">
+	<summary>
+ Returns the specified number of objects as the desired position, but does NOT advance the tail position.
+ </summary>
+	<param name="Size">The number of objects to retreive</param>
+	<param name="Offset">The position to start reading from.</param>
+</member><member name="M:UOLite2.LiteClient.CircularBuffer`1.Peek(System.UInt32@)">
+	<summary>
+ Returns the object as the given postion, but does NOT advance the tail position.
+ </summary>
+	<param name="Offset"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:UOLite2.LiteClient.CircularBuffer`1.Size">
+	<summary>
+ The total number of objects current held in the buffer. (not the actual buffer size)
+ </summary>
+</member><member name="P:UOLite2.LiteClient.CircularBuffer`1.TailPosition">
+	<summary>
+ The offset of the tail from the true beginning of the buffer.
+ </summary>
+</member><member name="P:UOLite2.LiteClient.CircularBuffer`1.HeadPosition">
+	<summary>
+ The offset of the head from the true beginning of the buffer.
+ </summary>
+</member><member name="P:UOLite2.LiteClient.CircularBuffer`1.ToArray">
+	<summary>
+ Copies the entire buffer to an array and returns the array, does NOT move the head or tail position.
+ </summary>
+</member><member name="T:UOLite2.LiteClient.CircularBuffer`1">
+	<summary>A highly efficient FIFO buffer class.</summary>
+	<typeparam name="T">The Type of objects you want to make a circular buff of.</typeparam>
 </member><member name="P:UOLite2.LiteClient.Packet.Data">
 	<summary>Returns the raw packet data as a byte array.</summary>
 </member><member name="T:UOLite2.LiteClient.Packet">
@@ -405,15 +481,11 @@ UOLite2
  Removes the specified mobile from the MobileList.
  </summary>
 	<param name="Serial">The serial of the mobile to be removed.</param>
-</member><member name="M:UOLite2.LiteClient.MobileList.RemoveMobile(System.UInt32)">
-	<param name="Offset">The memory offset of the mobile to be removed.</param>
 </member><member name="M:UOLite2.LiteClient.MobileList.Exists(UOLite2.LiteClient.Serial)">
 	<summary>
  Checks to see if the specified mobile exists in the MobileList.
  </summary>
 	<param name="Serial">The serial of the mobile to check for.</param>
-</member><member name="M:UOLite2.LiteClient.MobileList.Exists(System.UInt32)">
-	<param name="Offset">The memory offset of the mobile to check for.</param>
 </member><member name="M:UOLite2.LiteClient.MobileList.byName(System.String)">
 	<summary>
  Returns a MobileList containing all of the mobiles with the specified name.
@@ -427,11 +499,6 @@ UOLite2
 	<value></value>
 	<returns></returns>
 	<remarks></remarks>
-</member><member name="P:UOLite2.LiteClient.MobileList.Mobile(System.Int32)">
-	<summary>
- Returns mobile specified by offset
- </summary>
-	<param name="Offset">The offset of the mobile object in the client's memory.</param>
 </member><member name="M:UOLite2.LiteClient.Item.#ctor">
 	<summary>
  When using this new, never ever ever try to access the contents!
@@ -472,6 +539,15 @@ UOLite2
  Picks up the object.
  </summary>
 	<param name="Amount">The amount that you want to take, if it is a stack. (0 for the whole stack)</param>
+</member><member name="E:UOLite2.LiteClient.onPacketReceive">
+	<summary>
+ Called when a Packet arrives on this client.
+ </summary>
+	<param name="Client">Client on which the packet was received</param>
+	<param name="bytes">The received packet</param>
+</member><member name="M:UOLite2.LiteClient.PacketHandling(UOLite2.LiteClient.Packet@)">
+	<summary>Handles a packet however it needs to be handled.</summary>
+	<param name="currentpacket">The packet to process.</param>
 </member><member name="E:UOLite2.LiteClient.Mobile.onDeath">
 	<summary>
  Called when the hitpoint value of a mobile reaches zero (0).
@@ -491,6 +567,8 @@ UOLite2
 	<param name="Client">The <see cref="T:UOLite2.LiteClient"/> that the mobile update was handled by.</param>
 	<param name="Mobile">The <see cref="T:UOLite2.LiteClient.Mobile"/> that was updated.</param>
 	<param name="EquipmentLayers">The <see cref="T:UOLite2.LiteClient.Enums.Layers">layers</see> that were changed.</param>
+</member><member name="E:UOLite2.LiteClient.Mobile.onMove">
+	<summary>Fired when this mobile moves.</summary>
 </member><member name="P:UOLite2.LiteClient.Mobile.Layers">
 	<summary>
  Returns the item on the specified layer.
